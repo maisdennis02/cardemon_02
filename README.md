@@ -1,36 +1,58 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# cardemon
 
-## Getting Started
+Digital menus for restaurants. Restaurant owners sign up, build a menu with images, and share a public URL (`/m/<slug>`) for customers to view in-house.
 
-First, run the development server:
+## Stack
 
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
-```
+- Next.js 16 (App Router, TypeScript, Tailwind v4)
+- Auth.js v5 (credentials provider, JWT sessions)
+- Prisma 7 + PostgreSQL (via `@prisma/adapter-pg`)
+- `@vercel/blob` for menu item image uploads
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+## Setup
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+1. **Install deps** (already done if you just scaffolded):
+   ```bash
+   npm install
+   ```
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+2. **Provision a Postgres database.** Easiest options:
+   - Local: install Postgres or run `docker run -p 5432:5432 -e POSTGRES_PASSWORD=postgres postgres:16`
+   - Hosted: [Neon](https://neon.tech), [Supabase](https://supabase.com), or any Postgres host
 
-## Learn More
+3. **Configure environment variables.** Copy `.env.example` to `.env`:
+   ```bash
+   cp .env.example .env
+   ```
+   Then fill in:
+   - `DATABASE_URL` — your Postgres connection string
+   - `AUTH_SECRET` — generate with `openssl rand -base64 32`
+   - `BLOB_READ_WRITE_TOKEN` — from Vercel dashboard → Storage → Blob → `.env.local`. Required only for image uploads; the app runs without it if you don't upload images.
 
-To learn more about Next.js, take a look at the following resources:
+4. **Run database migrations:**
+   ```bash
+   npx prisma migrate dev --name init
+   ```
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+5. **Start the dev server:**
+   ```bash
+   npm run dev
+   ```
+   Open <http://localhost:3000>.
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+## Routes
 
-## Deploy on Vercel
+- `/` — landing page
+- `/signup` `/login` — restaurant owner auth
+- `/dashboard` — onboarding (set restaurant name + slug) and menu management
+- `/m/[slug]` — public menu (revalidated every 60s)
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+## Data model
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+`User` 1—n `Restaurant` 1—n `MenuCategory` 1—n `MenuItem`. Prices stored as integer cents (`priceCents`) to avoid float rounding.
+
+## Notes
+
+- The `middleware.ts` file produces a deprecation warning on Next 16 (renamed to `proxy.ts`). It still works; rename when convenient.
+- Auth is split: `auth.config.ts` is the edge-safe slice used by middleware, `auth.ts` adds Prisma + bcrypt for the credentials provider.
+- The Prisma client is generated to `src/generated/prisma` (gitignored). Run `npx prisma generate` after schema changes.
