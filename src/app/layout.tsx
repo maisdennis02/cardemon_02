@@ -1,6 +1,8 @@
 import type { Metadata } from "next";
 import { Geist, Geist_Mono, Encode_Sans_Expanded } from "next/font/google";
 import "./globals.css";
+import { getDictionary, getLocale } from "@/i18n";
+import { DictionaryProvider } from "@/i18n/provider";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -18,22 +20,33 @@ const encodeSans = Encode_Sans_Expanded({
   weight: ["400", "700"],
 });
 
-export const metadata: Metadata = {
-  title: "Cardemon — Cardápio Digital",
-  description: "Digital menus for restaurants.",
-};
+export async function generateMetadata(): Promise<Metadata> {
+  const locale = await getLocale();
+  const t = await getDictionary(locale);
+  return {
+    title: t.metadata.rootTitle,
+    description: t.metadata.rootDescription,
+  };
+}
 
-export default function RootLayout({
+export default async function RootLayout({
   children,
 }: Readonly<{
   children: React.ReactNode;
 }>) {
+  const locale = await getLocale();
+  const dictionary = await getDictionary(locale);
+
   return (
     <html
-      lang="en"
+      lang={locale}
       className={`${geistSans.variable} ${geistMono.variable} ${encodeSans.variable} h-full antialiased`}
     >
-      <body className="min-h-full flex flex-col">{children}</body>
+      <body className="min-h-full flex flex-col">
+        <DictionaryProvider locale={locale} dictionary={dictionary}>
+          {children}
+        </DictionaryProvider>
+      </body>
     </html>
   );
 }

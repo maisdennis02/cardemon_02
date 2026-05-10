@@ -8,10 +8,15 @@ import { OnboardingForm } from "./onboarding-form";
 import { ImageManager } from "./image-manager";
 import { MenuQrCard } from "./menu-qr-card";
 import { RestaurantSettingsForm } from "./restaurant-settings-form";
+import { getDictionary, getLocale } from "@/i18n";
+import type { Dictionary } from "@/i18n";
 
 export default async function DashboardPage() {
   const session = await auth();
   if (!session?.user?.id) redirect("/login");
+
+  const locale = await getLocale();
+  const t = await getDictionary(locale);
 
   const restaurant = await prisma.restaurant.findFirst({
     where: { ownerId: session.user.id },
@@ -23,6 +28,7 @@ export default async function DashboardPage() {
       <DashboardHeader
         userEmail={session.user.email ?? null}
         publicMenuSlug={restaurant?.slug ?? null}
+        t={t}
       />
 
       <main className="mx-auto w-full max-w-4xl flex-1 px-6 py-8 sm:py-10">
@@ -43,9 +49,11 @@ export default async function DashboardPage() {
 function DashboardHeader({
   userEmail,
   publicMenuSlug,
+  t,
 }: {
   userEmail: string | null;
   publicMenuSlug: string | null;
+  t: Dictionary;
 }) {
   return (
     <header className="sticky top-0 z-20 border-b border-gray-200 bg-white">
@@ -58,7 +66,7 @@ function DashboardHeader({
               target="_blank"
               className="btn btn-secondary btn-sm hidden sm:inline-flex"
             >
-              View public menu
+              {t.dashboard.viewPublicMenu}
               <ExternalIcon size={14} />
             </Link>
           )}
@@ -68,8 +76,8 @@ function DashboardHeader({
               await signOut({ redirectTo: "/" });
             }}
           >
-            <button className="btn btn-ghost btn-sm" title={userEmail ?? "Sign out"}>
-              Sign out
+            <button className="btn btn-ghost btn-sm" title={userEmail ?? t.common.signOut}>
+              {t.common.signOut}
             </button>
           </form>
         </div>

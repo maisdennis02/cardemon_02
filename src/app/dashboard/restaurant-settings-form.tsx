@@ -3,6 +3,7 @@
 import { useActionState, useState } from "react";
 import { updateRestaurant, type ActionState } from "./actions";
 import { slugify } from "@/lib/slug";
+import { useT } from "@/i18n/provider";
 
 type Restaurant = {
   id: string;
@@ -13,9 +14,12 @@ type Restaurant = {
 };
 
 export function RestaurantSettingsForm({ restaurant }: { restaurant: Restaurant }) {
+  const t = useT();
   const [state, action, pending] = useActionState<ActionState, FormData>(updateRestaurant, {});
   const [open, setOpen] = useState(false);
   const [slug, setSlug] = useState(restaurant.slug);
+
+  const s = t.dashboard.settings;
 
   if (!open) {
     return (
@@ -27,12 +31,12 @@ export function RestaurantSettingsForm({ restaurant }: { restaurant: Restaurant 
           <p className="font-mono text-sm text-gray-500">/m/{restaurant.slug}</p>
           {restaurant.whatsappNumber && (
             <p className="text-sm text-gray-500">
-              WhatsApp · <span className="font-mono">{restaurant.whatsappNumber}</span>
+              {s.whatsappLabel} · <span className="font-mono">{restaurant.whatsappNumber}</span>
             </p>
           )}
         </div>
         <button onClick={() => setOpen(true)} className="btn btn-ghost btn-sm self-start">
-          Edit
+          {t.common.edit}
         </button>
       </section>
     );
@@ -41,13 +45,13 @@ export function RestaurantSettingsForm({ restaurant }: { restaurant: Restaurant 
   return (
     <section className="card">
       <h2 className="mb-4 text-lg font-bold text-[color:var(--color-navy)]">
-        Edit restaurant
+        {s.editTitle}
       </h2>
       <form action={action} className="flex flex-col gap-4">
         <input type="hidden" name="id" value={restaurant.id} />
 
         <label className="label">
-          Restaurant name
+          {s.restaurantName}
           <input
             name="name"
             required
@@ -57,7 +61,7 @@ export function RestaurantSettingsForm({ restaurant }: { restaurant: Restaurant 
         </label>
 
         <label className="label">
-          URL slug
+          {s.urlSlug}
           <div className="flex items-center rounded-lg border border-gray-300 bg-white pl-3 transition focus-within:border-[color:var(--color-brand)]">
             <span className="select-none font-mono text-sm text-gray-400">/m/</span>
             <input
@@ -72,8 +76,8 @@ export function RestaurantSettingsForm({ restaurant }: { restaurant: Restaurant 
         </label>
 
         <label className="label">
-          WhatsApp number
-          <span className="label-hint">Digits only with country code.</span>
+          {s.whatsapp}
+          <span className="label-hint">{s.whatsappHint}</span>
           <input
             name="whatsappNumber"
             defaultValue={restaurant.whatsappNumber ?? ""}
@@ -84,7 +88,7 @@ export function RestaurantSettingsForm({ restaurant }: { restaurant: Restaurant 
         </label>
 
         <label className="label">
-          Description
+          {s.description}
           <textarea
             name="description"
             rows={3}
@@ -101,10 +105,10 @@ export function RestaurantSettingsForm({ restaurant }: { restaurant: Restaurant 
 
         <div className="flex gap-2">
           <button type="submit" disabled={pending} className="btn btn-primary">
-            {pending ? "Saving…" : "Save changes"}
+            {pending ? t.common.saving : t.common.save}
           </button>
           <button type="button" onClick={() => setOpen(false)} className="btn btn-ghost">
-            Cancel
+            {t.common.cancel}
           </button>
         </div>
       </form>

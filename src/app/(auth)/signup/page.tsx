@@ -4,8 +4,10 @@ import Link from "next/link";
 import { useActionState } from "react";
 import { signup, type ActionResult } from "../actions";
 import { Logo } from "@/components/logo";
+import { useT } from "@/i18n/provider";
 
 export default function SignupPage() {
+  const t = useT();
   const [state, formAction, pending] = useActionState<ActionResult, FormData>(signup, {});
 
   return (
@@ -15,37 +17,35 @@ export default function SignupPage() {
       </div>
       <div className="card w-full max-w-sm">
         <h1 className="mb-1 text-2xl font-bold text-[color:var(--color-navy)]">
-          Create your account
+          {t.auth.signupTitle}
         </h1>
-        <p className="mb-6 text-sm text-gray-600">
-          Free to start. Set up your menu in five minutes.
-        </p>
+        <p className="mb-6 text-sm text-gray-600">{t.auth.signupLead}</p>
         <form action={formAction} className="flex flex-col gap-4">
           <label className="label">
-            Name
-            <span className="label-hint">Optional.</span>
+            {t.auth.name}
+            <span className="label-hint">{t.auth.nameOptional}</span>
             <input
               name="name"
               type="text"
-              placeholder="Your name"
+              placeholder={t.auth.namePlaceholder}
               className="input"
               autoComplete="name"
             />
           </label>
           <label className="label">
-            Email
+            {t.auth.email}
             <input
               name="email"
               type="email"
               required
-              placeholder="you@restaurant.com"
+              placeholder={t.auth.emailPlaceholder}
               className="input"
               autoComplete="email"
             />
           </label>
           <label className="label">
-            Password
-            <span className="label-hint">At least 8 characters.</span>
+            {t.auth.password}
+            <span className="label-hint">{t.auth.passwordHintMin}</span>
             <input
               name="password"
               type="password"
@@ -61,17 +61,17 @@ export default function SignupPage() {
             </p>
           )}
           <button type="submit" disabled={pending} className="btn btn-primary">
-            {pending ? "Creating account…" : "Create account"}
+            {pending ? t.auth.creatingAccount : t.auth.createAccount}
           </button>
         </form>
       </div>
       <p className="mt-4 text-sm text-gray-600">
-        Already have an account?{" "}
+        {t.auth.alreadyHaveAccount}{" "}
         <Link
           href="/login"
           className="font-bold text-[color:var(--color-brand)] hover:underline"
         >
-          Log in
+          {t.common.logIn}
         </Link>
       </p>
     </main>

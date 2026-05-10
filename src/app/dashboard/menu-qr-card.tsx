@@ -3,12 +3,15 @@
 import { useRef, useState, useSyncExternalStore } from "react";
 import { QRCodeSVG } from "qrcode.react";
 import { CheckIcon, CopyIcon, DownloadIcon, ExternalIcon } from "@/components/icons";
+import { useT } from "@/i18n/provider";
+import { format } from "@/i18n/config";
 
 const subscribe = () => () => {};
 const getOrigin = () => window.location.origin;
 const getServerOrigin = () => "";
 
 export function MenuQrCard({ slug, name }: { slug: string; name: string }) {
+  const t = useT();
   const origin = useSyncExternalStore(subscribe, getOrigin, getServerOrigin);
 
   const url = origin ? `${origin}/m/${slug}` : `/m/${slug}`;
@@ -57,12 +60,12 @@ export function MenuQrCard({ slug, name }: { slug: string; name: string }) {
     img.src = svgUrl;
   }
 
+  const qr = t.dashboard.qr;
+
   return (
     <section className="card">
-      <h2 className="text-lg font-bold text-[color:var(--color-navy)]">Share your menu</h2>
-      <p className="mt-1 mb-5 text-sm text-gray-600">
-        Print this QR on your tables — customers scan it to open your menu.
-      </p>
+      <h2 className="text-lg font-bold text-[color:var(--color-navy)]">{qr.title}</h2>
+      <p className="mt-1 mb-5 text-sm text-gray-600">{qr.lead}</p>
 
       <div className="flex flex-col gap-5 sm:flex-row sm:items-start">
         <div className="flex flex-shrink-0 items-center justify-center rounded-xl border border-gray-200 bg-white p-3 shadow-sm">
@@ -74,14 +77,14 @@ export function MenuQrCard({ slug, name }: { slug: string; name: string }) {
             marginSize={2}
             fgColor="#101522"
             bgColor="#ffffff"
-            title={`Menu QR for ${name}`}
+            title={format(qr.menuQrTitle, { name })}
           />
         </div>
 
         <div className="flex flex-1 flex-col gap-3">
           <div>
             <p className="mb-1 text-xs font-medium uppercase tracking-wide text-gray-500">
-              Public URL
+              {qr.publicUrl}
             </p>
             <div className="flex items-center gap-2 rounded-lg border border-gray-200 bg-gray-50 px-3 py-2">
               <code className="flex-1 truncate font-mono text-sm text-[color:var(--color-navy)]">
@@ -91,17 +94,17 @@ export function MenuQrCard({ slug, name }: { slug: string; name: string }) {
                 onClick={copyUrl}
                 disabled={!origin}
                 className="flex items-center gap-1 rounded-md px-2 py-1 text-xs font-medium text-gray-600 transition hover:bg-white hover:text-[color:var(--color-navy)]"
-                aria-label="Copy URL"
+                aria-label={qr.copyAria}
               >
                 {copied ? (
                   <>
                     <CheckIcon size={14} />
-                    Copied
+                    {t.common.copied}
                   </>
                 ) : (
                   <>
                     <CopyIcon size={14} />
-                    Copy
+                    {t.common.copy}
                   </>
                 )}
               </button>
@@ -111,11 +114,11 @@ export function MenuQrCard({ slug, name }: { slug: string; name: string }) {
           <div className="flex flex-wrap gap-2">
             <button onClick={downloadPng} className="btn btn-primary btn-sm">
               <DownloadIcon size={14} />
-              PNG
+              {qr.png}
             </button>
             <button onClick={downloadSvg} className="btn btn-secondary btn-sm">
               <DownloadIcon size={14} />
-              SVG
+              {qr.svg}
             </button>
             <a
               href={url}
@@ -124,7 +127,7 @@ export function MenuQrCard({ slug, name }: { slug: string; name: string }) {
               className="btn btn-ghost btn-sm"
             >
               <ExternalIcon size={14} />
-              Open
+              {qr.open}
             </a>
           </div>
         </div>

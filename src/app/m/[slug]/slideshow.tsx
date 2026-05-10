@@ -7,6 +7,8 @@ import "swiper/css";
 import "swiper/css/effect-cube";
 import "swiper/css/pagination";
 import "./slideshow.css";
+import { useT } from "@/i18n/provider";
+import { format } from "@/i18n/config";
 
 type Props = {
   name: string;
@@ -15,6 +17,7 @@ type Props = {
 };
 
 export function MenuSlideshow({ name, whatsappNumber, images }: Props) {
+  const t = useT();
   return (
     <div className="menu-root">
       {whatsappNumber && (
@@ -42,24 +45,28 @@ export function MenuSlideshow({ name, whatsappNumber, images }: Props) {
         {images.length === 0 ? (
           <SwiperSlide>
             <div className="empty-slide">
-              <p>This menu is being prepared.</p>
+              <p>{t.menu.preparing}</p>
             </div>
           </SwiperSlide>
         ) : (
           images.map((url, i) => (
             <SwiperSlide key={url}>
               {i === 0 && <ChevronHint />}
-              <img src={url} alt={`Menu page ${i + 1}`} className="slide-img" />
+              <img
+                src={url}
+                alt={format(t.menu.pageAlt, { n: i + 1 })}
+                className="slide-img"
+              />
             </SwiperSlide>
           ))
         )}
 
         <SwiperSlide>
           <div className="last-slide">
-            <span className="last-label-01">Cardápio Digital</span>
+            <span className="last-label-01">{t.menu.cardapioDigital}</span>
             <span className="last-label-02">{name}</span>
             <div className="cardemon-credit">
-              <p>feito por</p>
+              <p>{t.menu.madeBy}</p>
               <a
                 className="cardemon-link"
                 href="https://www.instagram.com/cardemon.co/"

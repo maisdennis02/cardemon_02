@@ -3,28 +3,32 @@
 import { useActionState, useState } from "react";
 import { createRestaurant, type ActionState } from "./actions";
 import { slugify } from "@/lib/slug";
+import { useT } from "@/i18n/provider";
 
 export function OnboardingForm() {
+  const t = useT();
   const [state, action, pending] = useActionState<ActionState, FormData>(createRestaurant, {});
   const [name, setName] = useState("");
   const [slug, setSlug] = useState("");
 
+  const ob = t.dashboard.onboarding;
+
   return (
     <section className="card">
       <h1 className="mb-1 text-2xl font-bold text-[color:var(--color-navy)]">
-        Welcome — let&apos;s set up your restaurant.
+        {ob.title}
       </h1>
       <p className="mb-6 text-sm text-gray-600">
-        Pick a name and a public URL. Customers will visit{" "}
+        {ob.leadPrefix}{" "}
         <code className="rounded bg-gray-100 px-1.5 py-0.5 font-mono text-xs">
           /m/your-slug
         </code>{" "}
-        to view the menu.
+        {ob.leadSuffix}
       </p>
 
       <form action={action} className="flex flex-col gap-4">
         <label className="label">
-          Restaurant name
+          {ob.restaurantName}
           <input
             name="name"
             required
@@ -33,14 +37,14 @@ export function OnboardingForm() {
               setName(e.target.value);
               if (!slug) setSlug(slugify(e.target.value));
             }}
-            placeholder="e.g. Barraca da Sônia"
+            placeholder={ob.restaurantNamePlaceholder}
             className="input"
           />
         </label>
 
         <label className="label">
-          URL slug
-          <span className="label-hint">Lowercase letters, numbers, and dashes.</span>
+          {ob.urlSlug}
+          <span className="label-hint">{ob.slugHint}</span>
           <div className="flex items-center rounded-lg border border-gray-300 bg-white pl-3 transition focus-within:border-[color:var(--color-brand)]">
             <span className="select-none font-mono text-sm text-gray-400">/m/</span>
             <input
@@ -49,15 +53,15 @@ export function OnboardingForm() {
               value={slug}
               onChange={(e) => setSlug(slugify(e.target.value))}
               pattern="[a-z0-9-]+"
-              placeholder="barraca-da-sonia"
+              placeholder={ob.slugPlaceholder}
               className="flex-1 border-0 bg-transparent px-2 py-2.5 font-mono text-sm focus:outline-none"
             />
           </div>
         </label>
 
         <label className="label">
-          WhatsApp number
-          <span className="label-hint">Optional. Digits only with country code, e.g. 5513996332974.</span>
+          {ob.whatsapp}
+          <span className="label-hint">{ob.whatsappHint}</span>
           <input
             name="whatsappNumber"
             placeholder="5513996332974"
@@ -67,8 +71,8 @@ export function OnboardingForm() {
         </label>
 
         <label className="label">
-          Description
-          <span className="label-hint">Optional. Shown on the menu page metadata.</span>
+          {ob.description}
+          <span className="label-hint">{ob.descriptionHint}</span>
           <textarea name="description" rows={3} className="input" />
         </label>
 
@@ -79,7 +83,7 @@ export function OnboardingForm() {
         )}
 
         <button type="submit" disabled={pending} className="btn btn-primary self-start">
-          {pending ? "Creating…" : "Create restaurant"}
+          {pending ? ob.submitting : ob.submit}
         </button>
       </form>
     </section>
