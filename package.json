@@ -19,6 +19,7 @@
     "pg": "^8.20.0",
     "react": "19.2.4",
     "react-dom": "19.2.4",
+    "swiper": "^12.1.4",
     "zod": "^4.4.3"
   },
   "devDependencies": {

@@ -1,0 +1,134 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <!-- <meta http-equiv="X-UA-Compatible" content="IE=edge"> -->
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="viewport" content="width=device-width, initial-scale=1, minimum-scale=1, maximum-scale=1">
+  <title id="browserTitle"></title>
+  <!-- <link rel="stylesheet" href="https://unpkg.com/swiper/swiper-bundle.css" /> -->
+  <link rel="stylesheet" href="https://unpkg.com/swiper/swiper-bundle.min.css" />
+  <link rel="stylesheet" href="./styles.css">
+  <link rel="icon" href="./logo.png">
+
+</head>
+<body>
+<!-- Slider main container -->
+<div class="swiper-container">
+  <!-- --------------------------------------------------------------------- -->
+  <div class="ig-wrapper">
+    <a class="ig-link" href="https://wa.me/5513996332974">
+      <button class="wh-button">
+        <img class="ig-img" src="whatsappIcon.png" alt="wh01">
+        <p class="ig-p">Whatsapp</p>
+      </button>
+    </a>
+  </div>
+  <!-- --------------------------------------------------------------------- -->
+  <!-- Additional required wrapper -->
+  <div class="swiper-wrapper">
+    <!-- Slides -->
+    <!-- ------------------------------------------------------------------- -->
+    <div class="swiper-slide">
+      <div class="chevron-div">
+        <div class="chevron-wrapper">
+          <!-- <div class="chevron-span">arrastar</div> -->
+          <i class="fas fa-chevron-right fa-lg aa"></i>
+          <i class="fas fa-chevron-right fa-lg bb"></i>
+          <i class="fas fa-chevron-right fa-lg cc"></i>
+          <i class="fas fa-chevron-right fa-lg dd"></i>
+          <i class="fas fa-chevron-right fa-lg ee"></i>
+        </div>
+      </div>
+      <img src="01.jpg" alt="01" width="100%" height="auto">
+      <div class="space-div"></div>
+    </div>
+    <div class="swiper-slide">
+      <img src="02.jpg" alt="02" width="100%" height="auto">
+    </div>
+    <div class="swiper-slide">
+      <img src="03.jpg" alt="03" width="100%" height="auto">
+    </div>
+    <div class="swiper-slide">
+      <img src="04.jpg" alt="04" width="100%" height="auto">
+    </div>
+        <div class="swiper-slide">
+      <img src="05.jpg" alt="05" width="100%" height="auto">
+    </div>
+    <!-- ------------------------------------------------------------------- -->
+    <div class="swiper-slide">
+      <div class="last-page-container">
+        <div class="last-page-wrapper">
+          <label class="ig-label-01">Cardápio Digital</label>
+          <label class="ig-label-02" id="igLabelId"></label>
+          <div class="cardemon-div">
+            <p class="cardemon-p">feito por</p>  
+            <a class="cardemon-link" href="https://www.instagram.com/cardemon.co/">
+              <button class="cardemon-button">
+                <p class="cardemon-button-p">@cardemon.co</p>
+              </button>
+            </a>
+          </div>
+         
+        </div>
+      </div>
+    </div>
+    <!-- ------------------------------------------------------------------- -->
+  </div>
+  <!-- If we need pagination -->
+  <div class="swiper-pagination"></div>
+
+  <!-- If we need navigation buttons -->
+  <!-- <div class="swiper-button-prev"></div>
+  <div class="swiper-button-next"></div> -->
+
+  <!-- If we need scrollbar -->
+  <!-- <div class="swiper-scrollbar"></div> -->
+</div>
+
+<!-- <script src="https://unpkg.com/swiper/swiper-bundle.js"></script> -->
+<script src="https://unpkg.com/swiper/swiper-bundle.min.js"></script>
+<script src="https://kit.fontawesome.com/7530ff8bd3.js" crossorigin="anonymous"></script>
+<script>
+  // ---------------------------------------------------------------------------
+  var title = document.getElementById('igLabelId');
+  var browserTitle = document.getElementById('browserTitle');
+  title.innerHTML += 'Barraca da Sônia';
+  browserTitle.innerHTML += title.innerHTML
+  // ---------------------------------------------------------------------------
+  const swiper = new Swiper('.swiper-container', {
+  // Optional parameters
+  // direction: 'vertical',
+  // loop: true,
+  effect: 'cube',
+      grabCursor: true,
+      cubeEffect: {
+        shadow: true,
+        slideShadows: true,
+        shadowOffset: 12,
+        shadowScale: 0.9,
+      },
+
+  // If we need pagination
+  pagination: {
+    el: '.swiper-pagination',
+  },
+
+  // Navigation arrows
+  navigation: {
+    nextEl: '.chevron-wrapper'
+    // nextEl: '.swiper-button-next',
+    // prevEl: '.swiper-button-prev',
+  },
+
+  // And if we need scrollbar
+  // scrollbar: {
+  //   el: '.swiper-scrollbar',
+  // },
+});
+</script>
+</body>
+</html>
+
+
+

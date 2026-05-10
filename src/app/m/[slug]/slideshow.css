@@ -1,0 +1,135 @@
+.menu-root {
+  width: 100%;
+  min-height: 100dvh;
+  display: flex;
+  flex-direction: column;
+  background: #ffffff;
+}
+
+.menu-swiper {
+  width: 100%;
+  flex: 1;
+}
+
+.menu-swiper .swiper-slide {
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-start;
+  align-items: center;
+  background: #ffffff;
+}
+
+.slide-img {
+  width: 100%;
+  height: auto;
+  display: block;
+}
+
+.empty-slide {
+  width: 100%;
+  min-height: 60vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #6b7280;
+  font-family: var(--font-encode-sans), system-ui, sans-serif;
+}
+
+/* WhatsApp floating button */
+.wh-link {
+  position: fixed;
+  top: 12px;
+  left: 12px;
+  z-index: 20;
+  text-decoration: none;
+}
+
+.wh-button {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 8px 14px;
+  border: none;
+  border-radius: 999px;
+  font-family: var(--font-encode-sans), system-ui, sans-serif;
+  font-size: 12px;
+  font-weight: bold;
+  color: #ffffff;
+  background: #4bcc5b;
+  box-shadow: 2px 2px 6px rgba(0, 0, 0, 0.2);
+  cursor: pointer;
+}
+
+/* Chevron swipe hint on first slide */
+.chevron-hint {
+  position: absolute;
+  top: 50%;
+  right: 8px;
+  transform: translateY(-50%);
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  z-index: 5;
+  pointer-events: none;
+  color: rgba(0, 0, 0, 0.7);
+}
+
+@keyframes chevPulse {
+  from { opacity: 0.8; }
+  to { opacity: 0.15; }
+}
+
+.chev {
+  animation: chevPulse 1s ease-in-out infinite alternate;
+}
+.chev-0 { animation-delay: 0s; }
+.chev-1 { animation-delay: 0.2s; }
+.chev-2 { animation-delay: 0.4s; }
+.chev-3 { animation-delay: 0.6s; }
+.chev-4 { animation-delay: 0.8s; }
+
+/* Last slide (credit) */
+.last-slide {
+  width: 100%;
+  min-height: 70vh;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  gap: 8px;
+  font-family: var(--font-encode-sans), system-ui, sans-serif;
+  color: #101522;
+}
+
+.last-label-01 {
+  font-size: 15px;
+}
+
+.last-label-02 {
+  font-size: 18px;
+  font-weight: bold;
+  margin-bottom: 16px;
+}
+
+.cardemon-credit {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+  font-size: 12px;
+}
+
+.cardemon-link {
+  text-decoration: none;
+}
+
+.cardemon-button {
+  display: inline-block;
+  padding: 4px 12px;
+  font-size: 12px;
+  font-weight: bold;
+  color: #007aff;
+  border: 2px solid #007aff;
+  border-radius: 40px;
+  background: #ffffff;
+}

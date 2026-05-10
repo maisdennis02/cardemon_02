@@ -3,7 +3,8 @@ import Link from "next/link";
 import { auth, signOut } from "@/auth";
 import { prisma } from "@/lib/prisma";
 import { OnboardingForm } from "./onboarding-form";
-import { MenuManager } from "./menu-manager";
+import { ImageManager } from "./image-manager";
+import { RestaurantSettingsForm } from "./restaurant-settings-form";
 
 export default async function DashboardPage() {
   const session = await auth();
@@ -11,16 +12,11 @@ export default async function DashboardPage() {
 
   const restaurant = await prisma.restaurant.findFirst({
     where: { ownerId: session.user.id },
-    include: {
-      categories: {
-        orderBy: { sortOrder: "asc" },
-        include: { items: { orderBy: { sortOrder: "asc" } } },
-      },
-    },
+    include: { images: { orderBy: { sortOrder: "asc" } } },
   });
 
   return (
-    <main className="mx-auto max-w-4xl px-6 py-8">
+    <main className="mx-auto max-w-3xl px-6 py-8">
       <header className="mb-8 flex items-center justify-between">
         <h1 className="text-2xl font-semibold">Dashboard</h1>
         <div className="flex items-center gap-4 text-sm">
@@ -40,7 +36,14 @@ export default async function DashboardPage() {
         </div>
       </header>
 
-      {!restaurant ? <OnboardingForm /> : <MenuManager restaurant={restaurant} />}
+      {!restaurant ? (
+        <OnboardingForm />
+      ) : (
+        <div className="flex flex-col gap-8">
+          <RestaurantSettingsForm restaurant={restaurant} />
+          <ImageManager restaurant={restaurant} />
+        </div>
+      )}
     </main>
   );
 }

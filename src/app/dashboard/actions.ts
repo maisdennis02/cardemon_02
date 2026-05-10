@@ -3,7 +3,7 @@
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 import { z } from "zod";
-import { put, del } from "@vercel/blob";
+import { del } from "@vercel/blob";
 import { auth } from "@/auth";
 import { prisma } from "@/lib/prisma";
 import { slugify } from "@/lib/slug";
@@ -23,36 +23,34 @@ async function requireOwnedRestaurant(userId: string, restaurantId: string) {
   return r;
 }
 
-async function requireOwnedCategory(userId: string, categoryId: string) {
-  const c = await prisma.menuCategory.findFirst({
-    where: { id: categoryId, restaurant: { ownerId: userId } },
-    include: { restaurant: true },
+async function requireOwnedImage(userId: string, imageId: string) {
+  const img = await prisma.menuImage.findFirst({
+    where: { id: imageId, restaurant: { ownerId: userId } },
   });
-  if (!c) throw new Error("Category not found.");
-  return c;
+  if (!img) throw new Error("Image not found.");
+  return img;
 }
 
-async function requireOwnedItem(userId: string, itemId: string) {
-  const i = await prisma.menuItem.findFirst({
-    where: { id: itemId, category: { restaurant: { ownerId: userId } } },
-    include: { category: { include: { restaurant: true } } },
-  });
-  if (!i) throw new Error("Item not found.");
-  return i;
-}
-
-const createRestaurantSchema = z.object({
+const restaurantSchema = z.object({
   name: z.string().min(1).max(120),
   slug: z.string().min(2).max(60).regex(/^[a-z0-9-]+$/),
   description: z.string().max(500).optional(),
+  whatsappNumber: z
+    .string()
+    .regex(/^\d{8,15}$/, "WhatsApp number must be 8–15 digits, no symbols")
+    .optional()
+    .or(z.literal("")),
 });
 
-export async function createRestaurant(_p: { error?: string }, formData: FormData) {
+export type ActionState = { error?: string };
+
+export async function createRestaurant(_p: ActionState, formData: FormData): Promise<ActionState> {
   const userId = await requireUserId();
-  const parsed = createRestaurantSchema.safeParse({
+  const parsed = restaurantSchema.safeParse({
     name: formData.get("name"),
     slug: slugify(String(formData.get("slug") ?? "")),
     description: formData.get("description") || undefined,
+    whatsappNumber: formData.get("whatsappNumber") || undefined,
   });
   if (!parsed.success) return { error: parsed.error.issues[0]?.message ?? "Invalid input" };
 
@@ -60,106 +58,115 @@ export async function createRestaurant(_p: { error?: string }, formData: FormDat
   if (taken) return { error: "That slug is already taken." };
 
   await prisma.restaurant.create({
-    data: { ...parsed.data, ownerId: userId },
+    data: {
+      ownerId: userId,
+      name: parsed.data.name,
+      slug: parsed.data.slug,
+      description: parsed.data.description,
+      whatsappNumber: parsed.data.whatsappNumber || null,
+    },
   });
   revalidatePath("/dashboard");
   redirect("/dashboard");
 }
 
-export async function createCategory(formData: FormData) {
-  const userId = await requireUserId();
-  const restaurantId = String(formData.get("restaurantId") ?? "");
-  const name = String(formData.get("name") ?? "").trim();
-  if (!name) return;
-  await requireOwnedRestaurant(userId, restaurantId);
-
-  const count = await prisma.menuCategory.count({ where: { restaurantId } });
-  await prisma.menuCategory.create({
-    data: { restaurantId, name, sortOrder: count },
-  });
-  revalidatePath("/dashboard");
-}
-
-export async function deleteCategory(formData: FormData) {
+export async function updateRestaurant(_p: ActionState, formData: FormData): Promise<ActionState> {
   const userId = await requireUserId();
   const id = String(formData.get("id") ?? "");
-  await requireOwnedCategory(userId, id);
+  await requireOwnedRestaurant(userId, id);
 
-  // Clean up blob images for items in this category.
-  const items = await prisma.menuItem.findMany({
-    where: { categoryId: id, imageUrl: { not: null } },
-    select: { imageUrl: true },
-  });
-  await Promise.all(items.map((i) => i.imageUrl && del(i.imageUrl).catch(() => {})));
-
-  await prisma.menuCategory.delete({ where: { id } });
-  revalidatePath("/dashboard");
-}
-
-const itemSchema = z.object({
-  categoryId: z.string().min(1),
-  name: z.string().min(1).max(120),
-  description: z.string().max(500).optional(),
-  price: z.string().regex(/^\d+(\.\d{1,2})?$/, "Use a price like 9.99"),
-});
-
-export async function createItem(_p: { error?: string }, formData: FormData) {
-  const userId = await requireUserId();
-  const parsed = itemSchema.safeParse({
-    categoryId: formData.get("categoryId"),
+  const parsed = restaurantSchema.safeParse({
     name: formData.get("name"),
+    slug: slugify(String(formData.get("slug") ?? "")),
     description: formData.get("description") || undefined,
-    price: formData.get("price"),
+    whatsappNumber: formData.get("whatsappNumber") || undefined,
   });
   if (!parsed.success) return { error: parsed.error.issues[0]?.message ?? "Invalid input" };
 
-  await requireOwnedCategory(userId, parsed.data.categoryId);
+  const slugTaken = await prisma.restaurant.findFirst({
+    where: { slug: parsed.data.slug, NOT: { id } },
+  });
+  if (slugTaken) return { error: "That slug is already taken." };
 
-  const priceCents = Math.round(parseFloat(parsed.data.price) * 100);
-
-  let imageUrl: string | null = null;
-  const file = formData.get("image");
-  if (file instanceof File && file.size > 0) {
-    if (file.size > 5 * 1024 * 1024) return { error: "Image must be under 5MB." };
-    if (!file.type.startsWith("image/")) return { error: "File must be an image." };
-    const blob = await put(`menu-items/${crypto.randomUUID()}-${file.name}`, file, {
-      access: "public",
-      addRandomSuffix: false,
-    });
-    imageUrl = blob.url;
-  }
-
-  const count = await prisma.menuItem.count({ where: { categoryId: parsed.data.categoryId } });
-  await prisma.menuItem.create({
+  await prisma.restaurant.update({
+    where: { id },
     data: {
-      categoryId: parsed.data.categoryId,
       name: parsed.data.name,
+      slug: parsed.data.slug,
       description: parsed.data.description,
-      priceCents,
-      imageUrl,
-      sortOrder: count,
+      whatsappNumber: parsed.data.whatsappNumber || null,
     },
   });
   revalidatePath("/dashboard");
-  return { error: undefined };
+  return {};
 }
 
-export async function deleteItem(formData: FormData) {
+export async function recordMenuImages(input: {
+  restaurantId: string;
+  urls: string[];
+}): Promise<ActionState> {
+  const userId = await requireUserId();
+  await requireOwnedRestaurant(userId, input.restaurantId);
+
+  const validUrls = input.urls.filter((u) => /^https:\/\/[a-z0-9-]+\.public\.blob\.vercel-storage\.com\//i.test(u));
+  if (validUrls.length === 0) return { error: "No valid uploads to record." };
+
+  const existingCount = await prisma.menuImage.count({ where: { restaurantId: input.restaurantId } });
+
+  await prisma.menuImage.createMany({
+    data: validUrls.map((url, i) => ({
+      restaurantId: input.restaurantId,
+      url,
+      sortOrder: existingCount + i,
+    })),
+  });
+
+  revalidatePath("/dashboard");
+  return {};
+}
+
+export async function deleteMenuImage(formData: FormData) {
   const userId = await requireUserId();
   const id = String(formData.get("id") ?? "");
-  const item = await requireOwnedItem(userId, id);
-  if (item.imageUrl) await del(item.imageUrl).catch(() => {});
-  await prisma.menuItem.delete({ where: { id } });
+  const image = await requireOwnedImage(userId, id);
+  await del(image.url).catch(() => {});
+  await prisma.menuImage.delete({ where: { id } });
+
+  // Resequence remaining sortOrders so they stay 0..n-1.
+  const remaining = await prisma.menuImage.findMany({
+    where: { restaurantId: image.restaurantId },
+    orderBy: { sortOrder: "asc" },
+  });
+  await Promise.all(
+    remaining.map((img, i) =>
+      img.sortOrder === i ? null : prisma.menuImage.update({ where: { id: img.id }, data: { sortOrder: i } }),
+    ),
+  );
+
   revalidatePath("/dashboard");
 }
 
-export async function toggleItemAvailability(formData: FormData) {
+export async function reorderMenuImages(formData: FormData) {
   const userId = await requireUserId();
-  const id = String(formData.get("id") ?? "");
-  const item = await requireOwnedItem(userId, id);
-  await prisma.menuItem.update({
-    where: { id },
-    data: { available: !item.available },
+  const restaurantId = String(formData.get("restaurantId") ?? "");
+  await requireOwnedRestaurant(userId, restaurantId);
+
+  const orderedIds = String(formData.get("orderedIds") ?? "")
+    .split(",")
+    .map((s) => s.trim())
+    .filter(Boolean);
+  if (orderedIds.length === 0) return;
+
+  // Verify all IDs belong to this restaurant.
+  const owned = await prisma.menuImage.findMany({
+    where: { id: { in: orderedIds }, restaurantId },
+    select: { id: true },
   });
+  if (owned.length !== orderedIds.length) throw new Error("Reorder mismatch.");
+
+  await prisma.$transaction(
+    orderedIds.map((id, i) => prisma.menuImage.update({ where: { id }, data: { sortOrder: i } })),
+  );
+
   revalidatePath("/dashboard");
 }
