@@ -2,7 +2,7 @@ import type { Dictionary } from "./en";
 
 const es: Dictionary = {
   metadata: {
-    rootTitle: "Cardemon — Menú Digital",
+    rootTitle: "menulala — Menú Digital",
     rootDescription: "Menús digitales para restaurantes.",
     menuDescriptionFallback: "Menú digital de {name}.",
   },
@@ -36,7 +36,7 @@ const es: Dictionary = {
       "Arrastra las páginas del menú que ya tienes diseñadas. JPG, PNG, lo que tengas.",
     feature2Title: "Comparte un enlace",
     feature2Body:
-      "Cada restaurante recibe una URL limpia como cardemon.app/m/tunombre. Imprímelo en un QR.",
+      "Cada restaurante recibe una URL limpia como menulala.com/m/tunombre. Imprímelo en un QR.",
     feature3Title: "Los clientes deslizan",
     feature3Body:
       "En cualquier móvil — sin app, sin instalar. Animación suave en cubo, toca WhatsApp para pedir.",

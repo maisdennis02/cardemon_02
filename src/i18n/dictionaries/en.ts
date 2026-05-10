@@ -1,6 +1,6 @@
 const en = {
   metadata: {
-    rootTitle: "Cardemon — Cardápio Digital",
+    rootTitle: "menulala — Digital Menu",
     rootDescription: "Digital menus for restaurants.",
     menuDescriptionFallback: "Digital menu for {name}.",
   },
@@ -32,7 +32,7 @@ const en = {
     feature1Title: "Upload your artwork",
     feature1Body: "Drag in the menu pages you already designed. JPG, PNG, whatever you have.",
     feature2Title: "Share a link",
-    feature2Body: "Every restaurant gets a clean URL like cardemon.app/m/yourname. Print it on a QR.",
+    feature2Body: "Every restaurant gets a clean URL like menulala.com/m/yourname. Print it on a QR.",
     feature3Title: "Customers swipe",
     feature3Body: "On any phone — no app, no install. Smooth cube animation, tap WhatsApp to order.",
     ctaHeading: "Ready to go digital?",

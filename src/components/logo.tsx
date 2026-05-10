@@ -5,7 +5,7 @@ export function Logo({ href = "/", size = "md" }: { href?: string; size?: "sm" |
     size === "sm" ? "text-lg" : size === "lg" ? "text-3xl" : "text-xl";
   return (
     <Link href={href} className={`logo-mark ${cls} no-underline`}>
-      cardemon<span className="dot">.</span>
+      menulala<span className="dot">.</span>
     </Link>
   );
 }

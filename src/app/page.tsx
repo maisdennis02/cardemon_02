@@ -165,7 +165,7 @@ function SiteFooter({ t }: { t: Dictionary }) {
           <span>·</span>
           <span>{t.landing.footerTagline}</span>
         </div>
-        <p>© {new Date().getFullYear()} cardemon</p>
+        <p>© {new Date().getFullYear()} menulala</p>
       </div>
     </footer>
   );

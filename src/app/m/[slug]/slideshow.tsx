@@ -65,15 +65,15 @@ export function MenuSlideshow({ name, whatsappNumber, images }: Props) {
           <div className="last-slide">
             <span className="last-label-01">{t.menu.cardapioDigital}</span>
             <span className="last-label-02">{name}</span>
-            <div className="cardemon-credit">
+            <div className="menulala-credit">
               <p>{t.menu.madeBy}</p>
               <a
-                className="cardemon-link"
+                className="menulala-link"
                 href="https://www.instagram.com/cardemon.co/"
                 target="_blank"
                 rel="noopener noreferrer"
               >
-                <span className="cardemon-button">@cardemon.co</span>
+                <span className="menulala-button">@cardemon.co</span>
               </a>
             </div>
           </div>

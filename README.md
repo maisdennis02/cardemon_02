@@ -1,8 +1,8 @@
-# cardemon
+# menulala
 
 Digital menus for restaurants. Owners sign up, upload their menu artwork as ordered images, and share a public URL (`/m/<slug>`) where customers swipe through the menu via a Swiper.js cube animation. Floating WhatsApp button on the public page if a number is configured.
 
-🌐 **Live:** <https://cardemon-02.vercel.app>
+🌐 **Live:** <https://menulala.com>
 
 The design replicates the example in `example/` (a static-HTML version of the same idea).
 
