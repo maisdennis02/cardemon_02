@@ -2,26 +2,35 @@
 
 :root {
   --background: #ffffff;
-  --foreground: #171717;
+  --foreground: #101522;
   color-scheme: light;
 }
 
 @theme inline {
+  /* Map CSS vars to Tailwind tokens. */
   --color-background: var(--background);
   --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
+
+  /* Brand palette — matches example/styles.css */
+  --color-brand: #007aff;
+  --color-brand-50: #e5f1ff;
+  --color-brand-100: #cce4ff;
+  --color-brand-600: #006ae0;
+  --color-brand-700: #0058bd;
+  --color-navy: #101522;
+  --color-navy-soft: #1c2333;
+
+  --font-sans: var(--font-encode-sans), var(--font-geist-sans), system-ui, sans-serif;
+  --font-mono: var(--font-geist-mono), ui-monospace, monospace;
 }
 
 body {
   background: var(--background);
   color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  font-family: var(--font-encode-sans), var(--font-geist-sans), system-ui, sans-serif;
 }
 
-/* Tailwind v4 ships with no default border/input colors — set sane defaults
-   so plain `border`, `<input>`, `<textarea>` look correct without
-   per-component classes. */
+/* Sane defaults for forms — Tailwind v4 ships with no input chrome. */
 @layer base {
   *,
   ::before,
@@ -33,11 +42,74 @@ body {
   textarea,
   select {
     background-color: #ffffff;
-    color: #171717;
+    color: var(--foreground);
   }
 
   input::placeholder,
   textarea::placeholder {
     color: #9ca3af; /* gray-400 */
   }
+
+  input:focus-visible,
+  textarea:focus-visible,
+  select:focus-visible {
+    outline: 2px solid var(--color-brand);
+    outline-offset: 1px;
+  }
+}
+
+/* Reusable component classes. Used across landing, auth, dashboard.
+   Tailwind v4: @apply only works with Tailwind utilities, not other custom
+   classes — so .btn is the layout base and variants are composed in JSX
+   like className="btn btn-primary". */
+@layer components {
+  .btn {
+    @apply inline-flex items-center justify-center gap-2 rounded-full px-5 py-2.5 text-sm font-bold transition disabled:cursor-not-allowed disabled:opacity-50;
+  }
+  .btn-primary {
+    @apply bg-[color:var(--color-brand)] text-white hover:bg-[color:var(--color-brand-600)] active:bg-[color:var(--color-brand-700)];
+  }
+  .btn-dark {
+    @apply bg-[color:var(--color-navy)] text-white hover:bg-[color:var(--color-navy-soft)];
+  }
+  .btn-secondary {
+    @apply border-2 border-[color:var(--color-brand)] bg-white text-[color:var(--color-brand)] hover:bg-[color:var(--color-brand-50)];
+  }
+  .btn-ghost {
+    @apply bg-transparent text-[color:var(--color-navy)] hover:bg-gray-100;
+  }
+  .btn-danger {
+    @apply bg-transparent text-red-600 hover:bg-red-50;
+  }
+  .btn-sm {
+    @apply px-3 py-1.5 text-xs;
+  }
+
+  .card {
+    @apply rounded-2xl border border-gray-200 bg-white p-6 shadow-sm;
+  }
+
+  .input {
+    @apply w-full rounded-lg border border-gray-300 bg-white px-3 py-2.5 text-sm transition focus:border-[color:var(--color-brand)];
+  }
+
+  .label {
+    @apply flex flex-col gap-1.5 text-sm font-medium text-[color:var(--color-navy)];
+  }
+
+  .label-hint {
+    @apply text-xs font-normal text-gray-500;
+  }
+}
+
+/* Brand wordmark used in headers. */
+.logo-mark {
+  font-family: var(--font-encode-sans), system-ui, sans-serif;
+  font-weight: 700;
+  letter-spacing: -0.02em;
+  color: var(--color-navy);
+}
+
+.logo-mark .dot {
+  color: var(--color-brand);
 }
