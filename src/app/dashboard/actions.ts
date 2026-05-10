@@ -58,6 +58,11 @@ const restaurantSchema = z.object({
     .regex(/^\d{8,15}$/)
     .optional()
     .or(z.literal("")),
+  instagramUrl: z
+    .string()
+    .regex(/^https:\/\/(www\.)?instagram\.com\/[A-Za-z0-9_.]{1,30}\/?$/i)
+    .optional()
+    .or(z.literal("")),
 });
 
 const recordMenuImagesSchema = z.object({
@@ -80,6 +85,7 @@ function restaurantParseError(
 ): string {
   const issue = error.issues[0];
   if (issue?.path[0] === "whatsappNumber") return t.errors.whatsappFormat;
+  if (issue?.path[0] === "instagramUrl") return t.errors.instagramFormat;
   return t.errors.invalidInput;
 }
 
@@ -91,6 +97,7 @@ export async function createRestaurant(_p: ActionState, formData: FormData): Pro
     slug: slugify(String(formData.get("slug") ?? "")),
     description: formData.get("description") || undefined,
     whatsappNumber: formData.get("whatsappNumber") || undefined,
+    instagramUrl: formData.get("instagramUrl") || undefined,
   });
   if (!parsed.success) return { error: restaurantParseError(parsed.error, t) };
 
@@ -104,6 +111,7 @@ export async function createRestaurant(_p: ActionState, formData: FormData): Pro
       slug: parsed.data.slug,
       description: parsed.data.description,
       whatsappNumber: parsed.data.whatsappNumber || null,
+      instagramUrl: parsed.data.instagramUrl || null,
     },
   });
   revalidatePath("/dashboard");
@@ -121,6 +129,7 @@ export async function updateRestaurant(_p: ActionState, formData: FormData): Pro
     slug: slugify(String(formData.get("slug") ?? "")),
     description: formData.get("description") || undefined,
     whatsappNumber: formData.get("whatsappNumber") || undefined,
+    instagramUrl: formData.get("instagramUrl") || undefined,
   });
   if (!parsed.success) return { error: restaurantParseError(parsed.error, t) };
 
@@ -136,6 +145,7 @@ export async function updateRestaurant(_p: ActionState, formData: FormData): Pro
       slug: parsed.data.slug,
       description: parsed.data.description,
       whatsappNumber: parsed.data.whatsappNumber || null,
+      instagramUrl: parsed.data.instagramUrl || null,
     },
   });
   revalidatePath("/dashboard");

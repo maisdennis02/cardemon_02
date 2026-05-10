@@ -71,6 +71,17 @@ export function OnboardingForm() {
         </label>
 
         <label className="label">
+          {ob.instagram}
+          <span className="label-hint">{ob.instagramHint}</span>
+          <input
+            name="instagramUrl"
+            type="url"
+            placeholder="https://instagram.com/yourhandle"
+            className="input"
+          />
+        </label>
+
+        <label className="label">
           {ob.description}
           <span className="label-hint">{ob.descriptionHint}</span>
           <textarea name="description" rows={3} className="input" />

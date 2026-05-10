@@ -85,6 +85,9 @@ const es: Dictionary = {
       whatsapp: "Número de WhatsApp",
       whatsappHint:
         "Opcional. Solo dígitos con código de país, ej.: 5513996332974.",
+      instagram: "URL de Instagram",
+      instagramHint:
+        "Opcional. URL completa, ej.: https://instagram.com/tuperfil.",
       description: "Descripción",
       descriptionHint:
         "Opcional. Aparece en los metadatos de la página del menú.",
@@ -97,8 +100,11 @@ const es: Dictionary = {
       urlSlug: "Slug de la URL",
       whatsapp: "Número de WhatsApp",
       whatsappHint: "Solo dígitos con código de país.",
+      instagram: "URL de Instagram",
+      instagramHint: "URL completa del perfil de Instagram.",
       description: "Descripción",
       whatsappLabel: "WhatsApp",
+      instagramLabel: "Instagram",
     },
     qr: {
       title: "Comparte tu menú",
@@ -135,6 +141,8 @@ const es: Dictionary = {
       reorderMismatch: "Inconsistencia en la reordenación.",
       whatsappFormat:
         "El número de WhatsApp debe tener entre 8 y 15 dígitos, sin símbolos",
+      instagramFormat:
+        "La URL de Instagram debe tener el formato https://instagram.com/tuperfil",
       blobUrlInvalid: "URL de subida inválida",
     },
   },

@@ -85,6 +85,9 @@ const ptBR: Dictionary = {
       whatsapp: "Número de WhatsApp",
       whatsappHint:
         "Opcional. Apenas dígitos com código do país, ex.: 5513996332974.",
+      instagram: "URL do Instagram",
+      instagramHint:
+        "Opcional. URL completa, ex.: https://instagram.com/seuperfil.",
       description: "Descrição",
       descriptionHint: "Opcional. Aparece nos metadados da página do cardápio.",
       submit: "Criar restaurante",
@@ -96,8 +99,11 @@ const ptBR: Dictionary = {
       urlSlug: "Slug da URL",
       whatsapp: "Número de WhatsApp",
       whatsappHint: "Apenas dígitos com código do país.",
+      instagram: "URL do Instagram",
+      instagramHint: "URL completa do perfil no Instagram.",
       description: "Descrição",
       whatsappLabel: "WhatsApp",
+      instagramLabel: "Instagram",
     },
     qr: {
       title: "Compartilhe seu cardápio",
@@ -134,6 +140,8 @@ const ptBR: Dictionary = {
       reorderMismatch: "Inconsistência na reordenação.",
       whatsappFormat:
         "O número de WhatsApp deve ter de 8 a 15 dígitos, sem símbolos",
+      instagramFormat:
+        "A URL do Instagram deve ser no formato https://instagram.com/seuperfil",
       blobUrlInvalid: "URL de upload inválida",
     },
   },

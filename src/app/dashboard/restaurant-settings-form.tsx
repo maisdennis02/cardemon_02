@@ -11,6 +11,7 @@ type Restaurant = {
   slug: string;
   description: string | null;
   whatsappNumber: string | null;
+  instagramUrl: string | null;
 };
 
 export function RestaurantSettingsForm({ restaurant }: { restaurant: Restaurant }) {
@@ -32,6 +33,19 @@ export function RestaurantSettingsForm({ restaurant }: { restaurant: Restaurant 
           {restaurant.whatsappNumber && (
             <p className="text-sm text-gray-500">
               {s.whatsappLabel} · <span className="font-mono">{restaurant.whatsappNumber}</span>
+            </p>
+          )}
+          {restaurant.instagramUrl && (
+            <p className="text-sm text-gray-500">
+              {s.instagramLabel} ·{" "}
+              <a
+                className="font-mono underline"
+                href={restaurant.instagramUrl}
+                target="_blank"
+                rel="noopener noreferrer"
+              >
+                {restaurant.instagramUrl}
+              </a>
             </p>
           )}
         </div>
@@ -84,6 +98,18 @@ export function RestaurantSettingsForm({ restaurant }: { restaurant: Restaurant 
             placeholder="5513996332974"
             pattern="\d{8,15}"
             className="input font-mono"
+          />
+        </label>
+
+        <label className="label">
+          {s.instagram}
+          <span className="label-hint">{s.instagramHint}</span>
+          <input
+            name="instagramUrl"
+            type="url"
+            defaultValue={restaurant.instagramUrl ?? ""}
+            placeholder="https://instagram.com/yourhandle"
+            className="input"
           />
         </label>
 

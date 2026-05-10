@@ -64,6 +64,7 @@ model Restaurant {
   slug            String      @unique
   description     String?
   whatsappNumber  String?     // digits only, e.g. "5513996332974"
+  instagramUrl    String?     // full URL, e.g. "https://instagram.com/handle"
   createdAt       DateTime    @default(now())
   updatedAt       DateTime    @updatedAt
 

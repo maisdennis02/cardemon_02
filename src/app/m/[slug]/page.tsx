@@ -36,6 +36,7 @@ export default async function PublicMenuPage({
     <MenuSlideshow
       name={restaurant.name}
       whatsappNumber={restaurant.whatsappNumber}
+      instagramUrl={restaurant.instagramUrl}
       images={restaurant.images.map((i) => i.url)}
     />
   );

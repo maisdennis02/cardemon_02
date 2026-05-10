@@ -35,16 +35,21 @@
   font-family: var(--font-encode-sans), system-ui, sans-serif;
 }
 
-/* WhatsApp floating button */
-.wh-link {
+/* Floating social buttons (WhatsApp, Instagram) */
+.social-buttons {
   position: fixed;
   top: 12px;
   left: 12px;
   z-index: 20;
+  display: flex;
+  gap: 8px;
+}
+
+.social-link {
   text-decoration: none;
 }
 
-.wh-button {
+.social-button {
   display: inline-flex;
   align-items: center;
   gap: 6px;
@@ -55,9 +60,16 @@
   font-size: 12px;
   font-weight: bold;
   color: #ffffff;
-  background: #4bcc5b;
   box-shadow: 2px 2px 6px rgba(0, 0, 0, 0.2);
   cursor: pointer;
+}
+
+.wh-button {
+  background: #4bcc5b;
+}
+
+.ig-button {
+  background: linear-gradient(45deg, #f09433, #e6683c, #dc2743, #cc2366, #bc1888);
 }
 
 /* Chevron swipe hint on first slide */
