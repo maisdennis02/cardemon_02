@@ -6,6 +6,7 @@ import { Logo } from "@/components/logo";
 import { ExternalIcon } from "@/components/icons";
 import { OnboardingForm } from "./onboarding-form";
 import { ImageManager } from "./image-manager";
+import { MenuQrCard } from "./menu-qr-card";
 import { RestaurantSettingsForm } from "./restaurant-settings-form";
 
 export default async function DashboardPage() {
@@ -30,6 +31,7 @@ export default async function DashboardPage() {
         ) : (
           <div className="flex flex-col gap-6">
             <RestaurantSettingsForm restaurant={restaurant} />
+            <MenuQrCard slug={restaurant.slug} name={restaurant.name} />
             <ImageManager restaurant={restaurant} />
           </div>
         )}
