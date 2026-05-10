@@ -131,7 +131,7 @@ function Features() {
     <section className="border-t border-gray-100 bg-gray-50/60">
       <div className="mx-auto max-w-6xl px-6 py-16 sm:py-20">
         <h2 className="mb-12 text-center text-3xl font-bold text-[color:var(--color-navy)] sm:text-4xl">
-          Three steps. That's it.
+          Three steps. That&apos;s it.
         </h2>
         <div className="grid gap-6 md:grid-cols-3">
           {items.map((it, i) => (

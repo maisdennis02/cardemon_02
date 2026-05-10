@@ -1,7 +1,7 @@
 "use client";
 
 import Image from "next/image";
-import { useEffect, useRef, useState, useTransition, type DragEvent } from "react";
+import { useRef, useState, useTransition, type DragEvent } from "react";
 import { upload } from "@vercel/blob/client";
 import {
   DndContext,
@@ -42,9 +42,14 @@ type Restaurant = {
 
 export function ImageManager({ restaurant }: { restaurant: Restaurant }) {
   // Local copy so drag-end can optimistically reorder before the server
-  // round-trip resolves. Sync when the server-side props change.
+  // round-trip resolves. Sync when the server-side props change by comparing
+  // to the previous server snapshot during render.
   const [images, setImages] = useState(restaurant.images);
-  useEffect(() => setImages(restaurant.images), [restaurant.images]);
+  const [prevServerImages, setPrevServerImages] = useState(restaurant.images);
+  if (prevServerImages !== restaurant.images) {
+    setPrevServerImages(restaurant.images);
+    setImages(restaurant.images);
+  }
 
   const [, startTransition] = useTransition();
 

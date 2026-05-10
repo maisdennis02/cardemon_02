@@ -12,7 +12,7 @@ export function OnboardingForm() {
   return (
     <section className="card">
       <h1 className="mb-1 text-2xl font-bold text-[color:var(--color-navy)]">
-        Welcome — let's set up your restaurant.
+        Welcome — let&apos;s set up your restaurant.
       </h1>
       <p className="mb-6 text-sm text-gray-600">
         Pick a name and a public URL. Customers will visit{" "}

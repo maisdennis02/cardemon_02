@@ -1,12 +1,15 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
+import { useRef, useState, useSyncExternalStore } from "react";
 import { QRCodeSVG } from "qrcode.react";
 import { CheckIcon, CopyIcon, DownloadIcon, ExternalIcon } from "@/components/icons";
 
+const subscribe = () => () => {};
+const getOrigin = () => window.location.origin;
+const getServerOrigin = () => "";
+
 export function MenuQrCard({ slug, name }: { slug: string; name: string }) {
-  const [origin, setOrigin] = useState("");
-  useEffect(() => setOrigin(window.location.origin), []);
+  const origin = useSyncExternalStore(subscribe, getOrigin, getServerOrigin);
 
   const url = origin ? `${origin}/m/${slug}` : `/m/${slug}`;
   const svgRef = useRef<SVGSVGElement>(null);
