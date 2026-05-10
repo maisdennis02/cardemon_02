@@ -106,3 +106,23 @@ export function PlusIcon({ className, size }: IconProps) {
     </svg>
   );
 }
+
+export function GripIcon({ className, size }: IconProps) {
+  return (
+    <svg
+      width={size ?? 20}
+      height={size ?? 20}
+      viewBox="0 0 24 24"
+      fill="currentColor"
+      aria-hidden
+      className={className}
+    >
+      <circle cx="9" cy="6" r="1.5" />
+      <circle cx="15" cy="6" r="1.5" />
+      <circle cx="9" cy="12" r="1.5" />
+      <circle cx="15" cy="12" r="1.5" />
+      <circle cx="9" cy="18" r="1.5" />
+      <circle cx="15" cy="18" r="1.5" />
+    </svg>
+  );
+}

@@ -1,19 +1,33 @@
 "use client";
 
 import Image from "next/image";
-import { useRef, useState, useTransition, type DragEvent } from "react";
+import { useEffect, useRef, useState, useTransition, type DragEvent } from "react";
 import { upload } from "@vercel/blob/client";
+import {
+  DndContext,
+  KeyboardSensor,
+  PointerSensor,
+  TouchSensor,
+  closestCenter,
+  useSensor,
+  useSensors,
+  type DragEndEvent,
+} from "@dnd-kit/core";
+import {
+  SortableContext,
+  arrayMove,
+  rectSortingStrategy,
+  sortableKeyboardCoordinates,
+  useSortable,
+} from "@dnd-kit/sortable";
+import { CSS } from "@dnd-kit/utilities";
+
 import {
   recordMenuImages,
   deleteMenuImage,
   reorderMenuImages,
 } from "./actions";
-import {
-  ChevronDownIcon,
-  ChevronUpIcon,
-  TrashIcon,
-  UploadIcon,
-} from "@/components/icons";
+import { GripIcon, TrashIcon, UploadIcon } from "@/components/icons";
 
 type MenuImage = {
   id: string;
@@ -27,34 +41,63 @@ type Restaurant = {
 };
 
 export function ImageManager({ restaurant }: { restaurant: Restaurant }) {
+  // Local copy so drag-end can optimistically reorder before the server
+  // round-trip resolves. Sync when the server-side props change.
+  const [images, setImages] = useState(restaurant.images);
+  useEffect(() => setImages(restaurant.images), [restaurant.images]);
+
+  const [, startTransition] = useTransition();
+
+  const sensors = useSensors(
+    useSensor(PointerSensor, { activationConstraint: { distance: 5 } }),
+    useSensor(TouchSensor, { activationConstraint: { delay: 200, tolerance: 8 } }),
+    useSensor(KeyboardSensor, { coordinateGetter: sortableKeyboardCoordinates }),
+  );
+
+  function handleDragEnd(e: DragEndEvent) {
+    const { active, over } = e;
+    if (!over || active.id === over.id) return;
+
+    const oldIndex = images.findIndex((i) => i.id === active.id);
+    const newIndex = images.findIndex((i) => i.id === over.id);
+    if (oldIndex === -1 || newIndex === -1) return;
+
+    const next = arrayMove(images, oldIndex, newIndex);
+    setImages(next);
+
+    const fd = new FormData();
+    fd.set("restaurantId", restaurant.id);
+    fd.set("orderedIds", next.map((x) => x.id).join(","));
+    startTransition(() => {
+      reorderMenuImages(fd);
+    });
+  }
+
   return (
     <section className="card">
       <div className="mb-4">
         <h2 className="text-lg font-bold text-[color:var(--color-navy)]">Menu pages</h2>
         <p className="mt-1 text-sm text-gray-600">
-          Upload your menu artwork. Customers swipe through them in order.
+          Upload your menu artwork. Drag to reorder — customers see them in this order.
         </p>
       </div>
 
       <UploadDropzone restaurantId={restaurant.id} />
 
-      {restaurant.images.length === 0 ? (
+      {images.length === 0 ? (
         <p className="mt-6 rounded-lg border border-dashed border-gray-200 bg-gray-50 px-4 py-6 text-center text-sm text-gray-500">
           No menu pages yet — upload your first image above.
         </p>
       ) : (
-        <ul className="mt-6 grid gap-4 sm:grid-cols-2">
-          {restaurant.images.map((img, i) => (
-            <ImageCard
-              key={img.id}
-              image={img}
-              index={i}
-              total={restaurant.images.length}
-              orderedIds={restaurant.images.map((x) => x.id)}
-              restaurantId={restaurant.id}
-            />
-          ))}
-        </ul>
+        <DndContext sensors={sensors} collisionDetection={closestCenter} onDragEnd={handleDragEnd}>
+          <SortableContext items={images.map((i) => i.id)} strategy={rectSortingStrategy}>
+            <ul className="mt-6 grid gap-4 sm:grid-cols-2">
+              {images.map((img, i) => (
+                <SortableImageCard key={img.id} image={img} index={i} />
+              ))}
+            </ul>
+          </SortableContext>
+        </DndContext>
       )}
     </section>
   );
@@ -172,40 +215,32 @@ function UploadDropzone({ restaurantId }: { restaurantId: string }) {
   );
 }
 
-function ImageCard({
-  image,
-  index,
-  total,
-  orderedIds,
-  restaurantId,
-}: {
-  image: MenuImage;
-  index: number;
-  total: number;
-  orderedIds: string[];
-  restaurantId: string;
-}) {
-  const [pending, startTransition] = useTransition();
-  const [busy, setBusy] = useState(false);
-  const disabled = pending || busy;
+function SortableImageCard({ image, index }: { image: MenuImage; index: number }) {
+  const {
+    attributes,
+    listeners,
+    setNodeRef,
+    transform,
+    transition,
+    isDragging,
+  } = useSortable({ id: image.id });
 
-  function move(direction: -1 | 1) {
-    const target = index + direction;
-    if (target < 0 || target >= total) return;
-    const next = [...orderedIds];
-    [next[index], next[target]] = [next[target], next[index]];
-    const fd = new FormData();
-    fd.set("restaurantId", restaurantId);
-    fd.set("orderedIds", next.join(","));
-    setBusy(true);
-    startTransition(async () => {
-      await reorderMenuImages(fd);
-      setBusy(false);
-    });
-  }
+  const style: React.CSSProperties = {
+    transform: CSS.Transform.toString(transform),
+    transition,
+    zIndex: isDragging ? 10 : undefined,
+    opacity: isDragging ? 0.85 : 1,
+    boxShadow: isDragging ? "0 12px 28px rgba(0,0,0,0.18)" : undefined,
+  };
 
   return (
-    <li className="group relative overflow-hidden rounded-xl border border-gray-200 bg-white">
+    <li
+      ref={setNodeRef}
+      style={style}
+      className={`group relative overflow-hidden rounded-xl border border-gray-200 bg-white ${
+        isDragging ? "ring-2 ring-[color:var(--color-brand)]" : ""
+      }`}
+    >
       <div className="relative aspect-[4/3] w-full bg-gray-100">
         <Image
           src={image.url}
@@ -213,35 +248,29 @@ function ImageCard({
           fill
           sizes="(max-width: 640px) 100vw, 320px"
           className="object-cover"
+          draggable={false}
         />
         <span className="absolute left-2 top-2 rounded-full bg-black/60 px-2 py-0.5 text-xs font-bold text-white">
           {index + 1}
         </span>
       </div>
 
-      <div className="flex items-center justify-between gap-2 border-t border-gray-100 px-3 py-2">
-        <div className="flex items-center gap-1">
-          <button
-            onClick={() => move(-1)}
-            disabled={index === 0 || disabled}
-            aria-label="Move up"
-            className="rounded-md p-1.5 text-gray-500 transition hover:bg-gray-100 hover:text-[color:var(--color-navy)] disabled:opacity-30 disabled:hover:bg-transparent"
-          >
-            <ChevronUpIcon size={18} />
-          </button>
-          <button
-            onClick={() => move(1)}
-            disabled={index === total - 1 || disabled}
-            aria-label="Move down"
-            className="rounded-md p-1.5 text-gray-500 transition hover:bg-gray-100 hover:text-[color:var(--color-navy)] disabled:opacity-30 disabled:hover:bg-transparent"
-          >
-            <ChevronDownIcon size={18} />
-          </button>
-        </div>
+      <div className="flex items-center justify-between gap-2 border-t border-gray-100 px-2 py-2">
+        <button
+          type="button"
+          aria-label="Drag to reorder"
+          {...attributes}
+          {...listeners}
+          className="flex cursor-grab items-center gap-1 rounded-md px-2 py-1.5 text-xs font-medium text-gray-500 transition hover:bg-gray-100 hover:text-[color:var(--color-navy)] active:cursor-grabbing"
+        >
+          <GripIcon size={16} />
+          <span>Drag</span>
+        </button>
 
         <form action={deleteMenuImage}>
           <input type="hidden" name="id" value={image.id} />
           <button
+            type="submit"
             aria-label="Delete image"
             className="flex items-center gap-1 rounded-md px-2 py-1.5 text-xs font-medium text-red-600 transition hover:bg-red-50"
           >
