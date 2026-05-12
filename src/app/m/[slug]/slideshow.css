@@ -35,13 +35,15 @@
   font-family: var(--font-encode-sans), system-ui, sans-serif;
 }
 
-/* Floating social buttons (WhatsApp, Instagram) */
+/* Floating social buttons (WhatsApp, Instagram, delivery apps) */
 .social-buttons {
   position: fixed;
   top: 12px;
   left: 12px;
+  right: 12px;
   z-index: 20;
   display: flex;
+  flex-wrap: wrap;
   gap: 8px;
 }
 
@@ -70,6 +72,20 @@
 
 .ig-button {
   background: linear-gradient(45deg, #f09433, #e6683c, #dc2743, #cc2366, #bc1888);
+}
+
+.delivery-button {
+  background: var(--brand-color);
+  color: var(--text-color);
+  min-height: 32px;
+}
+
+/* Force brand logos to white so they read on the colored button background
+   (matches each app's "logo on dark/colored bg" brand guideline). */
+.delivery-logo {
+  height: 14px;
+  width: auto;
+  filter: brightness(0) invert(1);
 }
 
 /* Chevron swipe hint on first slide */

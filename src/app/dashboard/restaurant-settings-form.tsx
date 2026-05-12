@@ -4,6 +4,14 @@ import { useActionState, useState } from "react";
 import { updateRestaurant, type ActionState } from "./actions";
 import { slugify } from "@/lib/slug";
 import { useT } from "@/i18n/provider";
+import { format } from "@/i18n/config";
+import {
+  SUPPORTED_COUNTRIES,
+  getAppsForCountry,
+  inputPatternFromRegex,
+  type CountryCode,
+  type DeliveryApp,
+} from "@/lib/delivery-apps";
 
 type Restaurant = {
   id: string;
@@ -12,6 +20,14 @@ type Restaurant = {
   description: string | null;
   whatsappNumber: string | null;
   instagramUrl: string | null;
+  country: string | null;
+  ifoodUrl: string | null;
+  ubereatsUrl: string | null;
+  doordashUrl: string | null;
+  rappiUrl: string | null;
+  grubhubUrl: string | null;
+  pedidosyaUrl: string | null;
+  didifoodUrl: string | null;
 };
 
 export function RestaurantSettingsForm({ restaurant }: { restaurant: Restaurant }) {
@@ -19,8 +35,10 @@ export function RestaurantSettingsForm({ restaurant }: { restaurant: Restaurant 
   const [state, action, pending] = useActionState<ActionState, FormData>(updateRestaurant, {});
   const [open, setOpen] = useState(false);
   const [slug, setSlug] = useState(restaurant.slug);
+  const [country, setCountry] = useState<string>(restaurant.country ?? "");
 
   const s = t.dashboard.settings;
+  const apps = getAppsForCountry(country);
 
   if (!open) {
     return (
@@ -90,6 +108,26 @@ export function RestaurantSettingsForm({ restaurant }: { restaurant: Restaurant 
         </label>
 
         <label className="label">
+          {s.country}
+          <span className="label-hint">{s.countryHint}</span>
+          <select
+            name="country"
+            value={country}
+            onChange={(e) => setCountry(e.target.value)}
+            className="input"
+          >
+            <option value="" disabled>
+              {s.countryPlaceholder}
+            </option>
+            {SUPPORTED_COUNTRIES.map((code) => (
+              <option key={code} value={code}>
+                {s.countries[code as CountryCode]}
+              </option>
+            ))}
+          </select>
+        </label>
+
+        <label className="label">
           {s.whatsapp}
           <span className="label-hint">{s.whatsappHint}</span>
           <input
@@ -112,6 +150,25 @@ export function RestaurantSettingsForm({ restaurant }: { restaurant: Restaurant 
             className="input"
           />
         </label>
+
+        <fieldset className="flex flex-col gap-3 rounded-lg border border-gray-200 p-4">
+          <legend className="px-1 text-sm font-bold text-[color:var(--color-navy)]">
+            {s.delivery}
+          </legend>
+          <p className="-mt-2 text-xs text-gray-500">{s.deliveryLead}</p>
+          {apps.length === 0 ? (
+            <p className="text-sm text-gray-500">{s.deliveryCountryPrompt}</p>
+          ) : (
+            apps.map((app) => (
+              <DeliveryAppInput
+                key={app.id}
+                app={app}
+                defaultValue={restaurant[app.column] ?? ""}
+                hint={format(s.deliveryHint, { appName: app.displayName })}
+              />
+            ))
+          )}
+        </fieldset>
 
         <label className="label">
           {s.description}
@@ -139,5 +196,37 @@ export function RestaurantSettingsForm({ restaurant }: { restaurant: Restaurant 
         </div>
       </form>
     </section>
+  );
+}
+
+function DeliveryAppInput({
+  app,
+  defaultValue,
+  hint,
+}: {
+  app: DeliveryApp;
+  defaultValue: string;
+  hint: string;
+}) {
+  return (
+    <label className="label">
+      <span className="flex items-center gap-2">
+        <span
+          aria-hidden
+          className="inline-block h-3 w-3 rounded-full"
+          style={{ background: app.brandColor }}
+        />
+        {app.displayName}
+      </span>
+      <span className="label-hint">{hint}</span>
+      <input
+        name={app.column}
+        type="url"
+        defaultValue={defaultValue}
+        placeholder={app.urlPlaceholder}
+        pattern={inputPatternFromRegex(app.urlPattern)}
+        className="input"
+      />
+    </label>
   );
 }

@@ -1,14 +1,16 @@
 "use client";
 
 import { useRef, useState, useSyncExternalStore } from "react";
-import { QRCodeSVG } from "qrcode.react";
 import { CheckIcon, CopyIcon, DownloadIcon, ExternalIcon } from "@/components/icons";
 import { useT } from "@/i18n/provider";
 import { format } from "@/i18n/config";
+import { BrandedQrCode } from "./branded-qr";
 
 const subscribe = () => () => {};
 const getOrigin = () => window.location.origin;
 const getServerOrigin = () => "";
+
+const QR_EXPORT_SIZE = 1024; // PNG pixels on the long edge
 
 export function MenuQrCard({ slug, name }: { slug: string; name: string }) {
   const t = useT();
@@ -36,16 +38,17 @@ export function MenuQrCard({ slug, name }: { slug: string; name: string }) {
   function downloadPng() {
     const svg = svgRef.current;
     if (!svg) return;
-    const SCALE = 4; // 4× the rendered size for print quality
     const data = new XMLSerializer().serializeToString(svg);
     const svgBlob = new Blob([data], { type: "image/svg+xml;charset=utf-8" });
     const svgUrl = URL.createObjectURL(svgBlob);
 
     const img = new Image();
     img.onload = () => {
+      const vb = svg.viewBox.baseVal;
+      const aspect = vb.height / vb.width;
       const canvas = document.createElement("canvas");
-      canvas.width = svg.clientWidth * SCALE;
-      canvas.height = svg.clientHeight * SCALE;
+      canvas.width = QR_EXPORT_SIZE;
+      canvas.height = Math.round(QR_EXPORT_SIZE * aspect);
       const ctx = canvas.getContext("2d");
       if (!ctx) return;
       ctx.fillStyle = "#ffffff";
@@ -69,15 +72,13 @@ export function MenuQrCard({ slug, name }: { slug: string; name: string }) {
 
       <div className="flex flex-col gap-5 sm:flex-row sm:items-start">
         <div className="flex flex-shrink-0 items-center justify-center rounded-xl border border-gray-200 bg-white p-3 shadow-sm">
-          <QRCodeSVG
+          <BrandedQrCode
             ref={svgRef}
             value={url}
-            size={180}
-            level="M"
-            marginSize={2}
-            fgColor="#101522"
-            bgColor="#ffffff"
             title={format(qr.menuQrTitle, { name })}
+            scanLabel={qr.scanLabel}
+            scanHint={qr.scanHint}
+            width={200}
           />
         </div>
 

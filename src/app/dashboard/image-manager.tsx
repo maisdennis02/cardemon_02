@@ -22,6 +22,8 @@ import {
 } from "@dnd-kit/sortable";
 import { CSS } from "@dnd-kit/utilities";
 
+import Link from "next/link";
+
 import {
   recordMenuImages,
   deleteMenuImage,
@@ -42,7 +44,15 @@ type Restaurant = {
   images: MenuImage[];
 };
 
-export function ImageManager({ restaurant }: { restaurant: Restaurant }) {
+export function ImageManager({
+  restaurant,
+  imageLimit,
+  isPro,
+}: {
+  restaurant: Restaurant;
+  imageLimit: number;
+  isPro: boolean;
+}) {
   const t = useT();
   // Local copy so drag-end can optimistically reorder before the server
   // round-trip resolves. Sync when the server-side props change by comparing
@@ -82,15 +92,43 @@ export function ImageManager({ restaurant }: { restaurant: Restaurant }) {
   }
 
   const im = t.dashboard.images;
+  const atLimit = images.length >= imageLimit;
 
   return (
     <section className="card">
-      <div className="mb-4">
-        <h2 className="text-lg font-bold text-[color:var(--color-navy)]">{im.title}</h2>
-        <p className="mt-1 text-sm text-gray-600">{im.lead}</p>
+      <div className="mb-4 flex flex-wrap items-start justify-between gap-3">
+        <div>
+          <h2 className="text-lg font-bold text-[color:var(--color-navy)]">{im.title}</h2>
+          <p className="mt-1 text-sm text-gray-600">{im.lead}</p>
+        </div>
+        <div className="flex items-center gap-2">
+          <span
+            className={`rounded-full px-2.5 py-1 text-xs font-medium tabular-nums ${
+              atLimit
+                ? "bg-amber-50 text-amber-700"
+                : "bg-gray-100 text-gray-600"
+            }`}
+          >
+            {format(im.counter, { used: images.length, limit: imageLimit })}
+          </span>
+          {!isPro && (
+            <Link
+              href="/pricing"
+              className="text-xs font-semibold text-[color:var(--color-brand)] hover:text-[color:var(--color-brand-600)]"
+            >
+              {im.upgradeCta}
+            </Link>
+          )}
+        </div>
       </div>
 
-      <UploadDropzone restaurantId={restaurant.id} />
+      {!isPro && atLimit && (
+        <p className="mb-4 rounded-lg bg-amber-50 px-3 py-2 text-sm text-amber-800">
+          {format(im.limitReachedHint, { limit: imageLimit, pro: 20 })}
+        </p>
+      )}
+
+      <UploadDropzone restaurantId={restaurant.id} disabled={atLimit} />
 
       {images.length === 0 ? (
         <p className="mt-6 rounded-lg border border-dashed border-gray-200 bg-gray-50 px-4 py-6 text-center text-sm text-gray-500">
@@ -116,7 +154,13 @@ export function ImageManager({ restaurant }: { restaurant: Restaurant }) {
   );
 }
 
-function UploadDropzone({ restaurantId }: { restaurantId: string }) {
+function UploadDropzone({
+  restaurantId,
+  disabled = false,
+}: {
+  restaurantId: string;
+  disabled?: boolean;
+}) {
   const t = useT();
   const inputRef = useRef<HTMLInputElement>(null);
   const [error, setError] = useState<string | null>(null);
@@ -127,6 +171,7 @@ function UploadDropzone({ restaurantId }: { restaurantId: string }) {
   const im = t.dashboard.images;
 
   async function handleFiles(fileList: FileList | null) {
+    if (disabled) return;
     if (!fileList || fileList.length === 0) return;
     setError(null);
 
@@ -185,10 +230,12 @@ function UploadDropzone({ restaurantId }: { restaurantId: string }) {
         onDragOver={(e) => e.preventDefault()}
         onDragLeave={() => setDragOver(false)}
         onDrop={onDrop}
-        className={`flex cursor-pointer flex-col items-center justify-center gap-2 rounded-xl border-2 border-dashed px-6 py-10 text-center transition ${
-          dragOver
-            ? "border-[color:var(--color-brand)] bg-[color:var(--color-brand-50)]"
-            : "border-gray-300 bg-gray-50 hover:border-[color:var(--color-brand)] hover:bg-[color:var(--color-brand-50)]/40"
+        className={`flex flex-col items-center justify-center gap-2 rounded-xl border-2 border-dashed px-6 py-10 text-center transition ${
+          disabled
+            ? "cursor-not-allowed border-gray-200 bg-gray-50 opacity-60"
+            : dragOver
+              ? "cursor-pointer border-[color:var(--color-brand)] bg-[color:var(--color-brand-50)]"
+              : "cursor-pointer border-gray-300 bg-gray-50 hover:border-[color:var(--color-brand)] hover:bg-[color:var(--color-brand-50)]/40"
         } ${busy ? "pointer-events-none opacity-60" : ""}`}
       >
         <div className="flex h-11 w-11 items-center justify-center rounded-full bg-white text-[color:var(--color-brand)] shadow-sm">
@@ -204,7 +251,7 @@ function UploadDropzone({ restaurantId }: { restaurantId: string }) {
           type="file"
           accept="image/*"
           multiple
-          disabled={busy}
+          disabled={busy || disabled}
           onChange={(e) => handleFiles(e.target.files)}
           className="hidden"
         />

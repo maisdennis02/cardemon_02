@@ -8,6 +8,17 @@ import { auth } from "@/auth";
 import { prisma } from "@/lib/prisma";
 import { slugify } from "@/lib/slug";
 import { getDictionary, getLocale } from "@/i18n";
+import { format } from "@/i18n/config";
+import {
+  DELIVERY_APP_IDS,
+  DELIVERY_APPS,
+  COUNTRY_APPS,
+  SUPPORTED_COUNTRIES,
+  isSupportedCountry,
+  type DeliveryAppId,
+  type DeliveryUrlColumn,
+} from "@/lib/delivery-apps";
+import { FREE_IMAGE_LIMIT, PRO_IMAGE_LIMIT, imageLimitFor, isPro } from "@/lib/pricing";
 
 async function dashT() {
   const locale = await getLocale();
@@ -49,21 +60,52 @@ const blobUrl = z
   .string()
   .regex(/^https:\/\/[a-z0-9-]+\.public\.blob\.vercel-storage\.com\//i);
 
-const restaurantSchema = z.object({
-  name: z.string().min(1).max(120),
-  slug: z.string().min(2).max(60).regex(/^[a-z0-9-]+$/),
-  description: z.string().max(500).optional(),
-  whatsappNumber: z
-    .string()
-    .regex(/^\d{8,15}$/)
-    .optional()
-    .or(z.literal("")),
-  instagramUrl: z
-    .string()
-    .regex(/^https:\/\/(www\.)?instagram\.com\/[A-Za-z0-9_.]{1,30}\/?$/i)
-    .optional()
-    .or(z.literal("")),
-});
+const deliveryUrlSchemas = DELIVERY_APP_IDS.reduce(
+  (acc, id) => {
+    acc[DELIVERY_APPS[id].column] = z
+      .string()
+      .regex(DELIVERY_APPS[id].urlPattern)
+      .optional()
+      .or(z.literal(""));
+    return acc;
+  },
+  {} as Record<DeliveryUrlColumn, z.ZodOptional<z.ZodString> | z.ZodUnion<[z.ZodOptional<z.ZodString>, z.ZodLiteral<"">]>>,
+);
+
+const restaurantSchema = z
+  .object({
+    name: z.string().min(1).max(120),
+    slug: z.string().min(2).max(60).regex(/^[a-z0-9-]+$/),
+    description: z.string().max(500).optional(),
+    whatsappNumber: z
+      .string()
+      .regex(/^\d{8,15}$/)
+      .optional()
+      .or(z.literal("")),
+    instagramUrl: z
+      .string()
+      .regex(/^https:\/\/(www\.)?instagram\.com\/[A-Za-z0-9_.]{1,30}\/?$/i)
+      .optional()
+      .or(z.literal("")),
+    country: z.enum(SUPPORTED_COUNTRIES).optional().or(z.literal("")),
+    ...deliveryUrlSchemas,
+  })
+  .superRefine((data, ctx) => {
+    const country = data.country;
+    const allowed = country && isSupportedCountry(country) ? COUNTRY_APPS[country] : null;
+    for (const id of DELIVERY_APP_IDS) {
+      const column = DELIVERY_APPS[id].column;
+      const value = data[column];
+      if (!value) continue;
+      if (!allowed || !allowed.includes(id)) {
+        ctx.addIssue({
+          code: "custom",
+          path: [column],
+          message: "country-mismatch",
+        });
+      }
+    }
+  });
 
 const recordMenuImagesSchema = z.object({
   restaurantId: cuid,
@@ -79,13 +121,32 @@ const reorderMenuImagesSchema = z.object({
 
 export type ActionState = { error?: string };
 
+const URL_COLUMN_TO_APP_ID: Record<DeliveryUrlColumn, DeliveryAppId> = DELIVERY_APP_IDS.reduce(
+  (acc, id) => {
+    acc[DELIVERY_APPS[id].column] = id;
+    return acc;
+  },
+  {} as Record<DeliveryUrlColumn, DeliveryAppId>,
+);
+
 function restaurantParseError(
   error: z.ZodError,
   t: Awaited<ReturnType<typeof dashT>>,
 ): string {
   const issue = error.issues[0];
-  if (issue?.path[0] === "whatsappNumber") return t.errors.whatsappFormat;
-  if (issue?.path[0] === "instagramUrl") return t.errors.instagramFormat;
+  const path0 = issue?.path[0];
+  if (path0 === "whatsappNumber") return t.errors.whatsappFormat;
+  if (path0 === "instagramUrl") return t.errors.instagramFormat;
+  if (path0 === "country") return t.errors.countryInvalid;
+  if (typeof path0 === "string" && path0 in URL_COLUMN_TO_APP_ID) {
+    const appId = URL_COLUMN_TO_APP_ID[path0 as DeliveryUrlColumn];
+    const appName = DELIVERY_APPS[appId].displayName;
+    const template =
+      issue?.message === "country-mismatch"
+        ? t.errors.deliveryUrlCountryMismatch
+        : t.errors.deliveryUrlFormat;
+    return format(template, { appName });
+  }
   return t.errors.invalidInput;
 }
 
@@ -124,12 +185,22 @@ export async function updateRestaurant(_p: ActionState, formData: FormData): Pro
   const id = String(formData.get("id") ?? "");
   await requireOwnedRestaurant(userId, id);
 
+  const deliveryInput: Partial<Record<DeliveryUrlColumn, string | undefined>> = {};
+  for (const appId of DELIVERY_APP_IDS) {
+    const column = DELIVERY_APPS[appId].column;
+    if (formData.has(column)) {
+      deliveryInput[column] = (formData.get(column) as string) || undefined;
+    }
+  }
+
   const parsed = restaurantSchema.safeParse({
     name: formData.get("name"),
     slug: slugify(String(formData.get("slug") ?? "")),
     description: formData.get("description") || undefined,
     whatsappNumber: formData.get("whatsappNumber") || undefined,
     instagramUrl: formData.get("instagramUrl") || undefined,
+    country: formData.get("country") || undefined,
+    ...deliveryInput,
   });
   if (!parsed.success) return { error: restaurantParseError(parsed.error, t) };
 
@@ -137,6 +208,14 @@ export async function updateRestaurant(_p: ActionState, formData: FormData): Pro
     where: { slug: parsed.data.slug, NOT: { id } },
   });
   if (slugTaken) return { error: t.errors.slugTaken };
+
+  const deliveryUpdates: Partial<Record<DeliveryUrlColumn, string | null>> = {};
+  for (const appId of DELIVERY_APP_IDS) {
+    const column = DELIVERY_APPS[appId].column;
+    if (formData.has(column)) {
+      deliveryUpdates[column] = parsed.data[column] || null;
+    }
+  }
 
   await prisma.restaurant.update({
     where: { id },
@@ -146,6 +225,8 @@ export async function updateRestaurant(_p: ActionState, formData: FormData): Pro
       description: parsed.data.description,
       whatsappNumber: parsed.data.whatsappNumber || null,
       instagramUrl: parsed.data.instagramUrl || null,
+      country: parsed.data.country || null,
+      ...deliveryUpdates,
     },
   });
   revalidatePath("/dashboard");
@@ -168,7 +249,25 @@ export async function recordMenuImages(input: {
   const { restaurantId, urls } = parsed.data;
   await requireOwnedRestaurant(userId, restaurantId);
 
-  const existingCount = await prisma.menuImage.count({ where: { restaurantId } });
+  const [existingCount, user] = await Promise.all([
+    prisma.menuImage.count({ where: { restaurantId } }),
+    prisma.user.findUnique({
+      where: { id: userId },
+      select: { proExpiresAt: true },
+    }),
+  ]);
+
+  const limit = imageLimitFor(user);
+  if (existingCount + urls.length > limit) {
+    return {
+      error: isPro(user)
+        ? format(t.errors.imageLimitPro, { limit: PRO_IMAGE_LIMIT })
+        : format(t.errors.imageLimitFree, {
+            limit: FREE_IMAGE_LIMIT,
+            pro: PRO_IMAGE_LIMIT,
+          }),
+    };
+  }
 
   await prisma.menuImage.createMany({
     data: urls.map((url, i) => ({

@@ -9,19 +9,35 @@ import "swiper/css/pagination";
 import "./slideshow.css";
 import { useT } from "@/i18n/provider";
 import { format } from "@/i18n/config";
+import {
+  getOrderedDeliveryLinks,
+  type DeliveryApp,
+  type DeliveryUrls,
+} from "@/lib/delivery-apps";
 
 type Props = {
   name: string;
   whatsappNumber: string | null;
   instagramUrl: string | null;
+  country: string | null;
+  deliveryUrls: DeliveryUrls;
   images: string[];
 };
 
-export function MenuSlideshow({ name, whatsappNumber, instagramUrl, images }: Props) {
+export function MenuSlideshow({
+  name,
+  whatsappNumber,
+  instagramUrl,
+  country,
+  deliveryUrls,
+  images,
+}: Props) {
   const t = useT();
+  const deliveryLinks = getOrderedDeliveryLinks(country, deliveryUrls);
+  const hasAnyButton = whatsappNumber || instagramUrl || deliveryLinks.length > 0;
   return (
     <div className="menu-root">
-      {(whatsappNumber || instagramUrl) && (
+      {hasAnyButton && (
         <div className="social-buttons">
           {whatsappNumber && (
             <a
@@ -49,6 +65,14 @@ export function MenuSlideshow({ name, whatsappNumber, instagramUrl, images }: Pr
               </button>
             </a>
           )}
+          {deliveryLinks.map(({ app, url }) => (
+            <DeliveryButton
+              key={app.id}
+              app={app}
+              url={url}
+              label={format(t.menu.orderOn, { appName: app.displayName })}
+            />
+          ))}
         </div>
       )}
 
@@ -154,6 +178,64 @@ function InstagramIcon() {
       <rect x="3" y="3" width="18" height="18" rx="5" ry="5" />
       <path d="M16 11.4A4 4 0 1 1 12.6 8a4 4 0 0 1 3.4 3.4Z" />
       <line x1="17.5" y1="6.5" x2="17.51" y2="6.5" />
+    </svg>
+  );
+}
+
+function DeliveryButton({
+  app,
+  url,
+  label,
+}: {
+  app: DeliveryApp;
+  url: string;
+  label: string;
+}) {
+  return (
+    <a
+      className="social-link"
+      href={url}
+      target="_blank"
+      rel="noopener noreferrer"
+    >
+      <button
+        className="social-button delivery-button"
+        type="button"
+        style={
+          {
+            "--brand-color": app.brandColor,
+            "--text-color": app.textColor,
+          } as React.CSSProperties
+        }
+      >
+        {app.logoPath ? (
+          /* eslint-disable-next-line @next/next/no-img-element */
+          <img src={app.logoPath} alt="" className="delivery-logo" aria-hidden />
+        ) : (
+          <DeliveryPlaceholderIcon />
+        )}
+        <span>{label}</span>
+      </button>
+    </a>
+  );
+}
+
+// TODO: swap for per-app official SVG logos when assets are added.
+function DeliveryPlaceholderIcon() {
+  return (
+    <svg
+      width="18"
+      height="18"
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="2"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      aria-hidden
+    >
+      <path d="M6 7h12l-1 13H7L6 7Z" />
+      <path d="M9 7a3 3 0 0 1 6 0" />
     </svg>
   );
 }

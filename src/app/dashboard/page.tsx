@@ -10,6 +10,7 @@ import { MenuQrCard } from "./menu-qr-card";
 import { RestaurantSettingsForm } from "./restaurant-settings-form";
 import { getDictionary, getLocale } from "@/i18n";
 import type { Dictionary } from "@/i18n";
+import { imageLimitFor, isPro } from "@/lib/pricing";
 
 export default async function DashboardPage() {
   const session = await auth();
@@ -18,16 +19,26 @@ export default async function DashboardPage() {
   const locale = await getLocale();
   const t = await getDictionary(locale);
 
-  const restaurant = await prisma.restaurant.findFirst({
-    where: { ownerId: session.user.id },
-    include: { images: { orderBy: { sortOrder: "asc" } } },
-  });
+  const [restaurant, user] = await Promise.all([
+    prisma.restaurant.findFirst({
+      where: { ownerId: session.user.id },
+      include: { images: { orderBy: { sortOrder: "asc" } } },
+    }),
+    prisma.user.findUnique({
+      where: { id: session.user.id },
+      select: { proExpiresAt: true },
+    }),
+  ]);
+
+  const userIsPro = isPro(user);
+  const imageLimit = imageLimitFor(user);
 
   return (
     <div className="flex min-h-screen flex-col bg-gray-50/60">
       <DashboardHeader
         userEmail={session.user.email ?? null}
         publicMenuSlug={restaurant?.slug ?? null}
+        isPro={userIsPro}
         t={t}
       />
 
@@ -38,7 +49,11 @@ export default async function DashboardPage() {
           <div className="flex flex-col gap-6">
             <RestaurantSettingsForm restaurant={restaurant} />
             <MenuQrCard slug={restaurant.slug} name={restaurant.name} />
-            <ImageManager restaurant={restaurant} />
+            <ImageManager
+              restaurant={restaurant}
+              imageLimit={imageLimit}
+              isPro={userIsPro}
+            />
           </div>
         )}
       </main>
@@ -49,10 +64,12 @@ export default async function DashboardPage() {
 function DashboardHeader({
   userEmail,
   publicMenuSlug,
+  isPro,
   t,
 }: {
   userEmail: string | null;
   publicMenuSlug: string | null;
+  isPro: boolean;
   t: Dictionary;
 }) {
   return (
@@ -68,6 +85,15 @@ function DashboardHeader({
             >
               {t.dashboard.viewPublicMenu}
               <ExternalIcon size={14} />
+            </Link>
+          )}
+          {isPro ? (
+            <form action="/api/stripe/portal" method="post">
+              <button className="btn btn-ghost btn-sm">{t.dashboard.managePlan}</button>
+            </form>
+          ) : (
+            <Link href="/pricing" className="btn btn-ghost btn-sm">
+              {t.dashboard.upgrade}
             </Link>
           )}
           <form

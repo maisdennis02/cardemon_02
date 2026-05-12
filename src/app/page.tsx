@@ -34,6 +34,9 @@ function SiteHeader({ signedIn, t }: { signedIn: boolean; t: Dictionary }) {
       <div className="mx-auto flex max-w-6xl items-center justify-between px-6 py-4">
         <Logo />
         <nav className="flex items-center gap-2">
+          <Link href="/pricing" className="btn btn-ghost btn-sm">
+            {t.common.pricing}
+          </Link>
           {signedIn ? (
             <Link href="/dashboard" className="btn btn-primary btn-sm">
               {t.common.dashboard}

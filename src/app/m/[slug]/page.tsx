@@ -37,6 +37,16 @@ export default async function PublicMenuPage({
       name={restaurant.name}
       whatsappNumber={restaurant.whatsappNumber}
       instagramUrl={restaurant.instagramUrl}
+      country={restaurant.country}
+      deliveryUrls={{
+        ifoodUrl: restaurant.ifoodUrl,
+        ubereatsUrl: restaurant.ubereatsUrl,
+        doordashUrl: restaurant.doordashUrl,
+        rappiUrl: restaurant.rappiUrl,
+        grubhubUrl: restaurant.grubhubUrl,
+        pedidosyaUrl: restaurant.pedidosyaUrl,
+        didifoodUrl: restaurant.didifoodUrl,
+      }}
       images={restaurant.images.map((i) => i.url)}
     />
   );
