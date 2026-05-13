@@ -98,6 +98,15 @@ export function CheckIcon({ className, size }: IconProps) {
   );
 }
 
+export function XIcon({ className, size }: IconProps) {
+  return (
+    <svg {...baseProps(size, className)}>
+      <line x1="18" y1="6" x2="6" y2="18" />
+      <line x1="6" y1="6" x2="18" y2="18" />
+    </svg>
+  );
+}
+
 export function PlusIcon({ className, size }: IconProps) {
   return (
     <svg {...baseProps(size, className)}>

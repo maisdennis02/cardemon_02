@@ -1,15 +1,20 @@
 import Image from "next/image";
 import Link from "next/link";
 import { auth } from "@/auth";
+import { BrandedQrCode } from "@/app/dashboard/branded-qr";
 import { Logo } from "@/components/logo";
 import {
   ArrowRightIcon,
+  CheckIcon,
   PhoneIcon,
   ShareIcon,
   UploadIcon,
+  XIcon,
 } from "@/components/icons";
 import { getDictionary, getLocale } from "@/i18n";
 import type { Dictionary } from "@/i18n";
+import { format } from "@/i18n/config";
+import { FREE_IMAGE_LIMIT, PRO_IMAGE_LIMIT } from "@/lib/pricing";
 import previewImage from "../../example/01.jpg";
 
 export default async function Home() {
@@ -21,7 +26,10 @@ export default async function Home() {
     <div className="flex min-h-screen flex-col">
       <SiteHeader signedIn={!!session?.user} t={t} />
       <Hero signedIn={!!session?.user} t={t} />
+      <PainSolution t={t} />
       <Features t={t} />
+      <Examples t={t} />
+      <Faq t={t} />
       <BottomCta signedIn={!!session?.user} t={t} />
       <SiteFooter t={t} />
     </div>
@@ -82,6 +90,14 @@ function Hero({ signedIn, t }: { signedIn: boolean; t: Dictionary }) {
               </Link>
             )}
           </div>
+          <Link
+            href="/m/demo"
+            target="_blank"
+            rel="noreferrer"
+            className="self-start text-sm font-bold text-[color:var(--color-brand)] hover:underline"
+          >
+            {t.landing.heroDemoLink}
+          </Link>
         </div>
 
         <PhonePreview alt={t.landing.phonePreviewAlt} />
@@ -135,6 +151,147 @@ function Features({ t }: { t: Dictionary }) {
                 {it.title}
               </h3>
               <p className="text-sm leading-relaxed text-gray-600">{it.body}</p>
+            </div>
+          ))}
+        </div>
+      </div>
+    </section>
+  );
+}
+
+function PainSolution({ t }: { t: Dictionary }) {
+  const pairs = [
+    { pain: t.landing.pain1, solution: t.landing.solution1 },
+    { pain: t.landing.pain2, solution: t.landing.solution2 },
+    { pain: t.landing.pain3, solution: t.landing.solution3 },
+    { pain: t.landing.pain4, solution: t.landing.solution4 },
+  ];
+
+  return (
+    <section className="border-t border-gray-100 bg-white">
+      <div className="mx-auto max-w-6xl px-6 py-16 sm:py-20">
+        <div className="mx-auto mb-12 max-w-2xl text-center">
+          <h2 className="text-3xl font-bold text-[color:var(--color-navy)] sm:text-4xl">
+            {t.landing.painHeading}
+          </h2>
+          <p className="mt-4 text-gray-600">{t.landing.painLead}</p>
+        </div>
+        <div className="flex flex-col gap-4">
+          {pairs.map((p, i) => (
+            <div
+              key={i}
+              className="grid gap-4 rounded-2xl border border-gray-200 bg-white p-5 shadow-sm md:grid-cols-2 md:gap-6"
+            >
+              <div className="flex items-start gap-3">
+                <span className="mt-0.5 flex h-7 w-7 flex-none items-center justify-center rounded-full bg-red-50 text-red-600">
+                  <XIcon size={16} />
+                </span>
+                <p className="text-sm leading-relaxed text-gray-700 sm:text-base">
+                  {p.pain}
+                </p>
+              </div>
+              <div className="flex items-start gap-3 md:border-l md:border-gray-100 md:pl-6">
+                <span className="mt-0.5 flex h-7 w-7 flex-none items-center justify-center rounded-full bg-green-50 text-green-600">
+                  <CheckIcon size={16} />
+                </span>
+                <p className="text-sm leading-relaxed font-medium text-[color:var(--color-navy)] sm:text-base">
+                  {p.solution}
+                </p>
+              </div>
+            </div>
+          ))}
+        </div>
+      </div>
+    </section>
+  );
+}
+
+function Examples({ t }: { t: Dictionary }) {
+  const items = [
+    {
+      restaurant: t.landing.testimonial1Restaurant,
+      city: t.landing.testimonial1City,
+      slug: t.landing.testimonial1Slug,
+      quote: t.landing.testimonial1Quote,
+      name: t.landing.testimonial1Name,
+    },
+    {
+      restaurant: t.landing.testimonial2Restaurant,
+      city: t.landing.testimonial2City,
+      slug: t.landing.testimonial2Slug,
+      quote: t.landing.testimonial2Quote,
+      name: t.landing.testimonial2Name,
+    },
+    {
+      restaurant: t.landing.testimonial3Restaurant,
+      city: t.landing.testimonial3City,
+      slug: t.landing.testimonial3Slug,
+      quote: t.landing.testimonial3Quote,
+      name: t.landing.testimonial3Name,
+    },
+  ];
+
+  return (
+    <section className="bg-white">
+      <div className="mx-auto max-w-6xl px-6 py-16 sm:py-20">
+        <h2 className="mb-12 text-center text-3xl font-bold text-[color:var(--color-navy)] sm:text-4xl">
+          {t.landing.testimonialsHeading}
+        </h2>
+        <div className="grid gap-6 md:grid-cols-3">
+          {items.map((it, i) => (
+            <figure key={i} className="card flex flex-col items-center gap-5 text-center">
+              <BrandedQrCode
+                value={`https://menulala.com/m/${it.slug}`}
+                title={format(t.dashboard.qr.menuQrTitle, { name: it.restaurant })}
+                scanLabel={t.dashboard.qr.scanLabel}
+                scanHint=""
+                width={180}
+              />
+              <div>
+                <div className="text-base font-bold text-[color:var(--color-navy)]">
+                  {it.restaurant}
+                </div>
+                <div className="text-xs text-gray-500">{it.city}</div>
+              </div>
+              <blockquote className="w-full border-t border-gray-100 pt-4 text-sm italic leading-relaxed text-gray-600">
+                &ldquo;{it.quote}&rdquo;
+              </blockquote>
+              <figcaption className="mt-auto text-xs font-medium text-gray-500">
+                — {it.name}
+              </figcaption>
+            </figure>
+          ))}
+        </div>
+      </div>
+    </section>
+  );
+}
+
+function Faq({ t }: { t: Dictionary }) {
+  const items = [
+    { q: t.landing.faq1Q, a: t.landing.faq1A },
+    { q: t.landing.faq2Q, a: t.landing.faq2A },
+    { q: t.landing.faq3Q, a: t.landing.faq3A },
+    {
+      q: t.landing.faq4Q,
+      a: format(t.landing.faq4A, { free: FREE_IMAGE_LIMIT, pro: PRO_IMAGE_LIMIT }),
+    },
+    { q: t.landing.faq5Q, a: t.landing.faq5A },
+  ];
+
+  return (
+    <section className="border-t border-gray-100 bg-gray-50/60">
+      <div className="mx-auto max-w-3xl px-6 py-16 sm:py-20">
+        <h2 className="mb-12 text-center text-3xl font-bold text-[color:var(--color-navy)] sm:text-4xl">
+          {t.landing.faqHeading}
+        </h2>
+        <div className="flex flex-col gap-4">
+          {items.map((it, i) => (
+            <div key={i} className="card">
+              <h3 className="mb-2 text-base font-bold text-[color:var(--color-navy)]">
+                {it.q}
+              </h3>
+              <p className="text-sm leading-relaxed text-gray-600">{it.a}</p>
             </div>
           ))}
         </div>
