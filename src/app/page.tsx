@@ -1,7 +1,7 @@
-import Image from "next/image";
 import Link from "next/link";
 import { auth } from "@/auth";
 import { BrandedQrCode } from "@/app/dashboard/branded-qr";
+import { HeroPhonePreview } from "@/app/hero-phone-preview";
 import { Logo } from "@/components/logo";
 import {
   ArrowRightIcon,
@@ -14,18 +14,32 @@ import {
 import { getDictionary, getLocale } from "@/i18n";
 import type { Dictionary } from "@/i18n";
 import { format } from "@/i18n/config";
+import {
+  detectCountry,
+  mockupImagePaths,
+  regionFromLocale,
+  topAppsForCountry,
+  type SerializableApp,
+} from "@/lib/hero-mockup";
 import { FREE_IMAGE_LIMIT, PRO_IMAGE_LIMIT } from "@/lib/pricing";
-import previewImage from "../../example/01.jpg";
 
 export default async function Home() {
   const session = await auth();
   const locale = await getLocale();
   const t = await getDictionary(locale);
+  const country = await detectCountry(locale);
+  const heroImages = mockupImagePaths(regionFromLocale(locale));
+  const heroApps = topAppsForCountry(country, 2);
 
   return (
     <div className="flex min-h-screen flex-col">
       <SiteHeader signedIn={!!session?.user} t={t} />
-      <Hero signedIn={!!session?.user} t={t} />
+      <Hero
+        signedIn={!!session?.user}
+        t={t}
+        heroImages={heroImages}
+        heroApps={heroApps}
+      />
       <PainSolution t={t} />
       <Features t={t} />
       <Examples t={t} />
@@ -65,7 +79,17 @@ function SiteHeader({ signedIn, t }: { signedIn: boolean; t: Dictionary }) {
   );
 }
 
-function Hero({ signedIn, t }: { signedIn: boolean; t: Dictionary }) {
+function Hero({
+  signedIn,
+  t,
+  heroImages,
+  heroApps,
+}: {
+  signedIn: boolean;
+  t: Dictionary;
+  heroImages: string[];
+  heroApps: SerializableApp[];
+}) {
   return (
     <section className="relative overflow-hidden">
       <div className="mx-auto grid max-w-6xl gap-10 px-6 py-16 sm:py-24 md:grid-cols-2 md:items-center">
@@ -100,31 +124,13 @@ function Hero({ signedIn, t }: { signedIn: boolean; t: Dictionary }) {
           </Link>
         </div>
 
-        <PhonePreview alt={t.landing.phonePreviewAlt} />
+        <HeroPhonePreview
+          alt={t.landing.phonePreviewAlt}
+          images={heroImages}
+          apps={heroApps}
+        />
       </div>
     </section>
-  );
-}
-
-function PhonePreview({ alt }: { alt: string }) {
-  return (
-    <div className="relative mx-auto w-full max-w-sm">
-      <div className="relative aspect-[9/19] w-full rounded-[2.5rem] border-[10px] border-[color:var(--color-navy)] bg-[color:var(--color-navy)] shadow-2xl">
-        <div className="absolute left-1/2 top-2 z-10 h-1.5 w-16 -translate-x-1/2 rounded-full bg-gray-700" />
-        <div className="relative h-full w-full overflow-hidden rounded-[2rem] bg-white">
-          <Image
-            src={previewImage}
-            alt={alt}
-            fill
-            sizes="(max-width: 640px) 80vw, 380px"
-            className="object-cover object-top"
-            priority
-          />
-        </div>
-      </div>
-      <div className="absolute -left-4 -top-4 -z-10 h-32 w-32 rounded-full bg-[color:var(--color-brand-100)] blur-2xl" />
-      <div className="absolute -bottom-6 -right-6 -z-10 h-40 w-40 rounded-full bg-[color:var(--color-brand-50)] blur-2xl" />
-    </div>
   );
 }
 
