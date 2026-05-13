@@ -75,6 +75,8 @@ const ptBR: Dictionary = {
     testimonial3Quote:
       "[PLACEHOLDER] Cinco minutos pra configurar. O QR tá nas mesas desde então.",
     testimonial3Name: "Júlia Tanaka",
+    pricingTeaserLine: "Grátis até {free} páginas · Pro a partir de {price} / mês.",
+    pricingTeaserCta: "Ver planos →",
     faqHeading: "Perguntas frequentes",
     faq1Q: "Meu cliente precisa baixar algum app?",
     faq1A: "Não. O cardápio abre direto no navegador do celular dele.",

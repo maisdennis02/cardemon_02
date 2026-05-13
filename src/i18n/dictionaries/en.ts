@@ -69,6 +69,8 @@ const en = {
     testimonial3Quote:
       "[PLACEHOLDER] Five minutes to set it up. The QR has been on our tables ever since.",
     testimonial3Name: "Júlia Tanaka",
+    pricingTeaserLine: "Free up to {free} pages · Pro from {price} / month.",
+    pricingTeaserCta: "See plans →",
     faqHeading: "Common questions",
     faq1Q: "Do my customers need to download an app?",
     faq1A: "No. The menu opens straight in their phone's browser.",

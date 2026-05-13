@@ -21,7 +21,12 @@ import {
   topAppsForCountry,
   type SerializableApp,
 } from "@/lib/hero-mockup";
-import { FREE_IMAGE_LIMIT, PRO_IMAGE_LIMIT } from "@/lib/pricing";
+import {
+  FREE_IMAGE_LIMIT,
+  PRO_IMAGE_LIMIT,
+  currencyForLocale,
+  pricesFor,
+} from "@/lib/pricing";
 
 export default async function Home() {
   const session = await auth();
@@ -30,6 +35,8 @@ export default async function Home() {
   const country = await detectCountry(locale);
   const heroImages = mockupImagePaths(regionFromLocale(locale));
   const heroApps = topAppsForCountry(country, 2);
+  const prices = pricesFor(currencyForLocale(locale));
+  const priceLabel = `${prices.symbol}${prices.monthly}`;
 
   return (
     <div className="flex min-h-screen flex-col">
@@ -43,6 +50,7 @@ export default async function Home() {
       <PainSolution t={t} />
       <Features t={t} />
       <Examples t={t} />
+      <PricingTeaser t={t} priceLabel={priceLabel} />
       <Faq t={t} />
       <BottomCta signedIn={!!session?.user} t={t} />
       <SiteFooter t={t} />
@@ -142,7 +150,7 @@ function Features({ t }: { t: Dictionary }) {
   ];
 
   return (
-    <section className="border-t border-gray-100 bg-gray-50/60">
+    <section className="border-t border-gray-100 bg-white">
       <div className="mx-auto max-w-6xl px-6 py-16 sm:py-20">
         <h2 className="mb-12 text-center text-3xl font-bold text-[color:var(--color-navy)] sm:text-4xl">
           {t.landing.featuresHeading}
@@ -174,7 +182,7 @@ function PainSolution({ t }: { t: Dictionary }) {
   ];
 
   return (
-    <section className="border-t border-gray-100 bg-white">
+    <section className="border-t border-gray-100 bg-gray-50">
       <div className="mx-auto max-w-6xl px-6 py-16 sm:py-20">
         <div className="mx-auto mb-12 max-w-2xl text-center">
           <h2 className="text-3xl font-bold text-[color:var(--color-navy)] sm:text-4xl">
@@ -238,7 +246,7 @@ function Examples({ t }: { t: Dictionary }) {
   ];
 
   return (
-    <section className="bg-white">
+    <section className="border-t border-gray-100 bg-[color:var(--color-brand-50)]">
       <div className="mx-auto max-w-6xl px-6 py-16 sm:py-20">
         <h2 className="mb-12 text-center text-3xl font-bold text-[color:var(--color-navy)] sm:text-4xl">
           {t.landing.testimonialsHeading}
@@ -273,6 +281,34 @@ function Examples({ t }: { t: Dictionary }) {
   );
 }
 
+function PricingTeaser({
+  t,
+  priceLabel,
+}: {
+  t: Dictionary;
+  priceLabel: string;
+}) {
+  return (
+    <section className="border-t border-gray-100 bg-white">
+      <div className="mx-auto max-w-3xl px-6 py-10 text-center">
+        <p className="text-sm font-medium text-gray-700 sm:text-base">
+          {format(t.landing.pricingTeaserLine, {
+            free: FREE_IMAGE_LIMIT,
+            price: priceLabel,
+          })}
+          {" "}
+          <Link
+            href="/pricing"
+            className="font-bold text-[color:var(--color-brand)] hover:underline"
+          >
+            {t.landing.pricingTeaserCta}
+          </Link>
+        </p>
+      </div>
+    </section>
+  );
+}
+
 function Faq({ t }: { t: Dictionary }) {
   const items = [
     { q: t.landing.faq1Q, a: t.landing.faq1A },
@@ -286,7 +322,7 @@ function Faq({ t }: { t: Dictionary }) {
   ];
 
   return (
-    <section className="border-t border-gray-100 bg-gray-50/60">
+    <section className="border-t border-gray-100 bg-gray-50">
       <div className="mx-auto max-w-3xl px-6 py-16 sm:py-20">
         <h2 className="mb-12 text-center text-3xl font-bold text-[color:var(--color-navy)] sm:text-4xl">
           {t.landing.faqHeading}

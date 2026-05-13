@@ -23,14 +23,14 @@
 .hero-slide-img {
   width: 100%;
   height: 100%;
-  object-fit: cover;
+  object-fit: contain;
   object-position: top;
   display: block;
 }
 
 .hero-social-buttons {
   position: absolute;
-  top: 14px;
+  top: 20px;
   left: 10px;
   right: 10px;
   z-index: 20;
@@ -44,6 +44,7 @@
   align-items: center;
   gap: 5px;
   padding: 5px 10px;
+  margin: 0 0 2px 0;
   border: none;
   border-radius: 999px;
   font-family: var(--font-encode-sans), system-ui, sans-serif;
@@ -94,6 +95,9 @@
 
 .hero-chev {
   animation: heroChevPulse 1s ease-in-out infinite alternate;
+}
+.hero-chev + .hero-chev {
+  margin-left: -8px;
 }
 .hero-chev-0 { animation-delay: 0s; }
 .hero-chev-1 { animation-delay: 0.2s; }

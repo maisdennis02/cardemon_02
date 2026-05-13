@@ -75,6 +75,8 @@ const es: Dictionary = {
     testimonial3Quote:
       "[PLACEHOLDER] Cinco minutos para configurarlo. El QR está en las mesas desde entonces.",
     testimonial3Name: "Júlia Tanaka",
+    pricingTeaserLine: "Gratis hasta {free} páginas · Pro desde {price} / mes.",
+    pricingTeaserCta: "Ver planes →",
     faqHeading: "Preguntas frecuentes",
     faq1Q: "¿Mi cliente necesita descargar alguna app?",
     faq1A: "No. El menú se abre directo en el navegador del celular.",

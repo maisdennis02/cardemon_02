@@ -64,8 +64,8 @@ export function topAppsForCountry(country: CountryCode, n = 2): SerializableApp[
 
 export function mockupImagePaths(region: MockupRegion): string[] {
   return [
-    `/mockup/${region}/01.jpg`,
-    `/mockup/${region}/02.jpg`,
-    `/mockup/${region}/03.jpg`,
+    `/mockup/${region}/01.webp`,
+    `/mockup/${region}/02.webp`,
+    `/mockup/${region}/03.webp`,
   ];
 }
