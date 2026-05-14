@@ -338,7 +338,7 @@ function SortableImageCard({ image, index }: { image: MenuImage; index: number }
           <button
             type="submit"
             aria-label={im.deleteAria}
-            className="flex items-center gap-1 rounded-md px-2 py-1.5 text-xs font-medium text-red-600 transition hover:bg-red-50"
+            className="flex cursor-pointer items-center gap-1 rounded-md px-2 py-1.5 text-xs font-medium text-red-600 transition hover:bg-red-50"
           >
             <TrashIcon size={14} />
             {t.common.delete}

@@ -253,7 +253,14 @@ function Examples({ t }: { t: Dictionary }) {
         </h2>
         <div className="grid gap-6 md:grid-cols-3">
           {items.map((it, i) => (
-            <figure key={i} className="card flex flex-col items-center gap-5 text-center">
+            <Link
+              key={i}
+              href={`/m/${it.slug}`}
+              target="_blank"
+              rel="noopener noreferrer"
+              aria-label={format(t.dashboard.qr.menuQrTitle, { name: it.restaurant })}
+              className="card flex flex-col items-center gap-5 text-center transition-all duration-200 hover:-translate-y-1 hover:shadow-lg hover:border-[color:var(--color-brand)]/40"
+            >
               <BrandedQrCode
                 value={`https://menulala.com/m/${it.slug}`}
                 title={format(t.dashboard.qr.menuQrTitle, { name: it.restaurant })}
@@ -270,10 +277,10 @@ function Examples({ t }: { t: Dictionary }) {
               <blockquote className="w-full border-t border-gray-100 pt-4 text-sm italic leading-relaxed text-gray-600">
                 &ldquo;{it.quote}&rdquo;
               </blockquote>
-              <figcaption className="mt-auto text-xs font-medium text-gray-500">
+              <div className="mt-auto text-xs font-medium text-gray-500">
                 — {it.name}
-              </figcaption>
-            </figure>
+              </div>
+            </Link>
           ))}
         </div>
       </div>

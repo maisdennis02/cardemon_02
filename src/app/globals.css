@@ -56,6 +56,25 @@ body {
     outline: 2px solid var(--color-brand);
     outline-offset: 1px;
   }
+
+  a[href],
+  button:not(:disabled),
+  summary,
+  label[for],
+  select:not(:disabled),
+  [role="button"]:not([aria-disabled="true"]),
+  [role="link"],
+  [role="tab"],
+  [role="menuitem"],
+  [role="option"],
+  input[type="submit"]:not(:disabled),
+  input[type="button"]:not(:disabled),
+  input[type="reset"]:not(:disabled),
+  input[type="checkbox"]:not(:disabled),
+  input[type="radio"]:not(:disabled),
+  input[type="file"]:not(:disabled) {
+    cursor: pointer;
+  }
 }
 
 /* Reusable component classes. Used across landing, auth, dashboard.
@@ -64,7 +83,7 @@ body {
    like className="btn btn-primary". */
 @layer components {
   .btn {
-    @apply inline-flex items-center justify-center gap-2 rounded-full px-5 py-2.5 text-sm font-bold transition disabled:cursor-not-allowed disabled:opacity-50;
+    @apply inline-flex cursor-pointer items-center justify-center gap-2 rounded-full px-5 py-2.5 text-sm font-bold transition disabled:cursor-not-allowed disabled:opacity-50;
   }
   .btn-primary {
     @apply bg-[color:var(--color-brand)] text-white hover:bg-[color:var(--color-brand-600)] active:bg-[color:var(--color-brand-700)];
