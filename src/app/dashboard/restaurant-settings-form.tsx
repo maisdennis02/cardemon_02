@@ -34,7 +34,11 @@ export function RestaurantSettingsForm({ restaurant }: { restaurant: Restaurant 
   const t = useT();
   const [state, action, pending] = useActionState<ActionState, FormData>(updateRestaurant, {});
   const [open, setOpen] = useState(false);
+  const [name, setName] = useState(restaurant.name);
   const [slug, setSlug] = useState(restaurant.slug);
+  const [slugTouched, setSlugTouched] = useState(
+    restaurant.slug !== slugify(restaurant.name),
+  );
   const [country, setCountry] = useState<string>(restaurant.country ?? "");
 
   const s = t.dashboard.settings;
@@ -87,7 +91,11 @@ export function RestaurantSettingsForm({ restaurant }: { restaurant: Restaurant 
           <input
             name="name"
             required
-            defaultValue={restaurant.name}
+            value={name}
+            onChange={(e) => {
+              setName(e.target.value);
+              if (!slugTouched) setSlug(slugify(e.target.value));
+            }}
             className="input"
           />
         </label>
@@ -100,7 +108,10 @@ export function RestaurantSettingsForm({ restaurant }: { restaurant: Restaurant 
               name="slug"
               required
               value={slug}
-              onChange={(e) => setSlug(slugify(e.target.value))}
+              onChange={(e) => {
+                setSlug(slugify(e.target.value));
+                setSlugTouched(true);
+              }}
               pattern="[a-z0-9-]+"
               className="flex-1 border-0 bg-transparent px-2 py-2.5 font-mono text-sm focus:outline-none"
             />
@@ -133,7 +144,7 @@ export function RestaurantSettingsForm({ restaurant }: { restaurant: Restaurant 
           <input
             name="whatsappNumber"
             defaultValue={restaurant.whatsappNumber ?? ""}
-            placeholder="5513996332974"
+            placeholder={s.whatsappPlaceholder}
             pattern="\d{8,15}"
             className="input font-mono"
           />
@@ -146,7 +157,7 @@ export function RestaurantSettingsForm({ restaurant }: { restaurant: Restaurant 
             name="instagramUrl"
             type="url"
             defaultValue={restaurant.instagramUrl ?? ""}
-            placeholder="https://instagram.com/yourhandle"
+            placeholder={s.instagramPlaceholder}
             className="input"
           />
         </label>

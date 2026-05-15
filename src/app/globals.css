@@ -1,7 +1,7 @@
 @import "tailwindcss";
 
 :root {
-  --background: #ffffff;
+  --background: #faf7f2;
   --foreground: #101522;
   color-scheme: light;
 }
@@ -11,14 +11,16 @@
   --color-background: var(--background);
   --color-foreground: var(--foreground);
 
-  /* Brand palette — matches example/styles.css */
-  --color-brand: #007aff;
-  --color-brand-50: #e5f1ff;
-  --color-brand-100: #cce4ff;
-  --color-brand-600: #006ae0;
-  --color-brand-700: #0058bd;
+  /* Warm tomato accent — restaurant-friendly, AA contrast vs white at -600+. */
+  --color-brand: #c84630;
+  --color-brand-50: #fbedea;
+  --color-brand-100: #f6d5ce;
+  --color-brand-600: #a93a28;
+  --color-brand-700: #8a2e20;
   --color-navy: #101522;
   --color-navy-soft: #1c2333;
+  --color-cream: #faf7f2;
+  --color-cream-deep: #f3ede2;
 
   --font-sans: var(--font-encode-sans), var(--font-geist-sans), system-ui, sans-serif;
   --font-mono: var(--font-geist-mono), ui-monospace, monospace;
@@ -83,7 +85,7 @@ body {
    like className="btn btn-primary". */
 @layer components {
   .btn {
-    @apply inline-flex cursor-pointer items-center justify-center gap-2 rounded-full px-5 py-2.5 text-sm font-bold transition disabled:cursor-not-allowed disabled:opacity-50;
+    @apply inline-flex min-h-11 cursor-pointer items-center justify-center gap-2 rounded-full px-5 py-2.5 text-sm font-bold transition disabled:cursor-not-allowed disabled:opacity-50;
   }
   .btn-primary {
     @apply bg-[color:var(--color-brand)] text-white hover:bg-[color:var(--color-brand-600)] active:bg-[color:var(--color-brand-700)];

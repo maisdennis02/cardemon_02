@@ -10,6 +10,7 @@ export function OnboardingForm() {
   const [state, action, pending] = useActionState<ActionState, FormData>(createRestaurant, {});
   const [name, setName] = useState("");
   const [slug, setSlug] = useState("");
+  const [slugTouched, setSlugTouched] = useState(false);
 
   const ob = t.dashboard.onboarding;
 
@@ -21,7 +22,7 @@ export function OnboardingForm() {
       <p className="mb-6 text-sm text-gray-600">
         {ob.leadPrefix}{" "}
         <code className="rounded bg-gray-100 px-1.5 py-0.5 font-mono text-xs">
-          /m/your-slug
+          {ob.urlExample}
         </code>{" "}
         {ob.leadSuffix}
       </p>
@@ -35,7 +36,7 @@ export function OnboardingForm() {
             value={name}
             onChange={(e) => {
               setName(e.target.value);
-              if (!slug) setSlug(slugify(e.target.value));
+              if (!slugTouched) setSlug(slugify(e.target.value));
             }}
             placeholder={ob.restaurantNamePlaceholder}
             className="input"
@@ -51,7 +52,10 @@ export function OnboardingForm() {
               name="slug"
               required
               value={slug}
-              onChange={(e) => setSlug(slugify(e.target.value))}
+              onChange={(e) => {
+                setSlug(slugify(e.target.value));
+                setSlugTouched(true);
+              }}
               pattern="[a-z0-9-]+"
               placeholder={ob.slugPlaceholder}
               className="flex-1 border-0 bg-transparent px-2 py-2.5 font-mono text-sm focus:outline-none"
@@ -64,7 +68,7 @@ export function OnboardingForm() {
           <span className="label-hint">{ob.whatsappHint}</span>
           <input
             name="whatsappNumber"
-            placeholder="5513996332974"
+            placeholder={ob.whatsappPlaceholder}
             pattern="\d{8,15}"
             className="input font-mono"
           />
@@ -76,7 +80,7 @@ export function OnboardingForm() {
           <input
             name="instagramUrl"
             type="url"
-            placeholder="https://instagram.com/yourhandle"
+            placeholder={ob.instagramPlaceholder}
             className="input"
           />
         </label>

@@ -6,6 +6,7 @@ import { Logo } from "@/components/logo";
 import {
   ArrowRightIcon,
   CheckIcon,
+  ChevronDownIcon,
   PhoneIcon,
   ShareIcon,
   UploadIcon,
@@ -41,18 +42,19 @@ export default async function Home() {
   return (
     <div className="flex min-h-screen flex-col">
       <SiteHeader signedIn={!!session?.user} t={t} />
-      <Hero
-        signedIn={!!session?.user}
-        t={t}
-        heroImages={heroImages}
-        heroApps={heroApps}
-      />
-      <PainSolution t={t} />
-      <Features t={t} />
-      <Examples t={t} />
-      <PricingTeaser t={t} priceLabel={priceLabel} />
-      <Faq t={t} />
-      <BottomCta signedIn={!!session?.user} t={t} />
+      <main className="flex flex-col">
+        <Hero
+          signedIn={!!session?.user}
+          t={t}
+          heroImages={heroImages}
+          heroApps={heroApps}
+        />
+        <PainSolution t={t} />
+        <Features t={t} />
+        <Examples t={t} />
+        <Faq t={t} />
+        <BottomCta signedIn={!!session?.user} t={t} priceLabel={priceLabel} />
+      </main>
       <SiteFooter t={t} />
     </div>
   );
@@ -60,11 +62,14 @@ export default async function Home() {
 
 function SiteHeader({ signedIn, t }: { signedIn: boolean; t: Dictionary }) {
   return (
-    <header className="sticky top-0 z-30 border-b border-gray-100 bg-white/80 backdrop-blur">
-      <div className="mx-auto flex max-w-6xl items-center justify-between px-6 py-4">
+    <header className="sticky top-0 z-30 border-b border-gray-200/70 bg-[color:var(--background)]">
+      <div className="mx-auto flex max-w-6xl items-center justify-between gap-3 px-4 py-3 sm:px-6 sm:py-4">
         <Logo />
-        <nav className="flex items-center gap-2">
-          <Link href="/pricing" className="btn btn-ghost btn-sm">
+        <nav className="flex items-center gap-1 sm:gap-2">
+          <Link
+            href="/pricing"
+            className="hidden min-h-11 items-center rounded-full px-3 py-2 text-sm font-bold text-[color:var(--color-navy)] hover:bg-gray-100 sm:inline-flex"
+          >
             {t.common.pricing}
           </Link>
           {signedIn ? (
@@ -73,7 +78,10 @@ function SiteHeader({ signedIn, t }: { signedIn: boolean; t: Dictionary }) {
             </Link>
           ) : (
             <>
-              <Link href="/login" className="btn btn-ghost btn-sm">
+              <Link
+                href="/login"
+                className="inline-flex min-h-11 items-center rounded-full px-3 py-2 text-sm font-bold text-[color:var(--color-navy)] hover:bg-gray-100"
+              >
                 {t.common.logIn}
               </Link>
               <Link href="/signup" className="btn btn-primary btn-sm">
@@ -100,24 +108,29 @@ function Hero({
 }) {
   return (
     <section className="relative overflow-hidden">
-      <div className="mx-auto grid max-w-6xl gap-10 px-6 py-16 sm:py-24 md:grid-cols-2 md:items-center">
+      <div className="mx-auto grid max-w-6xl items-center gap-10 px-6 py-14 sm:py-20 md:grid-cols-[1.05fr_1fr] md:gap-14 md:py-24">
         <div className="flex flex-col gap-6">
-          <span className="self-start rounded-full bg-[color:var(--color-brand-50)] px-3 py-1 text-xs font-bold uppercase tracking-wider text-[color:var(--color-brand-700)]">
+          <span className="self-start rounded-full bg-[color:var(--color-brand-50)] px-3 py-1 text-xs font-bold uppercase tracking-[0.14em] text-[color:var(--color-brand-700)]">
             {t.landing.badge}
           </span>
-          <h1 className="text-4xl font-bold leading-tight tracking-tight text-[color:var(--color-navy)] sm:text-5xl md:text-6xl">
+          <h1 className="text-balance text-4xl font-bold leading-[1.05] tracking-tight text-[color:var(--color-navy)] sm:text-5xl md:text-6xl">
             {t.landing.heroTitleLine1}
             <br />
             <span className="text-[color:var(--color-brand)]">{t.landing.heroTitleLine2}</span>
           </h1>
-          <p className="max-w-md text-lg text-gray-600">{t.landing.heroLead}</p>
-          <div className="flex flex-wrap gap-3">
-            <Link href={signedIn ? "/dashboard" : "/signup"} className="btn btn-primary">
+          <p className="max-w-md text-lg leading-relaxed text-gray-600">
+            {t.landing.heroLead}
+          </p>
+          <div className="flex flex-col gap-3 sm:flex-row sm:items-center">
+            <Link
+              href={signedIn ? "/dashboard" : "/signup"}
+              className="btn btn-primary w-full sm:w-auto"
+            >
               {signedIn ? t.landing.goToDashboard : t.common.getStarted}
               <ArrowRightIcon size={16} />
             </Link>
             {!signedIn && (
-              <Link href="/login" className="btn btn-secondary">
+              <Link href="/login" className="btn btn-secondary w-full sm:w-auto">
                 {t.landing.iHaveAccount}
               </Link>
             )}
@@ -126,7 +139,7 @@ function Hero({
             href="/m/demo"
             target="_blank"
             rel="noreferrer"
-            className="self-start text-sm font-bold text-[color:var(--color-brand)] hover:underline"
+            className="inline-flex min-h-11 items-center gap-2 self-start rounded-full bg-[color:var(--color-brand-50)] px-4 py-2 text-sm font-bold text-[color:var(--color-brand-700)] transition hover:bg-[color:var(--color-brand-100)]"
           >
             {t.landing.heroDemoLink}
           </Link>
@@ -150,22 +163,34 @@ function Features({ t }: { t: Dictionary }) {
   ];
 
   return (
-    <section className="border-t border-gray-100 bg-white">
+    <section className="border-t border-gray-200/70 bg-[color:var(--color-cream-deep)]">
       <div className="mx-auto max-w-6xl px-6 py-16 sm:py-20">
-        <h2 className="mb-12 text-center text-3xl font-bold text-[color:var(--color-navy)] sm:text-4xl">
+        <h2 className="mb-12 text-center text-3xl font-bold tracking-tight text-[color:var(--color-navy)] sm:text-4xl">
           {t.landing.featuresHeading}
         </h2>
-        <div className="grid gap-6 md:grid-cols-3">
+        <div className="relative grid gap-6 md:grid-cols-3">
+          <span
+            aria-hidden
+            className="pointer-events-none absolute left-[18%] right-[18%] top-[46px] hidden border-t border-dashed border-[color:var(--color-brand-100)] md:block"
+          />
           {items.map((it, i) => (
-            <div key={i} className="card flex flex-col gap-3">
-              <div className="flex h-11 w-11 items-center justify-center rounded-xl bg-[color:var(--color-brand-50)] text-[color:var(--color-brand)]">
-                <it.icon size={22} />
+            <article
+              key={i}
+              className="card relative z-10 flex flex-col gap-4"
+            >
+              <div className="flex items-center gap-3">
+                <span className="flex h-11 w-11 flex-none items-center justify-center rounded-full bg-[color:var(--color-brand)] text-base font-bold tabular-nums text-white">
+                  {String(i + 1).padStart(2, "0")}
+                </span>
+                <span className="flex h-11 w-11 flex-none items-center justify-center rounded-2xl bg-[color:var(--color-brand-50)] text-[color:var(--color-brand)]">
+                  <it.icon size={22} />
+                </span>
               </div>
               <h3 className="text-lg font-bold text-[color:var(--color-navy)]">
                 {it.title}
               </h3>
               <p className="text-sm leading-relaxed text-gray-600">{it.body}</p>
-            </div>
+            </article>
           ))}
         </div>
       </div>
@@ -182,39 +207,39 @@ function PainSolution({ t }: { t: Dictionary }) {
   ];
 
   return (
-    <section className="border-t border-gray-100 bg-gray-50">
+    <section className="border-t border-gray-200/70 bg-white">
       <div className="mx-auto max-w-6xl px-6 py-16 sm:py-20">
         <div className="mx-auto mb-12 max-w-2xl text-center">
-          <h2 className="text-3xl font-bold text-[color:var(--color-navy)] sm:text-4xl">
+          <h2 className="text-3xl font-bold tracking-tight text-[color:var(--color-navy)] sm:text-4xl">
             {t.landing.painHeading}
           </h2>
           <p className="mt-4 text-gray-600">{t.landing.painLead}</p>
         </div>
-        <div className="flex flex-col gap-4">
+        <ul className="flex flex-col gap-4">
           {pairs.map((p, i) => (
-            <div
+            <li
               key={i}
-              className="grid gap-4 rounded-2xl border border-gray-200 bg-white p-5 shadow-sm md:grid-cols-2 md:gap-6"
+              className="grid gap-5 rounded-2xl border border-gray-200 bg-[color:var(--color-cream)] p-5 shadow-sm sm:p-6 md:grid-cols-2 md:gap-8"
             >
               <div className="flex items-start gap-3">
-                <span className="mt-0.5 flex h-7 w-7 flex-none items-center justify-center rounded-full bg-red-50 text-red-600">
+                <span className="mt-0.5 flex h-8 w-8 flex-none items-center justify-center rounded-full bg-[color:var(--color-brand-50)] text-[color:var(--color-brand-700)]">
                   <XIcon size={16} />
                 </span>
-                <p className="text-sm leading-relaxed text-gray-700 sm:text-base">
+                <p className="text-base leading-relaxed text-gray-700">
                   {p.pain}
                 </p>
               </div>
-              <div className="flex items-start gap-3 md:border-l md:border-gray-100 md:pl-6">
-                <span className="mt-0.5 flex h-7 w-7 flex-none items-center justify-center rounded-full bg-green-50 text-green-600">
+              <div className="flex items-start gap-3 md:border-l md:border-gray-200 md:pl-8">
+                <span className="mt-0.5 flex h-8 w-8 flex-none items-center justify-center rounded-full bg-[#EDF1E0] text-[#5C6E27]">
                   <CheckIcon size={16} />
                 </span>
-                <p className="text-sm leading-relaxed font-medium text-[color:var(--color-navy)] sm:text-base">
+                <p className="text-base font-medium leading-relaxed text-[color:var(--color-navy)]">
                   {p.solution}
                 </p>
               </div>
-            </div>
+            </li>
           ))}
-        </div>
+        </ul>
       </div>
     </section>
   );
@@ -246,71 +271,52 @@ function Examples({ t }: { t: Dictionary }) {
   ];
 
   return (
-    <section className="border-t border-gray-100 bg-[color:var(--color-brand-50)]">
+    <section className="border-t border-gray-200/70 bg-[color:var(--color-brand-50)]">
       <div className="mx-auto max-w-6xl px-6 py-16 sm:py-20">
-        <h2 className="mb-12 text-center text-3xl font-bold text-[color:var(--color-navy)] sm:text-4xl">
+        <h2 className="mb-12 text-center text-3xl font-bold tracking-tight text-[color:var(--color-navy)] sm:text-4xl">
           {t.landing.testimonialsHeading}
         </h2>
-        <div className="grid gap-6 md:grid-cols-3">
+        <ul className="grid gap-6 md:grid-cols-3">
           {items.map((it, i) => (
-            <Link
-              key={i}
-              href={`/m/${it.slug}`}
-              target="_blank"
-              rel="noopener noreferrer"
-              aria-label={format(t.dashboard.qr.menuQrTitle, { name: it.restaurant })}
-              className="card flex flex-col items-center gap-5 text-center transition-all duration-200 hover:-translate-y-1 hover:shadow-lg hover:border-[color:var(--color-brand)]/40"
-            >
-              <BrandedQrCode
-                value={`https://menulala.com/m/${it.slug}`}
-                title={format(t.dashboard.qr.menuQrTitle, { name: it.restaurant })}
-                scanLabel={t.dashboard.qr.scanLabel}
-                scanHint=""
-                width={180}
-              />
-              <div>
-                <div className="text-base font-bold text-[color:var(--color-navy)]">
-                  {it.restaurant}
+            <li key={i} className="flex">
+              <Link
+                href={`/m/${it.slug}`}
+                target="_blank"
+                rel="noopener noreferrer"
+                aria-label={format(t.dashboard.qr.menuQrTitle, { name: it.restaurant })}
+                className="card flex w-full flex-col items-center gap-5 text-center transition duration-200 hover:-translate-y-1 hover:border-[color:var(--color-brand)]/50 hover:shadow-lg"
+              >
+                <BrandedQrCode
+                  value={`https://menulala.com/m/${it.slug}`}
+                  title={format(t.dashboard.qr.menuQrTitle, { name: it.restaurant })}
+                  scanLabel={t.dashboard.qr.scanLabel}
+                  scanHint=""
+                  width={170}
+                />
+                <div className="flex flex-col gap-1">
+                  <div className="text-base font-bold text-[color:var(--color-navy)]">
+                    {it.restaurant}
+                  </div>
+                  <div className="text-[11px] font-bold uppercase tracking-[0.14em] text-gray-500">
+                    {it.city}
+                  </div>
                 </div>
-                <div className="text-xs text-gray-500">{it.city}</div>
-              </div>
-              <blockquote className="w-full border-t border-gray-100 pt-4 text-sm italic leading-relaxed text-gray-600">
-                &ldquo;{it.quote}&rdquo;
-              </blockquote>
-              <div className="mt-auto text-xs font-medium text-gray-500">
-                — {it.name}
-              </div>
-            </Link>
+                <blockquote className="relative w-full border-t border-gray-100 pt-4 text-sm italic leading-relaxed text-gray-600">
+                  <span
+                    aria-hidden
+                    className="absolute -top-1 left-1/2 -translate-x-1/2 bg-white px-2 font-serif text-2xl leading-none text-[color:var(--color-brand)]"
+                  >
+                    &ldquo;
+                  </span>
+                  {it.quote}
+                </blockquote>
+                <div className="mt-auto text-xs font-medium text-gray-500">
+                  — {it.name}
+                </div>
+              </Link>
+            </li>
           ))}
-        </div>
-      </div>
-    </section>
-  );
-}
-
-function PricingTeaser({
-  t,
-  priceLabel,
-}: {
-  t: Dictionary;
-  priceLabel: string;
-}) {
-  return (
-    <section className="border-t border-gray-100 bg-white">
-      <div className="mx-auto max-w-3xl px-6 py-10 text-center">
-        <p className="text-sm font-medium text-gray-700 sm:text-base">
-          {format(t.landing.pricingTeaserLine, {
-            free: FREE_IMAGE_LIMIT,
-            price: priceLabel,
-          })}
-          {" "}
-          <Link
-            href="/pricing"
-            className="font-bold text-[color:var(--color-brand)] hover:underline"
-          >
-            {t.landing.pricingTeaserCta}
-          </Link>
-        </p>
+        </ul>
       </div>
     </section>
   );
@@ -329,19 +335,30 @@ function Faq({ t }: { t: Dictionary }) {
   ];
 
   return (
-    <section className="border-t border-gray-100 bg-gray-50">
+    <section className="border-t border-gray-200/70 bg-[color:var(--background)]">
       <div className="mx-auto max-w-3xl px-6 py-16 sm:py-20">
-        <h2 className="mb-12 text-center text-3xl font-bold text-[color:var(--color-navy)] sm:text-4xl">
+        <h2 className="mb-12 text-center text-3xl font-bold tracking-tight text-[color:var(--color-navy)] sm:text-4xl">
           {t.landing.faqHeading}
         </h2>
-        <div className="flex flex-col gap-4">
+        <div className="flex flex-col gap-3">
           {items.map((it, i) => (
-            <div key={i} className="card">
-              <h3 className="mb-2 text-base font-bold text-[color:var(--color-navy)]">
-                {it.q}
-              </h3>
-              <p className="text-sm leading-relaxed text-gray-600">{it.a}</p>
-            </div>
+            <details
+              key={i}
+              className="group rounded-2xl border border-gray-200 bg-white px-5 py-1 shadow-sm transition open:shadow-md sm:px-6"
+            >
+              <summary className="flex min-h-11 cursor-pointer list-none items-center justify-between gap-4 py-3 [&::-webkit-details-marker]:hidden">
+                <h3 className="text-base font-bold text-[color:var(--color-navy)]">
+                  {it.q}
+                </h3>
+                <ChevronDownIcon
+                  className="flex-none text-gray-400 transition-transform group-open:rotate-180"
+                  size={18}
+                />
+              </summary>
+              <p className="pb-4 pr-8 text-sm leading-relaxed text-gray-600">
+                {it.a}
+              </p>
+            </details>
           ))}
         </div>
       </div>
@@ -349,17 +366,41 @@ function Faq({ t }: { t: Dictionary }) {
   );
 }
 
-function BottomCta({ signedIn, t }: { signedIn: boolean; t: Dictionary }) {
+function BottomCta({
+  signedIn,
+  t,
+  priceLabel,
+}: {
+  signedIn: boolean;
+  t: Dictionary;
+  priceLabel: string;
+}) {
   if (signedIn) return null;
   return (
-    <section className="bg-[color:var(--color-navy)] text-white">
-      <div className="mx-auto flex max-w-6xl flex-col items-center gap-6 px-6 py-16 text-center sm:py-20">
-        <h2 className="text-3xl font-bold sm:text-4xl">{t.landing.ctaHeading}</h2>
-        <p className="max-w-lg text-gray-300">{t.landing.ctaLead}</p>
-        <Link href="/signup" className="btn btn-primary">
-          {t.common.getStarted}
-          <ArrowRightIcon size={16} />
-        </Link>
+    <section className="border-t border-gray-200/70 bg-[color:var(--background)]">
+      <div className="mx-auto max-w-3xl px-6 py-16 sm:py-20">
+        <div className="flex flex-col items-center gap-5 rounded-3xl border border-[color:var(--color-brand-100)] bg-[color:var(--color-cream-deep)] px-6 py-12 text-center shadow-sm sm:px-12">
+          <h2 className="text-3xl font-bold tracking-tight text-[color:var(--color-navy)] sm:text-4xl">
+            {t.landing.ctaHeading}
+          </h2>
+          <p className="max-w-lg text-gray-600">{t.landing.ctaLead}</p>
+          <Link href="/signup" className="btn btn-primary">
+            {t.common.getStarted}
+            <ArrowRightIcon size={16} />
+          </Link>
+          <p className="text-sm text-gray-600">
+            {format(t.landing.pricingTeaserLine, {
+              free: FREE_IMAGE_LIMIT,
+              price: priceLabel,
+            })}{" "}
+            <Link
+              href="/pricing"
+              className="font-bold text-[color:var(--color-brand-700)] hover:underline"
+            >
+              {t.landing.pricingTeaserCta}
+            </Link>
+          </p>
+        </div>
       </div>
     </section>
   );
@@ -367,11 +408,11 @@ function BottomCta({ signedIn, t }: { signedIn: boolean; t: Dictionary }) {
 
 function SiteFooter({ t }: { t: Dictionary }) {
   return (
-    <footer className="border-t border-gray-100 bg-white">
+    <footer className="border-t border-gray-200/70 bg-[color:var(--background)]">
       <div className="mx-auto flex max-w-6xl flex-col items-center justify-between gap-3 px-6 py-8 text-sm text-gray-500 sm:flex-row">
         <div className="flex items-center gap-2">
           <Logo size="sm" />
-          <span>·</span>
+          <span aria-hidden>·</span>
           <span>{t.landing.footerTagline}</span>
         </div>
         <p>© {new Date().getFullYear()} menulala</p>
