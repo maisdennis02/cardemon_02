@@ -14,6 +14,13 @@ export function format(template: string, vars: Record<string, string | number>):
   );
 }
 
+// Maps app locale to Open Graph locale codes (which use underscore-separated ISO).
+export const OG_LOCALE: Record<Locale, string> = {
+  en: "en_US",
+  "pt-BR": "pt_BR",
+  es: "es_ES",
+};
+
 export function pickLocaleFromAcceptLanguage(header: string | null | undefined): Locale {
   if (!header) return DEFAULT_LOCALE;
   const primary = header.split(",")[0]?.trim().split(";")[0]?.toLowerCase() ?? "";

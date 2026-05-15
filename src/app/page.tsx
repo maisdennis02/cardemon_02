@@ -28,6 +28,7 @@ import {
   currencyForLocale,
   pricesFor,
 } from "@/lib/pricing";
+import { siteUrl } from "@/lib/site";
 
 export default async function Home() {
   const session = await auth();
@@ -287,7 +288,7 @@ function Examples({ t }: { t: Dictionary }) {
                 className="card flex w-full flex-col items-center gap-5 text-center transition duration-200 hover:-translate-y-1 hover:border-[color:var(--color-brand)]/50 hover:shadow-lg"
               >
                 <BrandedQrCode
-                  value={`https://menulala.com/m/${it.slug}`}
+                  value={`${siteUrl()}/m/${it.slug}`}
                   title={format(t.dashboard.qr.menuQrTitle, { name: it.restaurant })}
                   scanLabel={t.dashboard.qr.scanLabel}
                   scanHint=""
@@ -334,8 +335,22 @@ function Faq({ t }: { t: Dictionary }) {
     { q: t.landing.faq5Q, a: t.landing.faq5A },
   ];
 
+  const faqLd = {
+    "@context": "https://schema.org",
+    "@type": "FAQPage",
+    mainEntity: items.map((it) => ({
+      "@type": "Question",
+      name: it.q,
+      acceptedAnswer: { "@type": "Answer", text: it.a },
+    })),
+  };
+
   return (
     <section className="border-t border-gray-200/70 bg-[color:var(--background)]">
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(faqLd) }}
+      />
       <div className="mx-auto max-w-3xl px-6 py-16 sm:py-20">
         <h2 className="mb-12 text-center text-3xl font-bold tracking-tight text-[color:var(--color-navy)] sm:text-4xl">
           {t.landing.faqHeading}
