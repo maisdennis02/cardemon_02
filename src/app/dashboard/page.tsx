@@ -8,11 +8,16 @@ import { OnboardingForm } from "./onboarding-form";
 import { ImageManager } from "./image-manager";
 import { MenuQrCard } from "./menu-qr-card";
 import { RestaurantSettingsForm } from "./restaurant-settings-form";
+import { DeliverySetupCallout } from "./delivery-setup-callout";
 import { getDictionary, getLocale } from "@/i18n";
 import type { Dictionary } from "@/i18n";
 import { imageLimitFor, isPro } from "@/lib/pricing";
 
-export default async function DashboardPage() {
+export default async function DashboardPage({
+  searchParams,
+}: {
+  searchParams: Promise<{ edit?: string }>;
+}) {
   const session = await auth();
   if (!session?.user?.id) redirect("/login");
 
@@ -29,6 +34,19 @@ export default async function DashboardPage() {
       select: { proExpiresAt: true },
     }),
   ]);
+
+  const { edit } = await searchParams;
+  const initialEdit = edit === "1";
+
+  const needsDeliverySetup =
+    !!restaurant &&
+    !restaurant.ifoodUrl &&
+    !restaurant.ubereatsUrl &&
+    !restaurant.doordashUrl &&
+    !restaurant.rappiUrl &&
+    !restaurant.grubhubUrl &&
+    !restaurant.pedidosyaUrl &&
+    !restaurant.didifoodUrl;
 
   const userIsPro = isPro(user);
   const imageLimit = imageLimitFor(user);
@@ -47,7 +65,12 @@ export default async function DashboardPage() {
           <OnboardingForm />
         ) : (
           <div className="flex flex-col gap-6">
-            <RestaurantSettingsForm restaurant={restaurant} />
+            {needsDeliverySetup && !initialEdit && <DeliverySetupCallout t={t} />}
+            <RestaurantSettingsForm
+              key={initialEdit ? "edit" : "view"}
+              restaurant={restaurant}
+              initialEdit={initialEdit}
+            />
             <MenuQrCard slug={restaurant.slug} name={restaurant.name} />
             <ImageManager
               restaurant={restaurant}

@@ -174,6 +174,11 @@ const ptBR: Dictionary = {
       deliveryCountryPrompt: "Selecione o país acima para adicionar links de delivery.",
       deliveryHint: "Opcional. Cole o link do seu perfil no {appName}.",
     },
+    deliverySetup: {
+      title: "Falta só uma coisa — seus apps de delivery",
+      body: "Vincule iFood, UberEats e outros para que os clientes peçam em um toque pelo cardápio.",
+      cta: "Adicionar links de delivery",
+    },
     qr: {
       title: "Compartilhe seu cardápio",
       lead: "Imprima este QR nas suas mesas — os clientes escaneiam para abrir o cardápio.",

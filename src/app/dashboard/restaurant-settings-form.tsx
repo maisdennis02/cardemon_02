@@ -30,10 +30,16 @@ type Restaurant = {
   didifoodUrl: string | null;
 };
 
-export function RestaurantSettingsForm({ restaurant }: { restaurant: Restaurant }) {
+export function RestaurantSettingsForm({
+  restaurant,
+  initialEdit = false,
+}: {
+  restaurant: Restaurant;
+  initialEdit?: boolean;
+}) {
   const t = useT();
   const [state, action, pending] = useActionState<ActionState, FormData>(updateRestaurant, {});
-  const [open, setOpen] = useState(false);
+  const [open, setOpen] = useState(initialEdit);
   const [name, setName] = useState(restaurant.name);
   const [slug, setSlug] = useState(restaurant.slug);
   const [slugTouched, setSlugTouched] = useState(
@@ -118,7 +124,12 @@ export function RestaurantSettingsForm({ restaurant }: { restaurant: Restaurant 
           </div>
         </label>
 
-        <label className="label">
+        <label
+          id="country"
+          className={`label scroll-mt-24 rounded-lg p-2 -m-2 ${
+            initialEdit && !country ? "animate-highlight-fade" : ""
+          }`}
+        >
           {s.country}
           <span className="label-hint">{s.countryHint}</span>
           <select
@@ -162,7 +173,10 @@ export function RestaurantSettingsForm({ restaurant }: { restaurant: Restaurant 
           />
         </label>
 
-        <fieldset className="flex flex-col gap-3 rounded-lg border border-gray-200 p-4">
+        <fieldset
+          id="delivery"
+          className="flex flex-col gap-3 scroll-mt-20 rounded-lg border border-gray-200 p-4"
+        >
           <legend className="px-1 text-sm font-bold text-[color:var(--color-navy)]">
             {s.delivery}
           </legend>

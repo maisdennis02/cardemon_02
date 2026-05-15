@@ -123,6 +123,31 @@ body {
   }
 }
 
+/* Subtle right-nudge for "next step" cues. CSS-only, motion-aware. */
+@keyframes nudge-right {
+  0%, 60%, 100% { transform: translateX(0); }
+  72% { transform: translateX(4px); }
+  88% { transform: translateX(0); }
+}
+.animate-nudge-right {
+  animation: nudge-right 2.6s ease-in-out infinite;
+}
+
+/* One-shot highlight that fades a tomato ring + tint over ~3s, then settles. */
+@keyframes highlight-fade {
+  0%   { box-shadow: 0 0 0 4px var(--color-brand-100); background-color: var(--color-brand-50); }
+  70%  { box-shadow: 0 0 0 4px var(--color-brand-100); background-color: var(--color-brand-50); }
+  100% { box-shadow: 0 0 0 0 transparent; background-color: transparent; }
+}
+.animate-highlight-fade {
+  animation: highlight-fade 3s ease-out forwards;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .animate-nudge-right { animation: none; }
+  .animate-highlight-fade { animation: none; background-color: var(--color-brand-50); }
+}
+
 /* Brand wordmark used in headers. */
 .logo-mark {
   font-family: var(--font-encode-sans), system-ui, sans-serif;

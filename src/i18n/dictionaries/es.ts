@@ -175,6 +175,11 @@ const es: Dictionary = {
       deliveryCountryPrompt: "Selecciona el país arriba para añadir enlaces de delivery.",
       deliveryHint: "Opcional. Pega el enlace de tu perfil en {appName}.",
     },
+    deliverySetup: {
+      title: "Una cosa más — tus apps de delivery",
+      body: "Vincula iFood, UberEats y otros para que los clientes pidan con un toque desde tu menú.",
+      cta: "Añadir enlaces de delivery",
+    },
     qr: {
       title: "Comparte tu menú",
       lead: "Imprime este QR en tus mesas — los clientes lo escanean para abrir tu menú.",
