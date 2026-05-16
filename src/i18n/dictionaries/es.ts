@@ -2,8 +2,8 @@ import type { Dictionary } from "./en";
 
 const es: Dictionary = {
   metadata: {
-    rootTitle: "menulala — Menú Digital",
-    rootDescription: "Menús digitales para restaurantes.",
+    rootTitle: "menulala — Menú digital simple en 5 minutos",
+    rootDescription: "Sube la foto de tu menú, comparte el link, el cliente desliza en el móvil. Sin PDF, sin reescribir ítem por ítem, sin app que descargar.",
     menuDescriptionFallback: "Menú digital de {name}.",
   },
   common: {
@@ -72,6 +72,18 @@ const es: Dictionary = {
     antiCanvaClosePrefix: "{price}/mes. ",
     antiCanvaCloseCta: "Comienza gratis",
     antiCanvaCloseSuffix: " y mira si vale la pena.",
+    audienceHeading: "Menulala no es para todos.",
+    audienceLead: "Hacemos una cosa: menú digital en foto, en un link bonito. No es una plataforma de gestión. Si necesitas más, mejor saberlo ahora.",
+    audienceYesHeading: "Te va a gustar si:",
+    audienceYes1: "Ya tienes el menú en arte o foto y solo quieres compartirlo como link.",
+    audienceYes2: "Menú pequeño-mediano (1-20 páginas), actualizado de vez en cuando.",
+    audienceYes3: "Quieres botones directos a WhatsApp, Instagram y tus apps de delivery.",
+    audienceYes4: "No quieres aprender una herramienta nueva, ni agendar demo, ni hablar con un vendedor.",
+    audienceNoHeading: "Quizás no es para ti si:",
+    audienceNo1: "Necesitas recibir y gestionar pedidos online dentro del menú.",
+    audienceNo2: "Quieres POS, control de stock, dashboard fiscal, KDS.",
+    audienceNo3: "Quieres un chatbot IA atendiendo clientes en WhatsApp 24h.",
+    audienceNo4: "Cadena con varias sucursales, reportes complejos, integraciones pesadas.",
     testimonialsHeading: "Restaurantes que ya usan menulala",
     testimonial1Restaurant: "Barraca da Sônia",
     testimonial1City: "Santos / SP",

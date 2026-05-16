@@ -138,11 +138,11 @@ export function MenuSlideshow({
               <p>{t.menu.madeBy}</p>
               <a
                 className="menulala-link"
-                href="https://www.instagram.com/cardemon.co/"
+                href="https://menulala.com/"
                 target="_blank"
                 rel="noopener noreferrer"
               >
-                <span className="menulala-button">@cardemon.co</span>
+                <span className="menulala-button">menulala.com</span>
               </a>
             </div>
           </div>

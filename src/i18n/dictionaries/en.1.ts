@@ -1,7 +1,7 @@
 export const en = {
   metadata: {
-    rootTitle: "menulala — Digital Menu",
-    rootDescription: "Digital menus for restaurants.",
+    rootTitle: "menulala — Simple digital menu in 5 minutes",
+    rootDescription: "Upload your menu photo, share a clean link, customers swipe on their phone. No PDF, no rebuilding item by item, no app to download.",
     menuDescriptionFallback: "Digital menu for {name}.",
   },
   common: {
@@ -65,6 +65,18 @@ export const en = {
     antiCanvaClosePrefix: "{price}/month. ",
     antiCanvaCloseCta: "Start free",
     antiCanvaCloseSuffix: " and see if it's worth it.",
+    audienceHeading: "Menulala isn't for everyone.",
+    audienceLead: "We do one thing: a photo-based menu on a clean link. It's not a restaurant management platform. If you need more, better to know now.",
+    audienceYesHeading: "You'll like it if:",
+    audienceYes1: "You already have your menu as artwork or a photo and just want to share it as a link.",
+    audienceYes2: "Small-to-medium menu (1-20 pages), updated occasionally.",
+    audienceYes3: "You want direct buttons to WhatsApp, Instagram and your delivery apps.",
+    audienceYes4: "You don't want to learn a new tool, book a demo, or talk to a salesperson.",
+    audienceNoHeading: "It probably isn't for you if:",
+    audienceNo1: "You need to take and manage online orders inside the menu.",
+    audienceNo2: "You want POS, inventory control, fiscal dashboard, KDS.",
+    audienceNo3: "You want an AI chatbot handling customers on WhatsApp 24/7.",
+    audienceNo4: "Multi-unit chain, complex reporting, heavy integrations.",
     testimonialsHeading: "Restaurants already using menulala",
     testimonial1Restaurant: "Barraca da Sônia",
     testimonial1City: "Santos / SP",

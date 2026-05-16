@@ -53,6 +53,7 @@ export default async function Home() {
         <PainSolution t={t} />
         <AntiCanva t={t} priceLabel={priceLabel} />
         <Features t={t} />
+        <Audience t={t} />
         <Examples t={t} />
         <Faq t={t} />
         <BottomCta signedIn={!!session?.user} t={t} priceLabel={priceLabel} />
@@ -290,6 +291,66 @@ function AntiCanva({ t, priceLabel }: { t: Dictionary; priceLabel: string }) {
           </Link>
           {t.landing.antiCanvaCloseSuffix}
         </p>
+      </div>
+    </section>
+  );
+}
+
+function Audience({ t }: { t: Dictionary }) {
+  const yes = [
+    t.landing.audienceYes1,
+    t.landing.audienceYes2,
+    t.landing.audienceYes3,
+    t.landing.audienceYes4,
+  ];
+  const no = [
+    t.landing.audienceNo1,
+    t.landing.audienceNo2,
+    t.landing.audienceNo3,
+    t.landing.audienceNo4,
+  ];
+
+  return (
+    <section className="border-t border-gray-200/70 bg-white">
+      <div className="mx-auto max-w-6xl px-6 py-16 sm:py-20">
+        <div className="mx-auto mb-12 max-w-2xl text-center">
+          <h2 className="text-3xl font-bold tracking-tight text-[color:var(--color-navy)] sm:text-4xl">
+            {t.landing.audienceHeading}
+          </h2>
+          <p className="mt-4 text-gray-600">{t.landing.audienceLead}</p>
+        </div>
+        <div className="grid gap-6 md:grid-cols-2 md:gap-8">
+          <div className="rounded-2xl border border-gray-200 bg-[color:var(--color-cream)] p-6 shadow-sm sm:p-7">
+            <h3 className="mb-4 text-base font-semibold text-[color:var(--color-navy)]">
+              {t.landing.audienceYesHeading}
+            </h3>
+            <ul className="flex flex-col gap-3">
+              {yes.map((item, i) => (
+                <li key={i} className="flex items-start gap-3">
+                  <span className="mt-0.5 flex h-6 w-6 flex-none items-center justify-center rounded-full bg-[#EDF1E0] text-[#5C6E27]">
+                    <CheckIcon size={14} />
+                  </span>
+                  <p className="text-sm leading-relaxed text-gray-700">{item}</p>
+                </li>
+              ))}
+            </ul>
+          </div>
+          <div className="rounded-2xl border border-gray-200 bg-gray-50 p-6 shadow-sm sm:p-7">
+            <h3 className="mb-4 text-base font-semibold text-[color:var(--color-navy)]">
+              {t.landing.audienceNoHeading}
+            </h3>
+            <ul className="flex flex-col gap-3">
+              {no.map((item, i) => (
+                <li key={i} className="flex items-start gap-3">
+                  <span className="mt-0.5 flex h-6 w-6 flex-none items-center justify-center rounded-full bg-gray-200 text-gray-500">
+                    <XIcon size={14} />
+                  </span>
+                  <p className="text-sm leading-relaxed text-gray-700">{item}</p>
+                </li>
+              ))}
+            </ul>
+          </div>
+        </div>
       </div>
     </section>
   );

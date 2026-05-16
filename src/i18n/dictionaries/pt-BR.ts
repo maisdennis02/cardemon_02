@@ -2,8 +2,8 @@ import type { Dictionary } from "./en";
 
 const ptBR: Dictionary = {
   metadata: {
-    rootTitle: "menulala — Cardápio Digital",
-    rootDescription: "Cardápios digitais para restaurantes.",
+    rootTitle: "menulala — Cardápio digital simples em 5 minutos",
+    rootDescription: "Sobe a foto do seu cardápio, compartilha o link, cliente desliza no celular. Sem PDF, sem reescrever item por item, sem app pra baixar.",
     menuDescriptionFallback: "Cardápio digital de {name}.",
   },
   common: {
@@ -72,6 +72,18 @@ const ptBR: Dictionary = {
     antiCanvaClosePrefix: "{price}/mês. ",
     antiCanvaCloseCta: "Comece grátis",
     antiCanvaCloseSuffix: " e veja se vale.",
+    audienceHeading: "Menulala não é pra todo mundo.",
+    audienceLead: "Fazemos uma coisa: cardápio digital em foto, num link bonito. Não é uma plataforma de gestão. Se você precisa de mais, melhor saber agora.",
+    audienceYesHeading: "Você vai gostar se:",
+    audienceYes1: "Já tem o cardápio em arte ou foto e quer só compartilhar como link.",
+    audienceYes2: "Cardápio pequeno-médio (1-20 páginas), atualizado de vez em quando.",
+    audienceYes3: "Quer botões diretos pro WhatsApp, Instagram e seus apps de delivery.",
+    audienceYes4: "Não quer aprender ferramenta nova, nem agendar demo, nem falar com vendedor.",
+    audienceNoHeading: "Talvez não seja pra você se:",
+    audienceNo1: "Você precisa receber e gerenciar pedidos online dentro do cardápio.",
+    audienceNo2: "Você quer POS, controle de estoque, dashboard fiscal, KDS.",
+    audienceNo3: "Você quer chatbot IA atendendo cliente no WhatsApp 24h.",
+    audienceNo4: "Cadeia com várias unidades, relatórios complexos, integrações pesadas.",
     testimonialsHeading: "Restaurantes que já usam o menulala",
     testimonial1Restaurant: "Barraca da Sônia",
     testimonial1City: "Bertioga / SP",

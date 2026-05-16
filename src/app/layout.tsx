@@ -70,6 +70,7 @@ export default async function RootLayout({
     name: "menulala",
     url: base,
     logo: `${base}/icon.svg`,
+    description: dictionary.metadata.rootDescription,
   };
 
   const websiteLd = {
@@ -78,6 +79,7 @@ export default async function RootLayout({
     name: "menulala",
     url: base,
     inLanguage: locale,
+    description: dictionary.metadata.rootDescription,
   };
 
   return (
