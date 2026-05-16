@@ -11,11 +11,17 @@ function LoginForm() {
   const t = useT();
   const params = useSearchParams();
   const callbackUrl = params.get("callbackUrl") ?? "/dashboard";
+  const resetSuccess = params.get("reset") === "success";
   const [state, formAction, pending] = useActionState<ActionResult, FormData>(login, {});
 
   return (
     <form action={formAction} className="flex flex-col gap-4">
       <input type="hidden" name="callbackUrl" value={callbackUrl} />
+      {resetSuccess && !state.error && (
+        <p className="rounded-lg bg-emerald-50 px-3 py-2 text-sm text-emerald-800">
+          {t.auth.reset.successQuery}
+        </p>
+      )}
       <label className="label">
         {t.auth.email}
         <input
@@ -28,7 +34,15 @@ function LoginForm() {
         />
       </label>
       <label className="label">
-        {t.auth.password}
+        <span className="flex items-center justify-between gap-2">
+          <span>{t.auth.password}</span>
+          <Link
+            href="/forgot-password"
+            className="text-xs font-bold text-[color:var(--color-brand)] hover:underline"
+          >
+            {t.auth.forgotLink}
+          </Link>
+        </span>
         <input
           name="password"
           type="password"

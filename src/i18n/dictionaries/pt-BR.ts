@@ -107,6 +107,25 @@ const ptBR: Dictionary = {
     createAccount: "Criar conta",
     noAccount: "Não tem uma conta?",
     alreadyHaveAccount: "Já tem uma conta?",
+    forgotLink: "Esqueceu a senha?",
+    backToLogin: "Voltar para entrar",
+    forgot: {
+      title: "Redefina sua senha",
+      lead: "Digite seu e-mail e enviaremos um link para criar uma nova senha.",
+      submit: "Enviar link",
+      sending: "Enviando…",
+      sent: "Se existir uma conta com esse e-mail, o link já está a caminho. Confira sua caixa de entrada.",
+    },
+    reset: {
+      title: "Defina uma nova senha",
+      lead: "Escolha uma senha forte e fácil de lembrar.",
+      newPassword: "Nova senha",
+      submit: "Atualizar senha",
+      resetting: "Atualizando…",
+      successQuery: "Sua senha foi atualizada. Entre com a nova.",
+      tokenInvalid: "Este link não é válido. Peça um novo.",
+      tokenExpired: "Este link expirou. Peça um novo.",
+    },
     errors: {
       invalidLogin: "E-mail ou senha inválidos.",
       signinFailed: "Falha ao entrar.",
@@ -114,6 +133,17 @@ const ptBR: Dictionary = {
       accountExists: "Já existe uma conta com esse e-mail.",
       invalidInput: "Dados inválidos",
       passwordTooShort: "A senha deve ter pelo menos 8 caracteres",
+    },
+  },
+  emails: {
+    passwordReset: {
+      subject: "Redefina sua senha do menulala",
+      preheader: "Use o botão abaixo em até uma hora para criar uma nova senha.",
+      greeting: "Olá,",
+      body: "Recebemos um pedido para redefinir a senha da sua conta no menulala. Toque no botão abaixo para escolher uma nova. O link expira em uma hora.",
+      cta: "Redefinir senha",
+      ignoreNote: "Se não foi você, pode ignorar este e-mail — sua senha não será alterada.",
+      signature: "— equipe menulala",
     },
   },
   dashboard: {

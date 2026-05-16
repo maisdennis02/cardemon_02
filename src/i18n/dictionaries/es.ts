@@ -107,6 +107,25 @@ const es: Dictionary = {
     createAccount: "Crear cuenta",
     noAccount: "¿No tienes cuenta?",
     alreadyHaveAccount: "¿Ya tienes una cuenta?",
+    forgotLink: "¿Olvidaste tu contraseña?",
+    backToLogin: "Volver a iniciar sesión",
+    forgot: {
+      title: "Restablece tu contraseña",
+      lead: "Ingresa tu correo y te enviaremos un enlace para crear una nueva contraseña.",
+      submit: "Enviar enlace",
+      sending: "Enviando…",
+      sent: "Si existe una cuenta con ese correo, el enlace ya está en camino. Revisa tu bandeja.",
+    },
+    reset: {
+      title: "Define una nueva contraseña",
+      lead: "Elige una contraseña segura y fácil de recordar.",
+      newPassword: "Nueva contraseña",
+      submit: "Actualizar contraseña",
+      resetting: "Actualizando…",
+      successQuery: "Tu contraseña fue actualizada. Inicia sesión con la nueva.",
+      tokenInvalid: "Este enlace no es válido. Pide uno nuevo.",
+      tokenExpired: "Este enlace expiró. Pide uno nuevo.",
+    },
     errors: {
       invalidLogin: "Correo o contraseña inválidos.",
       signinFailed: "Error al iniciar sesión.",
@@ -114,6 +133,17 @@ const es: Dictionary = {
       accountExists: "Ya existe una cuenta con ese correo.",
       invalidInput: "Datos inválidos",
       passwordTooShort: "La contraseña debe tener al menos 8 caracteres",
+    },
+  },
+  emails: {
+    passwordReset: {
+      subject: "Restablece tu contraseña de menulala",
+      preheader: "Usa el botón abajo dentro de una hora para crear una nueva contraseña.",
+      greeting: "Hola,",
+      body: "Recibimos una solicitud para restablecer la contraseña de tu cuenta de menulala. Toca el botón para elegir una nueva. El enlace expira en una hora.",
+      cta: "Restablecer contraseña",
+      ignoreNote: "Si no fuiste tú, puedes ignorar este correo — tu contraseña no cambiará.",
+      signature: "— el equipo de menulala",
     },
   },
   dashboard: {

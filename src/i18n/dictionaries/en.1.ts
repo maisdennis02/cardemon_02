@@ -97,6 +97,25 @@ export const en = {
     createAccount: "Create account",
     noAccount: "No account?",
     alreadyHaveAccount: "Already have an account?",
+    forgotLink: "Forgot password?",
+    backToLogin: "Back to log in",
+    forgot: {
+      title: "Reset your password",
+      lead: "Enter your email and we'll send you a link to set a new password.",
+      submit: "Send reset link",
+      sending: "Sending…",
+      sent: "If an account with that email exists, a reset link is on its way. Check your inbox.",
+    },
+    reset: {
+      title: "Set a new password",
+      lead: "Choose a strong password you'll remember.",
+      newPassword: "New password",
+      submit: "Update password",
+      resetting: "Updating…",
+      successQuery: "Your password was updated. Log in with the new one.",
+      tokenInvalid: "This reset link is invalid. Request a new one.",
+      tokenExpired: "This reset link has expired. Request a new one.",
+    },
     errors: {
       invalidLogin: "Invalid email or password.",
       signinFailed: "Sign-in failed.",
@@ -104,6 +123,17 @@ export const en = {
       accountExists: "An account with that email already exists.",
       invalidInput: "Invalid input",
       passwordTooShort: "Password must be at least 8 characters",
+    },
+  },
+  emails: {
+    passwordReset: {
+      subject: "Reset your menulala password",
+      preheader: "Use the button below within one hour to set a new password.",
+      greeting: "Hi,",
+      body: "We received a request to reset the password for your menulala account. Click the button below to choose a new one. This link expires in one hour.",
+      cta: "Reset password",
+      ignoreNote: "If you didn't request this, you can safely ignore this email — your password won't change.",
+      signature: "— the menulala team",
     },
   },
   dashboard: {
