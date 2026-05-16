@@ -221,6 +221,12 @@ const ptBR: Dictionary = {
       svg: "SVG",
       open: "Abrir",
     },
+    stats: {
+      title: "Visualizações do cardápio",
+      lead: "Quantas vezes seu cardápio público foi aberto.",
+      totalViews: "Total",
+      last7Days: "Últimos 7 dias",
+    },
     images: {
       title: "Páginas do cardápio",
       lead: "Envie a arte do seu cardápio. Arraste para reordenar — os clientes veem nesta ordem.",

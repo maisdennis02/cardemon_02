@@ -4,6 +4,7 @@ import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 import { z } from "zod";
 import { del } from "@vercel/blob";
+import { track } from "@vercel/analytics/server";
 import { auth } from "@/auth";
 import { prisma } from "@/lib/prisma";
 import { slugify } from "@/lib/slug";
@@ -175,6 +176,7 @@ export async function createRestaurant(_p: ActionState, formData: FormData): Pro
       instagramUrl: parsed.data.instagramUrl || null,
     },
   });
+  track("restaurant_created").catch(() => {});
   revalidatePath("/dashboard");
   redirect("/dashboard");
 }
@@ -276,6 +278,10 @@ export async function recordMenuImages(input: {
       sortOrder: existingCount + i,
     })),
   });
+  if (existingCount === 0 && urls.length > 0) {
+    track("menu_first_upload").catch(() => {});
+  }
+  track("menu_image_uploaded", { count: urls.length }).catch(() => {});
 
   revalidatePath("/dashboard");
   return {};

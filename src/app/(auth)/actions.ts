@@ -2,6 +2,7 @@
 
 import bcrypt from "bcryptjs";
 import { z } from "zod";
+import { track } from "@vercel/analytics/server";
 import { prisma } from "@/lib/prisma";
 import { signIn } from "@/auth";
 import { AuthError } from "next-auth";
@@ -55,6 +56,7 @@ export async function signup(_prev: ActionResult, formData: FormData): Promise<A
   await prisma.user.create({
     data: { email, passwordHash, name: parsed.data.name },
   });
+  track("signup").catch(() => {});
 
   try {
     await signIn("credentials", {

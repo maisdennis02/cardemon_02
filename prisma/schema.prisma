@@ -91,6 +91,7 @@ model Restaurant {
 
   owner           User        @relation(fields: [ownerId], references: [id], onDelete: Cascade)
   images          MenuImage[]
+  views           MenuView[]
 
   @@index([ownerId])
 }
@@ -105,4 +106,15 @@ model MenuImage {
   restaurant   Restaurant @relation(fields: [restaurantId], references: [id], onDelete: Cascade)
 
   @@index([restaurantId])
+}
+
+model MenuView {
+  id           String     @id @default(cuid())
+  restaurantId String
+  viewedAt     DateTime   @default(now())
+  country      String?    @db.Char(2)
+
+  restaurant   Restaurant @relation(fields: [restaurantId], references: [id], onDelete: Cascade)
+
+  @@index([restaurantId, viewedAt])
 }

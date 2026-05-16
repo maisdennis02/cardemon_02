@@ -1,5 +1,6 @@
 "use client";
 
+import { useEffect } from "react";
 import { Swiper, SwiperSlide } from "swiper/react";
 import { EffectCube, Pagination } from "swiper/modules";
 
@@ -16,6 +17,7 @@ import {
 } from "@/lib/delivery-apps";
 
 type Props = {
+  slug: string;
   name: string;
   whatsappNumber: string | null;
   instagramUrl: string | null;
@@ -25,6 +27,7 @@ type Props = {
 };
 
 export function MenuSlideshow({
+  slug,
   name,
   whatsappNumber,
   instagramUrl,
@@ -34,6 +37,22 @@ export function MenuSlideshow({
 }: Props) {
   const t = useT();
   const deliveryLinks = getOrderedDeliveryLinks(country, deliveryUrls);
+
+  useEffect(() => {
+    const key = `mv:${slug}`;
+    try {
+      if (sessionStorage.getItem(key)) return;
+      sessionStorage.setItem(key, "1");
+    } catch {
+      // sessionStorage can throw in privacy mode — fall through and still ping.
+    }
+    fetch("/api/menu-views", {
+      method: "POST",
+      headers: { "content-type": "application/json" },
+      body: JSON.stringify({ slug }),
+      keepalive: true,
+    }).catch(() => {});
+  }, [slug]);
   const hasAnyButton = whatsappNumber || instagramUrl || deliveryLinks.length > 0;
   return (
     <div className="menu-root">

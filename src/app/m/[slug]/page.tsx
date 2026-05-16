@@ -84,6 +84,7 @@ export default async function PublicMenuPage({
         dangerouslySetInnerHTML={{ __html: JSON.stringify(restaurantLd) }}
       />
       <MenuSlideshow
+        slug={slug}
         name={restaurant.name}
         whatsappNumber={restaurant.whatsappNumber}
         instagramUrl={restaurant.instagramUrl}

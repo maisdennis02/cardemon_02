@@ -222,6 +222,12 @@ const es: Dictionary = {
       svg: "SVG",
       open: "Abrir",
     },
+    stats: {
+      title: "Vistas del menú",
+      lead: "Cuántas veces se abrió tu menú público.",
+      totalViews: "Total",
+      last7Days: "Últimos 7 días",
+    },
     images: {
       title: "Páginas del menú",
       lead: "Sube el arte de tu menú. Arrastra para reordenar — los clientes las ven en este orden.",

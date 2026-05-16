@@ -209,6 +209,12 @@ export const en = {
       svg: "SVG",
       open: "Open",
     },
+    stats: {
+      title: "Menu views",
+      lead: "How many times your public menu was opened.",
+      totalViews: "All time",
+      last7Days: "Last 7 days",
+    },
     images: {
       title: "Menu pages",
       lead: "Upload your menu artwork. Drag to reorder — customers see them in this order.",
