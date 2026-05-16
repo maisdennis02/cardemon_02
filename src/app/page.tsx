@@ -51,6 +51,7 @@ export default async function Home() {
           heroApps={heroApps}
         />
         <PainSolution t={t} />
+        <AntiCanva t={t} priceLabel={priceLabel} />
         <Features t={t} />
         <Examples t={t} />
         <Faq t={t} />
@@ -127,7 +128,7 @@ function Hero({
               href={signedIn ? "/dashboard" : "/signup"}
               className="btn btn-primary w-full sm:w-auto"
             >
-              {signedIn ? t.landing.goToDashboard : t.common.getStarted}
+              {signedIn ? t.landing.goToDashboard : t.common.startFree}
               <ArrowRightIcon size={16} />
             </Link>
             {!signedIn && (
@@ -202,10 +203,10 @@ function Features({ t }: { t: Dictionary }) {
 function PainSolution({ t }: { t: Dictionary }) {
   const pairs = [
     { pain: t.landing.pain1, solution: t.landing.solution1 },
-    { pain: t.landing.pain2, solution: t.landing.solution2 },
     { pain: t.landing.pain3, solution: t.landing.solution3 },
     { pain: t.landing.pain4, solution: t.landing.solution4 },
     { pain: t.landing.pain5, solution: t.landing.solution5 },
+    { pain: t.landing.pain6, solution: t.landing.solution6 },
   ];
 
   return (
@@ -247,8 +248,62 @@ function PainSolution({ t }: { t: Dictionary }) {
   );
 }
 
+function AntiCanva({ t, priceLabel }: { t: Dictionary; priceLabel: string }) {
+  const items = [
+    { title: t.landing.antiCanva1Title, body: t.landing.antiCanva1Body },
+    { title: t.landing.antiCanva2Title, body: t.landing.antiCanva2Body },
+    { title: t.landing.antiCanva3Title, body: t.landing.antiCanva3Body },
+    { title: t.landing.antiCanva4Title, body: t.landing.antiCanva4Body },
+  ];
+
+  return (
+    <section className="border-t border-gray-200/70 bg-[color:var(--color-brand-50)]">
+      <div className="mx-auto max-w-6xl px-6 py-16 sm:py-20">
+        <div className="mx-auto mb-12 max-w-2xl text-center">
+          <h2 className="text-3xl font-bold tracking-tight text-[color:var(--color-navy)] sm:text-4xl">
+            {format(t.landing.antiCanvaHeading, { price: priceLabel })}
+          </h2>
+          <p className="mt-4 text-gray-600">{t.landing.antiCanvaLead}</p>
+        </div>
+        <ul className="grid gap-5 md:grid-cols-2 md:gap-6">
+          {items.map((item, i) => (
+            <li
+              key={i}
+              className="rounded-2xl border border-gray-200 bg-white p-5 shadow-sm sm:p-6"
+            >
+              <h3 className="text-base font-semibold text-[color:var(--color-navy)]">
+                {item.title}
+              </h3>
+              <p className="mt-2 text-sm leading-relaxed text-gray-700">
+                {item.body}
+              </p>
+            </li>
+          ))}
+        </ul>
+        <p className="mt-10 text-center text-base font-medium text-[color:var(--color-navy)]">
+          {format(t.landing.antiCanvaClosePrefix, { price: priceLabel })}
+          <Link
+            href="/signup"
+            className="font-semibold text-[color:var(--color-brand)] underline decoration-2 underline-offset-4 transition hover:text-[color:var(--color-brand-700)]"
+          >
+            {t.landing.antiCanvaCloseCta}
+          </Link>
+          {t.landing.antiCanvaCloseSuffix}
+        </p>
+      </div>
+    </section>
+  );
+}
+
 function Examples({ t }: { t: Dictionary }) {
   const items = [
+    {
+      restaurant: t.landing.testimonial3Restaurant,
+      city: t.landing.testimonial3City,
+      slug: t.landing.testimonial3Slug,
+      quote: t.landing.testimonial3Quote,
+      name: t.landing.testimonial3Name,
+    },
     {
       restaurant: t.landing.testimonial1Restaurant,
       city: t.landing.testimonial1City,
@@ -262,13 +317,6 @@ function Examples({ t }: { t: Dictionary }) {
       slug: t.landing.testimonial2Slug,
       quote: t.landing.testimonial2Quote,
       name: t.landing.testimonial2Name,
-    },
-    {
-      restaurant: t.landing.testimonial3Restaurant,
-      city: t.landing.testimonial3City,
-      slug: t.landing.testimonial3Slug,
-      quote: t.landing.testimonial3Quote,
-      name: t.landing.testimonial3Name,
     },
   ];
 
@@ -402,7 +450,7 @@ function BottomCta({
           </h2>
           <p className="max-w-lg text-gray-600">{t.landing.ctaLead}</p>
           <Link href="/signup" className="btn btn-primary">
-            {t.common.getStarted}
+            {t.common.startFree}
             <ArrowRightIcon size={16} />
           </Link>
           <p className="text-sm text-gray-600">
