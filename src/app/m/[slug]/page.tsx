@@ -4,6 +4,7 @@ import { MenuSlideshow } from "./slideshow";
 import { getDictionary, getLocale } from "@/i18n";
 import { format } from "@/i18n/config";
 import { absoluteUrl } from "@/lib/site";
+import { jsonLdScript } from "@/lib/json-ld";
 
 export const revalidate = 60;
 
@@ -81,7 +82,7 @@ export default async function PublicMenuPage({
     <>
       <script
         type="application/ld+json"
-        dangerouslySetInnerHTML={{ __html: JSON.stringify(restaurantLd) }}
+        dangerouslySetInnerHTML={{ __html: jsonLdScript(restaurantLd) }}
       />
       <MenuSlideshow
         slug={slug}

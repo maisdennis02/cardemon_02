@@ -20,8 +20,13 @@ type SendArgs = { to: string; subject: string; html: string };
 async function sendEmail({ to, subject, html }: SendArgs): Promise<void> {
   const c = client();
   if (!c) {
-    // In dev (or any env without RESEND_API_KEY) we log the email instead of
-    // sending so the reset flow stays usable.
+    // In production, missing RESEND_API_KEY is a misconfiguration — refuse
+    // rather than fall back to logging, otherwise password-reset links would
+    // leak into Vercel logs.
+    if (process.env.NODE_ENV === "production") {
+      throw new Error("RESEND_API_KEY is not set in production");
+    }
+    // Dev: log the email so the reset flow stays usable locally.
     console.warn(
       `[email] RESEND_API_KEY not set — logging instead of sending.\n` +
         `  to=${to}\n  subject=${subject}\n  body=\n${html}`,

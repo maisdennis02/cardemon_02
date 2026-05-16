@@ -29,6 +29,7 @@ import {
   pricesFor,
 } from "@/lib/pricing";
 import { siteUrl } from "@/lib/site";
+import { jsonLdScript } from "@/lib/json-ld";
 
 export default async function Home() {
   const session = await auth();
@@ -460,7 +461,7 @@ function Faq({ t }: { t: Dictionary }) {
     <section className="border-t border-gray-200/70 bg-[color:var(--background)]">
       <script
         type="application/ld+json"
-        dangerouslySetInnerHTML={{ __html: JSON.stringify(faqLd) }}
+        dangerouslySetInnerHTML={{ __html: jsonLdScript(faqLd) }}
       />
       <div className="mx-auto max-w-3xl px-6 py-16 sm:py-20">
         <h2 className="mb-12 text-center text-3xl font-bold tracking-tight text-[color:var(--color-navy)] sm:text-4xl">

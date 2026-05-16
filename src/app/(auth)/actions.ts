@@ -52,7 +52,7 @@ export async function signup(_prev: ActionResult, formData: FormData): Promise<A
   const existing = await prisma.user.findUnique({ where: { email } });
   if (existing) return { error: t.errors.accountExists };
 
-  const passwordHash = await bcrypt.hash(parsed.data.password, 10);
+  const passwordHash = await bcrypt.hash(parsed.data.password, 12);
   await prisma.user.create({
     data: { email, passwordHash, name: parsed.data.name },
   });
@@ -173,7 +173,7 @@ export async function resetPassword(
     };
   }
 
-  const passwordHash = await bcrypt.hash(parsed.data.password, 10);
+  const passwordHash = await bcrypt.hash(parsed.data.password, 12);
   await prisma.user.update({
     where: { id: lookup.userId },
     data: { passwordHash },

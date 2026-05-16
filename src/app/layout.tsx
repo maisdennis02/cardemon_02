@@ -6,6 +6,7 @@ import { getDictionary, getLocale } from "@/i18n";
 import { DictionaryProvider } from "@/i18n/provider";
 import { LOCALES, OG_LOCALE } from "@/i18n/config";
 import { siteUrl } from "@/lib/site";
+import { jsonLdScript } from "@/lib/json-ld";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -90,11 +91,11 @@ export default async function RootLayout({
       <body className="min-h-full flex flex-col">
         <script
           type="application/ld+json"
-          dangerouslySetInnerHTML={{ __html: JSON.stringify(organizationLd) }}
+          dangerouslySetInnerHTML={{ __html: jsonLdScript(organizationLd) }}
         />
         <script
           type="application/ld+json"
-          dangerouslySetInnerHTML={{ __html: JSON.stringify(websiteLd) }}
+          dangerouslySetInnerHTML={{ __html: jsonLdScript(websiteLd) }}
         />
         <DictionaryProvider locale={locale} dictionary={dictionary}>
           {children}
