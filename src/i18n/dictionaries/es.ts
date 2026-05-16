@@ -227,6 +227,9 @@ const es: Dictionary = {
       lead: "Cuántas veces se abrió tu menú público.",
       totalViews: "Total",
       last7Days: "Últimos 7 días",
+      buttonClicks: "Clics en los botones (total)",
+      clickWhatsapp: "WhatsApp",
+      clickInstagram: "Instagram",
     },
     images: {
       title: "Páginas del menú",

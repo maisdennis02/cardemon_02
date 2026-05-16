@@ -111,10 +111,12 @@ model MenuImage {
 model MenuView {
   id           String     @id @default(cuid())
   restaurantId String
+  kind         String     @default("view")
   viewedAt     DateTime   @default(now())
   country      String?    @db.Char(2)
 
   restaurant   Restaurant @relation(fields: [restaurantId], references: [id], onDelete: Cascade)
 
   @@index([restaurantId, viewedAt])
+  @@index([restaurantId, kind])
 }

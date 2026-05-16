@@ -7,7 +7,7 @@ import { ExternalIcon } from "@/components/icons";
 import { OnboardingForm } from "./onboarding-form";
 import { ImageManager } from "./image-manager";
 import { MenuQrCard } from "./menu-qr-card";
-import { MenuStatsCard } from "./menu-stats-card";
+import { MenuStatsCard, loadMenuStats } from "./menu-stats-card";
 import { RestaurantSettingsForm } from "./restaurant-settings-form";
 import { DeliverySetupCallout } from "./delivery-setup-callout";
 import { getDictionary, getLocale } from "@/i18n";
@@ -38,14 +38,9 @@ export default async function DashboardPage({
 
   const sevenDaysAgo = new Date();
   sevenDaysAgo.setDate(sevenDaysAgo.getDate() - 7);
-  const [totalViews, last7Days] = restaurant
-    ? await Promise.all([
-        prisma.menuView.count({ where: { restaurantId: restaurant.id } }),
-        prisma.menuView.count({
-          where: { restaurantId: restaurant.id, viewedAt: { gte: sevenDaysAgo } },
-        }),
-      ])
-    : [0, 0];
+  const stats = restaurant
+    ? await loadMenuStats(restaurant.id, sevenDaysAgo)
+    : { totalViews: 0, last7Days: 0, clicks: {} };
 
   const { edit } = await searchParams;
   const initialEdit = edit === "1";
@@ -84,7 +79,7 @@ export default async function DashboardPage({
               initialEdit={initialEdit}
             />
             <MenuQrCard slug={restaurant.slug} name={restaurant.name} />
-            <MenuStatsCard totalViews={totalViews} last7Days={last7Days} t={t} />
+            <MenuStatsCard stats={stats} restaurant={restaurant} t={t} />
             <ImageManager
               restaurant={restaurant}
               imageLimit={imageLimit}

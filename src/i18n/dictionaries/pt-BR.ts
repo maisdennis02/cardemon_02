@@ -226,6 +226,9 @@ const ptBR: Dictionary = {
       lead: "Quantas vezes seu cardápio público foi aberto.",
       totalViews: "Total",
       last7Days: "Últimos 7 dias",
+      buttonClicks: "Cliques nos botões (total)",
+      clickWhatsapp: "WhatsApp",
+      clickInstagram: "Instagram",
     },
     images: {
       title: "Páginas do cardápio",

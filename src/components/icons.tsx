@@ -135,6 +135,42 @@ export function DownloadIcon({ className, size }: IconProps) {
   );
 }
 
+export function WhatsAppIcon({ className, size }: IconProps) {
+  return (
+    <svg
+      width={size ?? 18}
+      height={size ?? 18}
+      viewBox="0 0 24 24"
+      fill="currentColor"
+      aria-hidden
+      className={className}
+    >
+      <path d="M20.5 3.5A11.9 11.9 0 0 0 3.4 20l-1.4 5.1 5.2-1.4a11.9 11.9 0 0 0 17.4-15.2A11.8 11.8 0 0 0 20.5 3.5ZM12 21.4a9.4 9.4 0 0 1-4.8-1.3l-.3-.2-3.1.8.8-3-.2-.3A9.4 9.4 0 1 1 12 21.4Zm5.4-7c-.3-.1-1.7-.9-2-1s-.5-.1-.7.2-.8 1-1 1.2-.4.2-.7.1a7.7 7.7 0 0 1-2.3-1.4 8.6 8.6 0 0 1-1.6-2c-.2-.3 0-.5.1-.6l.5-.5.3-.5a.6.6 0 0 0 0-.6c0-.1-.7-1.7-.9-2.3s-.5-.5-.7-.5h-.6a1.2 1.2 0 0 0-.9.4 3.6 3.6 0 0 0-1.1 2.7 6.2 6.2 0 0 0 1.3 3.4 14.4 14.4 0 0 0 5.5 4.8c.8.3 1.4.5 1.9.7a4.5 4.5 0 0 0 2 .1 3.3 3.3 0 0 0 2.1-1.5 2.6 2.6 0 0 0 .2-1.5c-.1-.2-.3-.3-.6-.4Z" />
+    </svg>
+  );
+}
+
+export function InstagramIcon({ className, size }: IconProps) {
+  return (
+    <svg
+      width={size ?? 18}
+      height={size ?? 18}
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth={2}
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      aria-hidden
+      className={className}
+    >
+      <rect x="3" y="3" width="18" height="18" rx="5" ry="5" />
+      <path d="M16 11.4A4 4 0 1 1 12.6 8a4 4 0 0 1 3.4 3.4Z" />
+      <line x1="17.5" y1="6.5" x2="17.51" y2="6.5" />
+    </svg>
+  );
+}
+
 export function GripIcon({ className, size }: IconProps) {
   return (
     <svg

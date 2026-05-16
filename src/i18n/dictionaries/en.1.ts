@@ -214,6 +214,9 @@ export const en = {
       lead: "How many times your public menu was opened.",
       totalViews: "All time",
       last7Days: "Last 7 days",
+      buttonClicks: "Button clicks (all time)",
+      clickWhatsapp: "WhatsApp",
+      clickInstagram: "Instagram",
     },
     images: {
       title: "Menu pages",
