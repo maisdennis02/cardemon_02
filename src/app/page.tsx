@@ -205,6 +205,7 @@ function PainSolution({ t }: { t: Dictionary }) {
     { pain: t.landing.pain2, solution: t.landing.solution2 },
     { pain: t.landing.pain3, solution: t.landing.solution3 },
     { pain: t.landing.pain4, solution: t.landing.solution4 },
+    { pain: t.landing.pain5, solution: t.landing.solution5 },
   ];
 
   return (
@@ -333,6 +334,7 @@ function Faq({ t }: { t: Dictionary }) {
       a: format(t.landing.faq4A, { free: FREE_IMAGE_LIMIT, pro: PRO_IMAGE_LIMIT }),
     },
     { q: t.landing.faq5Q, a: t.landing.faq5A },
+    { q: t.landing.faq6Q, a: t.landing.faq6A },
   ];
 
   const faqLd = {

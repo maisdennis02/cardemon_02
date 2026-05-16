@@ -64,6 +64,13 @@
   color: #ffffff;
   box-shadow: 2px 2px 6px rgba(0, 0, 0, 0.2);
   cursor: pointer;
+  opacity: 0.8;
+  transition: opacity 150ms ease;
+}
+
+.social-button:hover,
+.social-button:focus-visible {
+  opacity: 1;
 }
 
 .wh-button {

@@ -56,6 +56,8 @@ const es: Dictionary = {
     solution3: "Envía un enlace. Se abre al instante en cualquier celular, sin app.",
     pain4: "Tu bio de Instagram no muestra el menú completo.",
     solution4: "Pega el enlace en la bio. El cliente desliza por todas las páginas.",
+    pain5: "Sin saber si alguien abre tu menú — ni en qué botones toca.",
+    solution5: "En el panel ves cuántos abrieron el menú y los clics en cada botón — WhatsApp, Instagram, delivery.",
     testimonialsHeading: "Restaurantes que ya usan menulala",
     testimonial1Restaurant: "Barraca da Sônia",
     testimonial1City: "Santos / SP",
@@ -88,6 +90,8 @@ const es: Dictionary = {
     faq4A: "Sí. El plan gratuito permite hasta {free} páginas; el Pro hasta {pro}.",
     faq5Q: "¿El código QR es mío?",
     faq5A: "Sí. Descárgalo y pégalo en las mesas, en la vitrina, en los flyers.",
+    faq6Q: "¿Puedo ver cuántas personas abrieron mi menú?",
+    faq6A: "Sí. En el panel ves el total de vistas, las de los últimos 7 días y cuántas veces se tocó cada botón — WhatsApp, Instagram y cada app de delivery que hayas agregado.",
   },
   auth: {
     loginTitle: "Bienvenido de vuelta",

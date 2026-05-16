@@ -49,6 +49,8 @@ export const en = {
     solution3: "Send a link. Opens instantly on any phone — no app required.",
     pain4: "Your Instagram bio can't show the whole menu.",
     solution4: "Paste the link in your bio. Customers swipe through every page.",
+    pain5: "No idea if anyone's even opening your menu — or which buttons they tap.",
+    solution5: "Your dashboard shows menu views and clicks on every button — WhatsApp, Instagram, delivery.",
     testimonialsHeading: "Restaurants already using menulala",
     testimonial1Restaurant: "Barraca da Sônia",
     testimonial1City: "Santos / SP",
@@ -78,6 +80,8 @@ export const en = {
     faq4A: "Yes. The free plan supports up to {free} pages; Pro goes up to {pro}.",
     faq5Q: "Is the QR code mine to print?",
     faq5A: "Yes. Download it and put it on your tables, your storefront, your flyers.",
+    faq6Q: "Can I see how many people opened my menu?",
+    faq6A: "Yes. Your dashboard shows total views, views in the last 7 days, and how many times customers tapped each button — WhatsApp, Instagram, and any delivery app you've added.",
   },
   auth: {
     loginTitle: "Welcome back",

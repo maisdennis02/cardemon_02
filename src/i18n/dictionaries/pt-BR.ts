@@ -56,6 +56,8 @@ const ptBR: Dictionary = {
     solution3: "Manda um link. Abre direto, em qualquer celular, sem app.",
     pain4: "Sua vitrine no Instagram não mostra o cardápio inteiro.",
     solution4: "Cola o link na bio do Instagram. Cliente desliza por todas as páginas.",
+    pain5: "Sem saber se alguém abre seu cardápio — nem em quais botões clica.",
+    solution5: "No painel você vê quantos abriram o cardápio e os cliques em cada botão — WhatsApp, Instagram, delivery.",
     testimonialsHeading: "Restaurantes que já usam o menulala",
     testimonial1Restaurant: "Barraca da Sônia",
     testimonial1City: "Bertioga / SP",
@@ -88,6 +90,8 @@ const ptBR: Dictionary = {
     faq4A: "Sim. O plano gratuito permite até {free} páginas; o Pro até {pro}.",
     faq5Q: "O QR Code é meu mesmo?",
     faq5A: "Sim. Baixa e cola na mesa, na vitrine, no flyer.",
+    faq6Q: "Dá pra ver quantas pessoas abriram meu cardápio?",
+    faq6A: "Sim. No painel você vê o total de visualizações, as dos últimos 7 dias e quantas vezes cada botão foi clicado — WhatsApp, Instagram e cada app de delivery que você adicionou.",
   },
   auth: {
     loginTitle: "Bem-vindo de volta",
