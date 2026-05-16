@@ -12,8 +12,8 @@ const PRICING_TABLE: Record<
   Currency,
   { symbol: string; monthly: number; annualTotal: number; decimalSep: "." | "," }
 > = {
-  USD: { symbol: "$", monthly: 4, annualTotal: 35, decimalSep: "." },
-  BRL: { symbol: "R$ ", monthly: 20, annualTotal: 160, decimalSep: "," },
+  USD: { symbol: "$", monthly: 7, annualTotal: 60, decimalSep: "." },
+  BRL: { symbol: "R$ ", monthly: 29, annualTotal: 232, decimalSep: "," },
 };
 
 export function currencyForLocale(locale: string): Currency {

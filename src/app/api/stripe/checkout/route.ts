@@ -27,6 +27,18 @@ export async function POST(req: Request) {
   }
 
   let customerId = user.billingCustomerId;
+  // If we have a saved customer, make sure it still exists in this Stripe
+  // mode/account. Customers can be deleted in the Dashboard, and when toggling
+  // between test/live keys locally the saved id won't resolve. Falling through
+  // creates a fresh customer instead of failing the checkout.
+  if (customerId) {
+    try {
+      const existing = await stripe().customers.retrieve(customerId);
+      if ((existing as { deleted?: boolean }).deleted) customerId = null;
+    } catch {
+      customerId = null;
+    }
+  }
   if (!customerId) {
     const customer = await stripe().customers.create({
       email: user.email,
@@ -35,7 +47,11 @@ export async function POST(req: Request) {
     customerId = customer.id;
     await prisma.user.update({
       where: { id: userId },
-      data: { billingCustomerId: customerId },
+      data: {
+        billingCustomerId: customerId,
+        // Stale subscription id is meaningless for a different customer.
+        billingSubscriptionId: null,
+      },
     });
   }
 
