@@ -46,6 +46,34 @@ export async function POST(req: Request) {
         if (userId) await applySubscription(userId, sub);
         break;
       }
+      case "checkout.session.expired": {
+        // Abandoned first-time checkouts using customer_email still leave a
+        // Stripe-side Customer behind. If our DB never linked to it (no user
+        // has this billingCustomerId) and it has no subscriptions, delete it
+        // so the Stripe Dashboard doesn't accumulate orphans.
+        const s = event.data.object as Stripe.Checkout.Session;
+        const customerId =
+          typeof s.customer === "string" ? s.customer : s.customer?.id;
+        if (!customerId) break;
+        const linked = await prisma.user.findFirst({
+          where: { billingCustomerId: customerId },
+          select: { id: true },
+        });
+        if (linked) break;
+        try {
+          const subs = await stripe().subscriptions.list({
+            customer: customerId,
+            limit: 1,
+          });
+          if (subs.data.length === 0) {
+            await stripe().customers.del(customerId);
+          }
+        } catch {
+          // Best-effort: don't make Stripe retry the whole webhook just
+          // because orphan cleanup failed.
+        }
+        break;
+      }
       case "invoice.paid": {
         const inv = event.data.object as Stripe.Invoice;
         // In Stripe API 2025-08+ the linked subscription moved to
