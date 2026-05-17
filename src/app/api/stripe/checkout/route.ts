@@ -26,38 +26,33 @@ export async function POST(req: Request) {
     return NextResponse.json({ error: "user-missing-email" }, { status: 400 });
   }
 
+  // For returning subscribers we re-use the saved customer so they keep their
+  // payment-method history in Stripe. For first-time checkouts we hand Stripe
+  // just `customer_email` — Stripe creates the Customer on its side, but we
+  // do NOT persist anything to our DB until the webhook fires on a successful
+  // subscription. That way an abandoned/declined checkout doesn't leave an
+  // orphan billingCustomerId locked to whatever currency was tried.
   let customerId = user.billingCustomerId;
-  // If we have a saved customer, make sure it still exists in this Stripe
-  // mode/account. Customers can be deleted in the Dashboard, and when toggling
-  // between test/live keys locally the saved id won't resolve. Falling through
-  // creates a fresh customer instead of failing the checkout.
   if (customerId) {
     try {
       const existing = await stripe().customers.retrieve(customerId);
       if ((existing as { deleted?: boolean }).deleted) customerId = null;
     } catch {
+      // Customer gone (deleted, or test/live key drift). Drop it; webhook will
+      // re-populate billingCustomerId on the next successful subscription.
       customerId = null;
+      await prisma.user.update({
+        where: { id: userId },
+        data: { billingCustomerId: null, billingSubscriptionId: null },
+      });
     }
-  }
-  if (!customerId) {
-    const customer = await stripe().customers.create({
-      email: user.email,
-      metadata: { userId },
-    });
-    customerId = customer.id;
-    await prisma.user.update({
-      where: { id: userId },
-      data: {
-        billingCustomerId: customerId,
-        // Stale subscription id is meaningless for a different customer.
-        billingSubscriptionId: null,
-      },
-    });
   }
 
   const checkout = await stripe().checkout.sessions.create({
     mode: "subscription",
-    customer: customerId,
+    ...(customerId
+      ? { customer: customerId }
+      : { customer_email: user.email }),
     client_reference_id: userId,
     line_items: [{ price: priceIdFor(cycle, currency), quantity: 1 }],
     success_url: `${appUrl()}/dashboard?subscribed=1`,
