@@ -26,6 +26,7 @@ export const en = {
     heroTitleLine1: "Not a platform.",
     heroTitleLine2: "Just a beautiful menu.",
     heroLead: "Upload a photo of your menu. Share the link. Customer opens, swipes, done. Five minutes.",
+    heroDeliveryLine: "Works with",
     goToDashboard: "Go to dashboard",
     iHaveAccount: "I have an account",
     phonePreviewAlt: "Menu preview",

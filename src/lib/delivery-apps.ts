@@ -28,6 +28,7 @@ export type DeliveryApp = {
   urlPattern: RegExp;
   urlPlaceholder: string;
   logoPath?: string;
+  logoMatchesBrandColor?: boolean;
 };
 
 export const DELIVERY_APPS: Record<DeliveryAppId, DeliveryApp> = {
@@ -40,6 +41,7 @@ export const DELIVERY_APPS: Record<DeliveryAppId, DeliveryApp> = {
     urlPattern: /^https:\/\/(www\.)?ifood\.com\.br\/.+/i,
     urlPlaceholder: "https://www.ifood.com.br/delivery/...",
     logoPath: "/delivery_logos/IFood/IFood_idvFPAKYIS_2.svg",
+    logoMatchesBrandColor: true,
   },
   ubereats: {
     id: "ubereats",

@@ -46,7 +46,12 @@ export async function detectCountry(locale: Locale): Promise<CountryCode> {
 // Stripped of RegExp fields so it can cross the server/client boundary.
 export type SerializableApp = Pick<
   DeliveryApp,
-  "id" | "displayName" | "brandColor" | "textColor" | "logoPath"
+  | "id"
+  | "displayName"
+  | "brandColor"
+  | "textColor"
+  | "logoPath"
+  | "logoMatchesBrandColor"
 >;
 
 export function topAppsForCountry(country: CountryCode, n = 2): SerializableApp[] {
@@ -58,6 +63,7 @@ export function topAppsForCountry(country: CountryCode, n = 2): SerializableApp[
       brandColor: a.brandColor,
       textColor: a.textColor,
       logoPath: a.logoPath,
+      logoMatchesBrandColor: a.logoMatchesBrandColor,
     };
   });
 }

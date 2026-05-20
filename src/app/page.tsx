@@ -38,6 +38,7 @@ export default async function Home() {
   const country = await detectCountry(locale);
   const heroImages = mockupImagePaths(regionFromLocale(locale));
   const heroApps = topAppsForCountry(country, 2);
+  const deliveryStrip = topAppsForCountry(country, 4);
   const prices = pricesFor(currencyForLocale(locale));
   const priceLabel = `${prices.symbol}${prices.monthly}`;
 
@@ -50,6 +51,7 @@ export default async function Home() {
           t={t}
           heroImages={heroImages}
           heroApps={heroApps}
+          deliveryStrip={deliveryStrip}
         />
         <PainSolution t={t} />
         <AntiCanva t={t} priceLabel={priceLabel} />
@@ -104,11 +106,13 @@ function Hero({
   t,
   heroImages,
   heroApps,
+  deliveryStrip,
 }: {
   signedIn: boolean;
   t: Dictionary;
   heroImages: string[];
   heroApps: SerializableApp[];
+  deliveryStrip: SerializableApp[];
 }) {
   return (
     <section className="relative overflow-hidden">
@@ -140,13 +144,42 @@ function Hero({
             )}
           </div>
           <Link
-            href="/m/demo"
+            href="/m/cavalo-marinho"
             target="_blank"
             rel="noreferrer"
             className="inline-flex min-h-11 items-center gap-2 self-start rounded-full bg-[color:var(--color-brand-50)] px-4 py-2 text-sm font-bold text-[color:var(--color-brand-700)] transition hover:bg-[color:var(--color-brand-100)]"
           >
             {t.landing.heroDemoLink}
           </Link>
+          <div className="flex flex-wrap items-center gap-3">
+            <span className="text-[11px] font-bold uppercase tracking-[0.14em] text-gray-500">
+              {t.landing.heroDeliveryLine}
+            </span>
+            <ul className="flex items-center gap-1.5">
+              {deliveryStrip.map((app) => (
+                <li
+                  key={app.id}
+                  title={app.displayName}
+                  style={{ backgroundColor: app.brandColor }}
+                  className="flex h-7 w-7 items-center justify-center rounded-md shadow-sm ring-1 ring-black/5"
+                >
+                  {app.logoPath && (
+                    /* eslint-disable-next-line @next/next/no-img-element */
+                    <img
+                      src={app.logoPath}
+                      alt={app.displayName}
+                      className="h-4 w-4 object-contain"
+                      style={
+                        app.logoMatchesBrandColor
+                          ? { filter: "brightness(0) invert(1)" }
+                          : undefined
+                      }
+                    />
+                  )}
+                </li>
+              ))}
+            </ul>
+          </div>
         </div>
 
         <HeroPhonePreview

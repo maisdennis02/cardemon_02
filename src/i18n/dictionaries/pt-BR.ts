@@ -29,6 +29,7 @@ const ptBR: Dictionary = {
     heroTitleLine2: "É só um cardápio bonito.",
     heroLead:
       "Sobe a foto do seu cardápio. Compartilha o link. Cliente abre, desliza, pronto. 5 minutos.",
+    heroDeliveryLine: "Funciona com",
     goToDashboard: "Ir para o painel",
     iHaveAccount: "Já tenho uma conta",
     phonePreviewAlt: "Prévia do cardápio",

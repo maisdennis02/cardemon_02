@@ -29,6 +29,7 @@ const es: Dictionary = {
     heroTitleLine2: "Solo un menú bonito.",
     heroLead:
       "Sube la foto de tu menú. Comparte el link. El cliente abre, desliza, listo. Cinco minutos.",
+    heroDeliveryLine: "Funciona con",
     goToDashboard: "Ir al panel",
     iHaveAccount: "Ya tengo una cuenta",
     phonePreviewAlt: "Vista previa del menú",
