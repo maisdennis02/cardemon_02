@@ -46,11 +46,20 @@ export async function generateMetadata(): Promise<Metadata> {
       url: "/",
       locale: OG_LOCALE[locale],
       alternateLocale: LOCALES.filter((l) => l !== locale).map((l) => OG_LOCALE[l]),
+      images: [
+        {
+          url: "/og-image.png",
+          width: 1200,
+          height: 630,
+          alt: t.metadata.rootTitle,
+        },
+      ],
     },
     twitter: {
-      card: "summary",
+      card: "summary_large_image",
       title: t.metadata.rootTitle,
       description: t.metadata.rootDescription,
+      images: ["/og-image.png"],
     },
     robots: { index: true, follow: true },
   };
