@@ -48,10 +48,11 @@ export async function generateMetadata(): Promise<Metadata> {
       alternateLocale: LOCALES.filter((l) => l !== locale).map((l) => OG_LOCALE[l]),
       images: [
         {
-          url: "/og-image.png",
+          url: "/og-image.jpg",
           width: 1200,
           height: 630,
           alt: t.metadata.rootTitle,
+          type: "image/jpeg",
         },
       ],
     },
@@ -59,7 +60,7 @@ export async function generateMetadata(): Promise<Metadata> {
       card: "summary_large_image",
       title: t.metadata.rootTitle,
       description: t.metadata.rootDescription,
-      images: ["/og-image.png"],
+      images: ["/og-image.jpg"],
     },
     robots: { index: true, follow: true },
   };
