@@ -17,12 +17,41 @@
   justify-content: flex-start;
   align-items: center;
   background: #ffffff;
+  /* Every cube face shares the tallest page's height (set from JS via
+     --menu-aspect). Shorter pages keep their image at the top and fill the rest
+     with white, so no taller neighbouring face peeks out behind them. The
+     fallback aspect covers the brief moment before the images are measured.
+     !important is needed to beat the inline height Swiper sets on cube faces. */
+  height: calc(100vw * var(--menu-aspect, 2.2)) !important;
 }
 
 .slide-img {
   width: 100%;
   height: auto;
   display: block;
+  position: relative;
+  z-index: 1;
+}
+
+/* While a pinch is in progress, let the scaled image spill past the slide and
+   cube bounds instead of being clipped, and lift it above everything else. */
+.menu-swiper.is-pinching,
+.menu-swiper.is-pinching .swiper-wrapper,
+.menu-swiper.is-pinching .swiper-slide,
+.menu-swiper.is-pinching .swiper-cube {
+  overflow: visible !important;
+}
+
+.menu-swiper.is-pinching .slide-img {
+  z-index: 30;
+  will-change: transform;
+}
+
+/* The cube effect paints dark shadow overlays on top of each face; while
+   zooming they sit over the scaled image and read as clipping. Hide them. */
+.menu-swiper.is-pinching .swiper-cube-shadow,
+.menu-swiper.is-pinching [class*="swiper-slide-shadow"] {
+  opacity: 0 !important;
 }
 
 .empty-slide {
