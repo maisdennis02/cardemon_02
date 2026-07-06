@@ -1,0 +1,192 @@
+/* Landing-page-only styles, imported by src/app/page.tsx.
+   Everything is lp-prefixed so shared components (.btn, .card, dashboard,
+   auth) are untouched — reverting the landing design never leaks elsewhere. */
+
+/* ---------- texture & backdrop ---------- */
+
+.lp-grain {
+  pointer-events: none;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2'/%3E%3C/filter%3E%3Crect width='160' height='160' filter='url(%23n)' opacity='0.55'/%3E%3C/svg%3E");
+  opacity: 0.06;
+}
+
+.lp-dark .lp-grain {
+  opacity: 0.09;
+}
+
+.lp-dotgrid {
+  pointer-events: none;
+  background-image: radial-gradient(rgba(16, 21, 34, 0.11) 1px, transparent 1px);
+  background-size: 24px 24px;
+  mask-image: radial-gradient(ellipse 90% 65% at 50% 0%, black 25%, transparent 75%);
+  -webkit-mask-image: radial-gradient(ellipse 90% 65% at 50% 0%, black 25%, transparent 75%);
+}
+
+/* ---------- scroll reveal (progressive enhancement, zero JS) ----------
+   Browsers without animation-timeline simply render everything static. */
+
+@keyframes lp-rise {
+  from {
+    opacity: 0;
+    transform: translateY(26px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+@supports (animation-timeline: view()) {
+  @media (prefers-reduced-motion: no-preference) {
+    .lp-reveal {
+      animation: lp-rise ease both;
+      animation-timeline: view();
+      animation-range: entry 5% entry 45%;
+    }
+  }
+}
+
+/* ---------- hero phone: halo, dashed orbit ring, float + tilt ---------- */
+
+.lp-phone-halo {
+  pointer-events: none;
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  width: 125%;
+  aspect-ratio: 1;
+  transform: translate(-50%, -50%);
+  background: radial-gradient(
+    circle,
+    rgba(200, 70, 48, 0.22),
+    rgba(224, 154, 60, 0.13) 45%,
+    transparent 70%
+  );
+  filter: blur(28px);
+}
+
+@keyframes lp-spin {
+  from {
+    transform: translate(-50%, -50%) rotate(0deg);
+  }
+  to {
+    transform: translate(-50%, -50%) rotate(360deg);
+  }
+}
+
+.lp-phone-ring {
+  pointer-events: none;
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  width: 118%;
+  aspect-ratio: 1;
+  transform: translate(-50%, -50%);
+  border-radius: 9999px;
+  border: 1.5px dashed rgba(200, 70, 48, 0.28);
+  animation: lp-spin 70s linear infinite;
+}
+
+@keyframes lp-float {
+  0%,
+  100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-10px);
+  }
+}
+
+.lp-phone-float {
+  animation: lp-float 7s ease-in-out infinite;
+}
+
+.lp-phone-tilt {
+  transform: rotate(2.5deg);
+  transition: transform 0.5s ease;
+}
+
+.lp-phone-wrap:hover .lp-phone-tilt {
+  transform: rotate(0deg);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .lp-phone-ring {
+    animation: none;
+  }
+  .lp-phone-float {
+    animation: none;
+  }
+  .lp-phone-tilt {
+    transform: none;
+    transition: none;
+  }
+}
+
+/* ---------- hand-drawn underline under the hero accent line ---------- */
+
+.lp-squiggle {
+  position: absolute;
+  left: 0;
+  bottom: -0.14em;
+  width: 100%;
+  height: 0.3em;
+  color: var(--color-brand);
+  opacity: 0.45;
+}
+
+.lp-squiggle path {
+  stroke-dasharray: 320;
+  stroke-dashoffset: 320;
+  animation: lp-draw 1.1s 0.35s ease forwards;
+}
+
+@keyframes lp-draw {
+  to {
+    stroke-dashoffset: 0;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .lp-squiggle path {
+    animation: none;
+    stroke-dashoffset: 0;
+  }
+}
+
+/* ---------- primary CTA glow ---------- */
+
+.lp-cta {
+  box-shadow: 0 12px 28px -10px rgba(200, 70, 48, 0.55);
+}
+
+.lp-cta:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 16px 34px -10px rgba(200, 70, 48, 0.6);
+}
+
+.lp-cta:active {
+  transform: translateY(0);
+}
+
+/* ---------- giant ghost numerals in "how it works" cards ---------- */
+
+.lp-ghost-num {
+  pointer-events: none;
+  position: absolute;
+  top: -1.6rem;
+  right: -0.2rem;
+  font-size: 6.5rem;
+  font-weight: 700;
+  line-height: 1;
+  letter-spacing: -0.05em;
+  color: var(--color-brand);
+  opacity: 0.08;
+  user-select: none;
+}
+
+/* ---------- navy footer needs a light wordmark ---------- */
+
+.lp-footer .logo-mark {
+  color: #ffffff;
+}
