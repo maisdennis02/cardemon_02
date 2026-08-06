@@ -1,7 +1,7 @@
 import Link from "next/link";
 import { auth } from "@/auth";
-import { BrandedQrCode } from "@/app/dashboard/branded-qr";
-import { HeroPhonePreview } from "@/app/hero-phone-preview";
+import { BrandedQrCode } from "./dashboard/branded-qr";
+import { HeroPhonePreview } from "./hero-phone-preview";
 import { Logo } from "@/components/logo";
 import {
   ArrowRightIcon,

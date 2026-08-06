@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 import { Geist, Geist_Mono, Encode_Sans_Expanded } from "next/font/google";
-import "./globals.css";
+import "../globals.css";
 import { Analytics } from "@vercel/analytics/next";
 import { getDictionary, getLocale } from "@/i18n";
 import { DictionaryProvider } from "@/i18n/provider";

@@ -48,6 +48,7 @@ async function requireOwnedRestaurant(userId: string, restaurantId: string) {
 async function requireOwnedImage(userId: string, imageId: string) {
   const img = await prisma.menuImage.findFirst({
     where: { id: imageId, restaurant: { ownerId: userId } },
+    include: { restaurant: { select: { slug: true } } },
   });
   if (!img) {
     const t = await dashT();
@@ -178,6 +179,8 @@ export async function createRestaurant(_p: ActionState, formData: FormData): Pro
   });
   track("restaurant_created").catch(() => {});
   revalidatePath("/dashboard");
+  // A scan before creation may have cached the 404 for this slug.
+  revalidatePath(`/m/${parsed.data.slug}`);
   redirect("/dashboard");
 }
 
@@ -185,7 +188,7 @@ export async function updateRestaurant(_p: ActionState, formData: FormData): Pro
   const userId = await requireUserId();
   const t = await dashT();
   const id = String(formData.get("id") ?? "");
-  await requireOwnedRestaurant(userId, id);
+  const existing = await requireOwnedRestaurant(userId, id);
 
   const deliveryInput: Partial<Record<DeliveryUrlColumn, string | undefined>> = {};
   for (const appId of DELIVERY_APP_IDS) {
@@ -232,6 +235,8 @@ export async function updateRestaurant(_p: ActionState, formData: FormData): Pro
     },
   });
   revalidatePath("/dashboard");
+  revalidatePath(`/m/${parsed.data.slug}`);
+  if (existing.slug !== parsed.data.slug) revalidatePath(`/m/${existing.slug}`);
   return {};
 }
 
@@ -249,7 +254,7 @@ export async function recordMenuImages(input: {
   }
 
   const { restaurantId, urls } = parsed.data;
-  await requireOwnedRestaurant(userId, restaurantId);
+  const restaurant = await requireOwnedRestaurant(userId, restaurantId);
 
   const [existingCount, user] = await Promise.all([
     prisma.menuImage.count({ where: { restaurantId } }),
@@ -284,6 +289,7 @@ export async function recordMenuImages(input: {
   track("menu_image_uploaded", { count: urls.length }).catch(() => {});
 
   revalidatePath("/dashboard");
+  revalidatePath(`/m/${restaurant.slug}`);
   return {};
 }
 
@@ -309,6 +315,7 @@ export async function deleteMenuImage(formData: FormData) {
   );
 
   revalidatePath("/dashboard");
+  revalidatePath(`/m/${image.restaurant.slug}`);
 }
 
 export async function reorderMenuImages(formData: FormData) {
@@ -323,7 +330,7 @@ export async function reorderMenuImages(formData: FormData) {
   });
   if (!parsed.success) throw new Error(t.errors.reorderInvalid);
   const { restaurantId, orderedIds } = parsed.data;
-  await requireOwnedRestaurant(userId, restaurantId);
+  const restaurant = await requireOwnedRestaurant(userId, restaurantId);
 
   // Verify all IDs belong to this restaurant.
   const owned = await prisma.menuImage.findMany({
@@ -337,4 +344,5 @@ export async function reorderMenuImages(formData: FormData) {
   );
 
   revalidatePath("/dashboard");
+  revalidatePath(`/m/${restaurant.slug}`);
 }

@@ -21,6 +21,24 @@ export const OG_LOCALE: Record<Locale, string> = {
   es: "es_ES",
 };
 
+// Locale for a restaurant's public menu, derived from its country so the page
+// stays deterministic (and therefore cacheable) — no request headers involved.
+const COUNTRY_LOCALE: Record<string, Locale> = {
+  BR: "pt-BR",
+  PT: "pt-BR",
+  MX: "es",
+  AR: "es",
+  UY: "es",
+  CO: "es",
+  CL: "es",
+  PE: "es",
+  ES: "es",
+};
+
+export function localeForCountry(country: string | null | undefined): Locale {
+  return (country && COUNTRY_LOCALE[country.toUpperCase()]) || DEFAULT_LOCALE;
+}
+
 export function pickLocaleFromAcceptLanguage(header: string | null | undefined): Locale {
   if (!header) return DEFAULT_LOCALE;
   const primary = header.split(",")[0]?.trim().split(";")[0]?.toLowerCase() ?? "";
