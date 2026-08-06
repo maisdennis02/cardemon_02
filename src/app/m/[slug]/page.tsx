@@ -1,26 +1,27 @@
 import { notFound } from "next/navigation";
-import { prisma } from "@/lib/prisma";
 import { MenuSlideshow } from "./slideshow";
-import { getDictionary, getLocale } from "@/i18n";
-import { format } from "@/i18n/config";
+import { getDictionary } from "@/i18n";
+import { format, localeForCountry } from "@/i18n/config";
 import { absoluteUrl } from "@/lib/site";
 import { jsonLdScript } from "@/lib/json-ld";
+import { getRestaurant } from "./data";
 
 export const revalidate = 60;
 
+// Deliberately empty: menus are generated on first visit and then served from
+// the ISR cache. Keeping this DB-free also keeps builds deployable during a
+// database outage. Required even when empty — without it the route is fully
+// dynamic and `revalidate` is ignored.
+export async function generateStaticParams(): Promise<{ slug: string }[]> {
+  return [];
+}
+
 export async function generateMetadata({ params }: { params: Promise<{ slug: string }> }) {
   const { slug } = await params;
-  const r = await prisma.restaurant.findUnique({
-    where: { slug },
-    select: {
-      name: true,
-      description: true,
-      images: { select: { url: true }, orderBy: { sortOrder: "asc" }, take: 1 },
-    },
-  });
+  const r = await getRestaurant(slug);
   if (!r) return {};
 
-  const locale = await getLocale();
+  const locale = localeForCountry(r.country);
   const t = await getDictionary(locale);
   const title = `${r.name} — ${t.menu.cardapioDigital}`;
   const description =
@@ -55,10 +56,7 @@ export default async function PublicMenuPage({
   params: Promise<{ slug: string }>;
 }) {
   const { slug } = await params;
-  const restaurant = await prisma.restaurant.findUnique({
-    where: { slug },
-    include: { images: { orderBy: { sortOrder: "asc" } } },
-  });
+  const restaurant = await getRestaurant(slug);
 
   if (!restaurant) notFound();
 
