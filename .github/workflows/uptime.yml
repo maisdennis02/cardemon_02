@@ -1,0 +1,48 @@
+# Free uptime monitoring: GitHub emails the repo owner when a run fails.
+# Two separate jobs so the alert email says which layer broke:
+#  - menu-pages: the customer-facing path (must stay up even during DB outages,
+#    served from the ISR cache)
+#  - database: /api/health returns 503 when Postgres is unreachable
+# Each probe retries 3x over ~40s to avoid alerting on transient blips.
+# Note: GitHub pauses scheduled workflows in public repos after 60 days without
+# repo activity (it emails a warning first) — any commit re-enables it.
+name: uptime
+
+on:
+  schedule:
+    - cron: "*/5 * * * *"
+  workflow_dispatch:
+
+jobs:
+  menu-pages:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Probe public menu and homepage
+        run: |
+          probe() {
+            local url="$1"
+            for i in 1 2 3; do
+              code=$(curl -s -o /dev/null -w "%{http_code}" -m 20 "$url" || echo 000)
+              if [ "$code" = "200" ]; then echo "OK $url (attempt $i)"; return 0; fi
+              echo "attempt $i: HTTP $code for $url"
+              sleep 20
+            done
+            echo "::error::DOWN: $url (last status $code)"
+            return 1
+          }
+          probe "https://menulala.com/m/cavalo-marinho"
+          probe "https://menulala.com/"
+
+  database:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Probe /api/health
+        run: |
+          for i in 1 2 3; do
+            code=$(curl -s -o /dev/null -w "%{http_code}" -m 20 "https://menulala.com/api/health" || echo 000)
+            if [ "$code" = "200" ]; then echo "OK (attempt $i)"; exit 0; fi
+            echo "attempt $i: HTTP $code"
+            sleep 20
+          done
+          echo "::error::DOWN: database unreachable via /api/health (last status $code)"
+          exit 1
