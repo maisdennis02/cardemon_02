@@ -6,11 +6,17 @@
 # Each probe retries 3x over ~40s to avoid alerting on transient blips.
 # Note: GitHub pauses scheduled workflows in public repos after 60 days without
 # repo activity (it emails a warning first) — any commit re-enables it.
+#
+# This is a BACKUP monitor: GitHub heavily deprioritizes cron on free public
+# repos (runs get skipped or cancelled with "not acquired by Runner" — that
+# email means GitHub hiccupped, NOT that the site is down; a real outage email
+# says "DOWN: <url>"). Primary monitoring should be an external service like
+# UptimeRobot pointed at the same URLs.
 name: uptime
 
 on:
   schedule:
-    - cron: "*/5 * * * *"
+    - cron: "*/15 * * * *"
   workflow_dispatch:
 
 jobs:
