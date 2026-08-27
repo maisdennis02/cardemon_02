@@ -14,13 +14,6 @@ export function stripe(): Stripe {
 }
 
 export function priceIdFor(cycle: BillingCycle, currency: Currency = "USD"): string {
-  // TEMP: route every Subscribe click to a tiny test-amount Price so we can
-  // validate the end-to-end flow without charging real money. Remove this
-  // block to restore the per-cycle pricing.
-  const testEnv = currency === "BRL" ? "STRIPE_PRICE_ID_TEST_BRL" : "STRIPE_PRICE_ID_TEST_USD";
-  const testId = process.env[testEnv];
-  if (testId) return testId;
-
   const envName =
     currency === "BRL"
       ? cycle === "ANNUAL"
@@ -38,8 +31,8 @@ export function priceIdFor(cycle: BillingCycle, currency: Currency = "USD"): str
 // event for every one of them lands on our single webhook endpoint — so the
 // webhook has to prove an event is ours before acting on it. Anchored on the
 // Product rather than the Prices because the Prices multiply (four live ones
-// plus the STRIPE_PRICE_ID_TEST_* override above) and a price allowlist would
-// silently reject a Price someone forgot to add.
+// across two currencies) and a price allowlist would silently reject a Price
+// someone forgot to add.
 // Comma-separated, so a separate test-mode Product can sit alongside the live
 // one without widening the guard to "anything on the account".
 export function allowedProductIds(): string[] {
