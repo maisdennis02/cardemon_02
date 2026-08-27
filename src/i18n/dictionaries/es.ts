@@ -176,6 +176,15 @@ const es: Dictionary = {
       ignoreNote: "Si no fuiste tú, puedes ignorar este correo — tu contraseña no cambiará.",
       signature: "— el equipo de menulala",
     },
+    paymentFailed: {
+      subject: "No pudimos procesar tu pago de menulala",
+      preheader: "Actualiza tu método de pago para mantener tu plan Pro activo.",
+      greeting: "Hola,",
+      body: "No pudimos procesar el último pago de tu suscripción Pro de menulala. Esto suele ocurrir cuando la tarjeta registrada venció o fue rechazada. Actualiza tu método de pago desde tu panel y lo intentaremos de nuevo automáticamente.",
+      cta: "Actualizar método de pago",
+      retryNote: "Si el pago sigue fallando, tu plan volverá al Gratuito — tu menú público seguirá en línea de todas formas.",
+      signature: "— el equipo de menulala",
+    },
   },
   dashboard: {
     viewPublicMenu: "Ver menú público",

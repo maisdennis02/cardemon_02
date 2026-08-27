@@ -176,6 +176,15 @@ const ptBR: Dictionary = {
       ignoreNote: "Se não foi você, pode ignorar este e-mail — sua senha não será alterada.",
       signature: "— equipe menulala",
     },
+    paymentFailed: {
+      subject: "Não conseguimos processar seu pagamento do menulala",
+      preheader: "Atualize sua forma de pagamento para manter seu plano Pro ativo.",
+      greeting: "Olá,",
+      body: "Não conseguimos processar o último pagamento da sua assinatura Pro do menulala. Isso geralmente acontece quando o cartão cadastrado expirou ou foi recusado. Atualize sua forma de pagamento pelo painel e tentaremos novamente de forma automática.",
+      cta: "Atualizar forma de pagamento",
+      retryNote: "Se o pagamento continuar falhando, seu plano voltará para o Gratuito — seu cardápio público continua no ar de qualquer forma.",
+      signature: "— equipe menulala",
+    },
   },
   dashboard: {
     viewPublicMenu: "Ver cardápio público",

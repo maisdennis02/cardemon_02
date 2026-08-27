@@ -166,6 +166,15 @@ export const en = {
       ignoreNote: "If you didn't request this, you can safely ignore this email — your password won't change.",
       signature: "— the menulala team",
     },
+    paymentFailed: {
+      subject: "Your menulala payment didn't go through",
+      preheader: "Update your payment method to keep your Pro plan active.",
+      greeting: "Hi,",
+      body: "We couldn't process the latest payment for your menulala Pro subscription. This usually means the card on file expired or was declined. Update your payment method from your dashboard and we'll retry automatically.",
+      cta: "Update payment method",
+      retryNote: "If the payment keeps failing, your plan will return to Free — your public menu stays online either way.",
+      signature: "— the menulala team",
+    },
   },
   dashboard: {
     viewPublicMenu: "View public menu",

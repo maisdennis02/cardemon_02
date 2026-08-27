@@ -34,6 +34,35 @@ export function priceIdFor(cycle: BillingCycle, currency: Currency = "USD"): str
   return id;
 }
 
+// Product allowlist. One Stripe account can carry several products, and every
+// event for every one of them lands on our single webhook endpoint — so the
+// webhook has to prove an event is ours before acting on it. Anchored on the
+// Product rather than the Prices because the Prices multiply (four live ones
+// plus the STRIPE_PRICE_ID_TEST_* override above) and a price allowlist would
+// silently reject a Price someone forgot to add.
+// Comma-separated, so a separate test-mode Product can sit alongside the live
+// one without widening the guard to "anything on the account".
+export function allowedProductIds(): string[] {
+  const ids = (process.env.STRIPE_PRODUCT_ID ?? "")
+    .split(",")
+    .map((s) => s.trim())
+    .filter(Boolean);
+  // Deliberately fail closed: an unset allowlist must not degrade into
+  // "allow everything", which is the exact bug this guard exists to fix.
+  if (ids.length === 0) throw new Error("STRIPE_PRODUCT_ID is not set");
+  return ids;
+}
+
+// Stripe hands back price.product as a bare id, an expanded Product, or a
+// deleted stub depending on the call. Normalize before comparing.
+export function isOurProduct(
+  product: string | Stripe.Product | Stripe.DeletedProduct | null | undefined,
+): boolean {
+  const id = typeof product === "string" ? product : product?.id;
+  if (!id) return false;
+  return allowedProductIds().includes(id);
+}
+
 export function appUrl(): string {
   // Used to build success/cancel/return URLs. Falls back to localhost for dev.
   return process.env.APP_URL || "http://localhost:3000";

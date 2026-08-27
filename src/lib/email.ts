@@ -90,3 +90,42 @@ export async function sendPasswordResetEmail({
 
   await sendEmail({ to, subject: e.subject, html });
 }
+
+export async function sendPaymentFailedEmail({
+  to,
+  dict,
+}: {
+  to: string;
+  dict: Dictionary;
+}): Promise<void> {
+  const e = dict.emails.paymentFailed;
+  // The billing portal route requires a session, so the email points at the
+  // dashboard, whose "Manage subscription" button opens the portal.
+  const billingUrl = `${siteUrl()}/dashboard`;
+  const brand = "#c84630";
+  const navy = "#101522";
+
+  const html = `<!DOCTYPE html>
+<html lang="en">
+<head><meta charset="utf-8"><title>${escapeHtml(e.subject)}</title></head>
+<body style="margin:0;padding:0;background:#faf7f2;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;color:${navy};">
+  <span style="display:none;visibility:hidden;opacity:0;height:0;width:0;overflow:hidden;">${escapeHtml(e.preheader)}</span>
+  <table role="presentation" width="100%" cellspacing="0" cellpadding="0" border="0" style="background:#faf7f2;padding:32px 16px;">
+    <tr><td align="center">
+      <table role="presentation" width="100%" cellspacing="0" cellpadding="0" border="0" style="max-width:480px;background:#ffffff;border:1px solid #e5e7eb;border-radius:16px;padding:32px;">
+        <tr><td style="font-size:14px;font-weight:700;letter-spacing:-0.02em;color:${navy};padding-bottom:24px;">menulala<span style="color:${brand};">.</span></td></tr>
+        <tr><td style="font-size:16px;line-height:1.5;color:${navy};padding-bottom:8px;">${escapeHtml(e.greeting)}</td></tr>
+        <tr><td style="font-size:15px;line-height:1.6;color:#4b5563;padding-bottom:24px;">${escapeHtml(e.body)}</td></tr>
+        <tr><td align="left" style="padding-bottom:24px;">
+          <a href="${billingUrl}" style="display:inline-block;background:${brand};color:#ffffff;text-decoration:none;font-weight:700;padding:12px 22px;border-radius:9999px;font-size:14px;">${escapeHtml(e.cta)}</a>
+        </td></tr>
+        <tr><td style="font-size:13px;line-height:1.6;color:#6b7280;padding-bottom:24px;">${escapeHtml(e.retryNote)}</td></tr>
+        <tr><td style="font-size:13px;color:#9ca3af;">${escapeHtml(e.signature)}</td></tr>
+      </table>
+    </td></tr>
+  </table>
+</body>
+</html>`;
+
+  await sendEmail({ to, subject: e.subject, html });
+}

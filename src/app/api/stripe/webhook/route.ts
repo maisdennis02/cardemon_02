@@ -1,7 +1,10 @@
 import { NextResponse } from "next/server";
 import type Stripe from "stripe";
+import { getDictionary } from "@/i18n";
+import { localeForCountry } from "@/i18n/config";
+import { sendPaymentFailedEmail } from "@/lib/email";
 import { prisma } from "@/lib/prisma";
-import { stripe } from "@/lib/stripe";
+import { isOurProduct, stripe } from "@/lib/stripe";
 
 // POST /api/stripe/webhook
 // Stripe sends events here. We verify the signature, then sync the user's
@@ -60,6 +63,21 @@ export async function POST(req: Request) {
           select: { id: true },
         });
         if (linked) break;
+        // Product guard, immediately before the only destructive call in this
+        // handler. Other products' expired sessions arrive here too, and their
+        // orphan customers are not ours to delete. The session payload doesn't
+        // carry line items, so fetch them; if we can't positively prove the
+        // session was menulala's, leave the customer alone.
+        let ours = false;
+        try {
+          const items = await stripe().checkout.sessions.listLineItems(s.id, {
+            limit: 100,
+          });
+          ours = items.data.some((li) => isOurProduct(li.price?.product));
+        } catch {
+          ours = false;
+        }
+        if (!ours) break;
         try {
           const subs = await stripe().subscriptions.list({
             customer: customerId,
@@ -85,6 +103,39 @@ export async function POST(req: Request) {
           const userId = await resolveUserId(sub);
           if (userId) await applySubscription(userId, sub);
         }
+        break;
+      }
+      case "invoice.payment_failed": {
+        // Dunning: tell the owner their card failed so they can fix it before
+        // Stripe exhausts its retries and cancels the subscription. Stripe
+        // fires this once per retry attempt (a handful over the dunning
+        // window), which is a normal reminder cadence. Pro state itself is
+        // not touched here — the customer.subscription.updated that carries
+        // status "past_due" keeps access through the retry window, and the
+        // eventual "deleted"/"unpaid" clears it (see applySubscription).
+        const inv = event.data.object as Stripe.Invoice;
+        const linked = inv.parent?.subscription_details?.subscription;
+        const subId = typeof linked === "string" ? linked : linked?.id;
+        if (!subId) break;
+        const sub = await stripe().subscriptions.retrieve(subId);
+        // Product guard: other products' dunning is not ours to email about.
+        const ours =
+          sub.items?.data?.some((item) => isOurProduct(item.price?.product)) ?? false;
+        if (!ours) break;
+        const userId = await resolveUserId(sub);
+        if (!userId) break;
+        const user = await prisma.user.findUnique({
+          where: { id: userId },
+          select: {
+            email: true,
+            restaurants: { select: { country: true }, take: 1 },
+          },
+        });
+        if (!user?.email) break;
+        const dict = await getDictionary(
+          localeForCountry(user.restaurants[0]?.country),
+        );
+        await sendPaymentFailedEmail({ to: user.email, dict });
         break;
       }
       default:
@@ -113,7 +164,21 @@ async function resolveUserId(sub: Stripe.Subscription): Promise<string | null> {
 }
 
 async function applySubscription(userId: string, sub: Stripe.Subscription) {
-  const active = sub.status === "active" || sub.status === "trialing";
+  // Product guard. Every write to a user's Pro state funnels through here —
+  // checkout.session.completed, the three customer.subscription.* events, and
+  // invoice.paid — so this one check covers them all. Without it a foreign
+  // product's subscription on a customer we've seen before would drive
+  // menulala's billing: its renewal would extend Pro, its cancellation would
+  // clear it. Throws (→ 500 → Stripe retries) if the allowlist is unset, so a
+  // misconfigured deploy queues events instead of silently mis-applying them.
+  const ours = sub.items?.data?.some((item) => isOurProduct(item.price?.product)) ?? false;
+  if (!ours) return;
+
+  // "past_due" keeps access on purpose: Stripe is still retrying the card
+  // (and invoice.payment_failed is emailing the owner about it). Anything
+  // else — canceled, unpaid, incomplete_expired, paused — has lapsed.
+  const active =
+    sub.status === "active" || sub.status === "trialing" || sub.status === "past_due";
   // current_period_end location depends on the account's pinned API version:
   //   - 2025-08-28+: per item (sub.items.data[N].current_period_end)
   //   - older:       top-level (sub.current_period_end)
@@ -143,8 +208,10 @@ async function applySubscription(userId: string, sub: Stripe.Subscription) {
       billingCustomerId:
         typeof sub.customer === "string" ? sub.customer : sub.customer.id,
       ...(billingCycle ? { billingCycle } : {}),
-      // If the sub has lapsed without renewal, clear proExpiresAt.
-      proExpiresAt: active ? periodEnd : periodEnd ?? null,
+      // If the sub has lapsed, clear proExpiresAt. (This used to write
+      // periodEnd on both branches, so a canceled sub kept Pro through a
+      // period that was never paid for.)
+      proExpiresAt: active ? periodEnd : null,
     },
   });
 }
