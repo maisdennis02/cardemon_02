@@ -1,8 +1,11 @@
 # Free uptime monitoring: GitHub emails the repo owner when a run fails.
 # Two separate jobs so the alert email says which layer broke:
 #  - menu-pages: the customer-facing path (must stay up even during DB outages,
-#    served from the ISR cache)
-#  - database: /api/health returns 503 when Postgres is unreachable
+#    served from the ISR cache) — every 15 min; these hit the ISR cache only,
+#    so they never wake the database
+#  - database: /api/health returns 503 when Postgres is unreachable — hourly,
+#    NOT every 15 min: each probe wakes the Neon compute (autosuspend is 5 min),
+#    and a 15-min cadence alone burns ~60 of the free plan's 100 CU-hours/month
 # Each probe retries 3x over ~40s to avoid alerting on transient blips.
 # Note: GitHub pauses scheduled workflows in public repos after 60 days without
 # repo activity (it emails a warning first) — any commit re-enables it.
@@ -16,11 +19,15 @@ name: uptime
 
 on:
   schedule:
-    - cron: "*/15 * * * *"
+    # Each job is gated on github.event.schedule so it only runs for its own
+    # cron entry (at :00 both entries fire as separate runs).
+    - cron: "*/15 * * * *" # menu-pages
+    - cron: "0 * * * *" # database
   workflow_dispatch:
 
 jobs:
   menu-pages:
+    if: github.event_name == 'workflow_dispatch' || github.event.schedule == '*/15 * * * *'
     runs-on: ubuntu-latest
     steps:
       - name: Probe public menu and homepage
@@ -40,6 +47,7 @@ jobs:
           probe "https://menulala.com/"
 
   database:
+    if: github.event_name == 'workflow_dispatch' || github.event.schedule == '0 * * * *'
     runs-on: ubuntu-latest
     steps:
       - name: Probe /api/health
