@@ -57,6 +57,10 @@ export function isOurProduct(
 }
 
 export function appUrl(): string {
-  // Used to build success/cancel/return URLs. Falls back to localhost for dev.
+  // Used to build success/cancel/return URLs. Falls back to localhost for dev;
+  // on Vercel a missing APP_URL is a hard error (see siteUrl in lib/site.ts).
+  if (!process.env.APP_URL && process.env.VERCEL) {
+    throw new Error("APP_URL is not set");
+  }
   return process.env.APP_URL || "http://localhost:3000";
 }

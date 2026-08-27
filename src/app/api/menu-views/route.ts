@@ -57,6 +57,16 @@ export async function POST(request: Request): Promise<Response> {
       ? countryHeader.toUpperCase()
       : null;
 
+  // Abuse cap: this endpoint is unauthenticated, so without a ceiling anyone
+  // can inflate a restaurant's stats (and our row count) at wire speed. No
+  // legitimate menu gets 600 events/hour at our scale; beyond that we drop
+  // silently — a 204 either way, so bots learn nothing from the response.
+  const oneHourAgo = new Date(Date.now() - 60 * 60 * 1000);
+  const recentCount = await prisma.menuView.count({
+    where: { restaurantId, viewedAt: { gte: oneHourAgo } },
+  });
+  if (recentCount >= 600) return new Response(null, { status: 204 });
+
   await prisma.menuView.create({
     data: { restaurantId, kind, country },
   });

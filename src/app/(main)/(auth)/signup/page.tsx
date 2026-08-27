@@ -63,6 +63,17 @@ export default function SignupPage() {
           <button type="submit" disabled={pending} className="btn btn-primary">
             {pending ? t.auth.creatingAccount : t.auth.createAccount}
           </button>
+          <p className="text-xs leading-relaxed text-gray-500">
+            {t.auth.consentPrefix}
+            <Link href="/terms" className="underline hover:text-gray-700">
+              {t.common.termsOfService}
+            </Link>
+            {t.auth.consentAnd}
+            <Link href="/privacy" className="underline hover:text-gray-700">
+              {t.common.privacyPolicy}
+            </Link>
+            {t.auth.consentSuffix}
+          </p>
         </form>
       </div>
       <p className="mt-4 text-sm text-gray-600">

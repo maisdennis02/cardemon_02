@@ -6,6 +6,12 @@
 // Uses APP_URL so it stays consistent with the Stripe return-URL helper.
 
 export function siteUrl(): string {
+  // On Vercel a missing APP_URL must be a hard error: the localhost fallback
+  // would silently poison password-reset links, Stripe return URLs, the
+  // sitemap, and every canonical tag. Local dev/builds keep the fallback.
+  if (!process.env.APP_URL && process.env.VERCEL) {
+    throw new Error("APP_URL is not set");
+  }
   return (process.env.APP_URL || "http://localhost:3000").replace(/\/+$/, "");
 }
 

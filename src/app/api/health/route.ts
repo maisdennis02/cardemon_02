@@ -12,7 +12,15 @@ export async function GET(): Promise<Response> {
         setTimeout(() => reject(new Error("db health check timed out")), 5_000),
       ),
     ]);
-    return Response.json({ ok: true });
+    // CDN-cache the healthy answer for 30s: each uncached hit wakes the Neon
+    // compute (metered), and this endpoint is public — without the cache
+    // anyone can spend our database compute by hammering it. Monitors probe
+    // every 30min, so 30s staleness is irrelevant to them. Failures are NOT
+    // cached: recovery should be visible immediately.
+    return Response.json(
+      { ok: true },
+      { headers: { "Cache-Control": "public, s-maxage=30, must-revalidate" } },
+    );
   } catch (error) {
     console.error("health check failed", error);
     return Response.json({ ok: false }, { status: 503 });

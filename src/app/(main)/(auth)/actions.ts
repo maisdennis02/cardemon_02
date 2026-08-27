@@ -72,6 +72,38 @@ export async function signup(_prev: ActionResult, formData: FormData): Promise<A
   return { ok: true };
 }
 
+// In-memory brute-force brake: after 5 failed logins for an email, that email
+// is locked for 15 minutes. Same caveat as the reset throttle below — this is
+// per-process, so serverless cold starts reset it. It still breaks naive
+// credential-stuffing runs (which hammer one warm instance) and costs nothing;
+// a shared store (Upstash/Redis) is the upgrade path if it ever matters.
+const LOGIN_WINDOW_MS = 15 * 60_000;
+const LOGIN_MAX_FAILURES = 5;
+const loginFailures = new Map<string, { count: number; firstAt: number }>();
+
+function loginLocked(email: string): boolean {
+  const entry = loginFailures.get(email);
+  if (!entry) return false;
+  if (Date.now() - entry.firstAt > LOGIN_WINDOW_MS) {
+    loginFailures.delete(email);
+    return false;
+  }
+  return entry.count >= LOGIN_MAX_FAILURES;
+}
+
+function recordLoginFailure(email: string): void {
+  const now = Date.now();
+  const entry = loginFailures.get(email);
+  if (!entry || now - entry.firstAt > LOGIN_WINDOW_MS) {
+    loginFailures.set(email, { count: 1, firstAt: now });
+  } else {
+    entry.count += 1;
+  }
+  // Surfaces in Vercel logs — the only failed-login signal we have until
+  // real error monitoring exists.
+  console.warn(`[login] failed attempt for ${email}`);
+}
+
 export async function login(_prev: ActionResult, formData: FormData): Promise<ActionResult> {
   const t = await authT();
   const parsed = loginSchema.safeParse({
@@ -80,21 +112,29 @@ export async function login(_prev: ActionResult, formData: FormData): Promise<Ac
   });
   if (!parsed.success) return { error: t.errors.invalidLogin };
 
+  const email = parsed.data.email.toLowerCase();
+  if (loginLocked(email)) return { error: t.errors.tooManyAttempts };
+
   // Restrict callbackUrl to same-origin paths to prevent open-redirect.
   const rawCallback = String(formData.get("callbackUrl") ?? "");
   const redirectTo = /^\/[^/]/.test(rawCallback) ? rawCallback : "/dashboard";
 
   try {
     await signIn("credentials", {
-      email: parsed.data.email.toLowerCase(),
+      email,
       password: parsed.data.password,
       redirectTo,
     });
   } catch (err) {
     if (err instanceof AuthError) {
-      if (err.type === "CredentialsSignin") return { error: t.errors.invalidLogin };
+      if (err.type === "CredentialsSignin") {
+        recordLoginFailure(email);
+        return { error: t.errors.invalidLogin };
+      }
       return { error: t.errors.signinFailed };
     }
+    // Success surfaces as a redirect throw, so this rethrow is the happy path
+    // too — stale failure entries just age out of the 15-minute window.
     throw err;
   }
   return { ok: true };

@@ -110,6 +110,17 @@ export default async function RootLayout({
         <DictionaryProvider locale={locale} dictionary={dictionary}>
           {children}
         </DictionaryProvider>
+        <footer className="border-t border-gray-100 bg-white">
+          <div className="mx-auto flex max-w-4xl flex-wrap items-center justify-center gap-x-4 gap-y-1 px-6 py-4 text-xs text-gray-500">
+            <span>© {new Date().getFullYear()} menulala</span>
+            <a href="/terms" className="hover:underline">
+              {dictionary.common.termsOfService}
+            </a>
+            <a href="/privacy" className="hover:underline">
+              {dictionary.common.privacyPolicy}
+            </a>
+          </div>
+        </footer>
         <Analytics />
       </body>
     </html>

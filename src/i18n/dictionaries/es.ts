@@ -7,6 +7,8 @@ const es: Dictionary = {
     menuDescriptionFallback: "Menú digital de {name}.",
   },
   common: {
+    termsOfService: "Términos de Servicio",
+    privacyPolicy: "Política de Privacidad",
     dashboard: "Panel",
     logIn: "Entrar",
     signUp: "Registrarse",
@@ -164,7 +166,11 @@ const es: Dictionary = {
       accountExists: "Ya existe una cuenta con ese correo.",
       invalidInput: "Datos inválidos",
       passwordTooShort: "La contraseña debe tener al menos 8 caracteres",
+      tooManyAttempts: "Demasiados intentos. Espera unos minutos e inténtalo de nuevo.",
     },
+    consentPrefix: "Al crear una cuenta, aceptas los ",
+    consentAnd: " y la ",
+    consentSuffix: ".",
   },
   emails: {
     passwordReset: {
@@ -190,6 +196,14 @@ const es: Dictionary = {
     viewPublicMenu: "Ver menú público",
     managePlan: "Gestionar suscripción",
     upgrade: "Mejorar plan",
+    dangerZone: {
+      title: "Eliminar cuenta",
+      description:
+        "Elimina permanentemente tu cuenta, tu restaurante, las imágenes del menú y la página pública del menú. Si tienes una suscripción activa, cancélala antes en \"Gestionar suscripción\". Esta acción no se puede deshacer.",
+      confirmPrompt: "Esto eliminará todo permanentemente. ¿Estás seguro?",
+      deleteButton: "Eliminar mi cuenta",
+      confirmButton: "Sí, eliminar todo",
+    },
     onboarding: {
       title: "Bienvenido — vamos a configurar tu restaurante.",
       leadPrefix: "Elige un nombre y una URL pública. Los clientes visitarán",

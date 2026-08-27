@@ -5,6 +5,8 @@ export const en = {
     menuDescriptionFallback: "Digital menu for {name}.",
   },
   common: {
+    termsOfService: "Terms of Service",
+    privacyPolicy: "Privacy Policy",
     dashboard: "Dashboard",
     logIn: "Log in",
     signUp: "Sign up",
@@ -154,7 +156,11 @@ export const en = {
       accountExists: "An account with that email already exists.",
       invalidInput: "Invalid input",
       passwordTooShort: "Password must be at least 8 characters",
+      tooManyAttempts: "Too many attempts. Wait a few minutes and try again.",
     },
+    consentPrefix: "By creating an account, you agree to the ",
+    consentAnd: " and the ",
+    consentSuffix: ".",
   },
   emails: {
     passwordReset: {
@@ -180,6 +186,14 @@ export const en = {
     viewPublicMenu: "View public menu",
     managePlan: "Manage subscription",
     upgrade: "Upgrade",
+    dangerZone: {
+      title: "Delete account",
+      description:
+        "Permanently deletes your account, your restaurant, your menu images, and your public menu page. If you have an active subscription, cancel it first via \"Manage subscription\". This cannot be undone.",
+      confirmPrompt: "This will permanently delete everything. Are you sure?",
+      deleteButton: "Delete my account",
+      confirmButton: "Yes, delete everything",
+    },
     onboarding: {
       title: "Welcome — let's set up your restaurant.",
       leadPrefix: "Pick a name and a public URL. Customers will visit",

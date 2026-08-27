@@ -5,7 +5,7 @@ import { redirect } from "next/navigation";
 import { z } from "zod";
 import { del } from "@vercel/blob";
 import { track } from "@vercel/analytics/server";
-import { auth } from "@/auth";
+import { auth, signOut } from "@/auth";
 import { prisma } from "@/lib/prisma";
 import { slugify } from "@/lib/slug";
 import { getDictionary, getLocale } from "@/i18n";
@@ -345,4 +345,37 @@ export async function reorderMenuImages(formData: FormData) {
 
   revalidatePath("/dashboard");
   revalidatePath(`/m/${restaurant.slug}`);
+}
+
+// LGPD Art. 18 self-service erasure: removes the user, their restaurants,
+// images, view stats (DB cascade), the image blobs, and de-caches the public
+// menu pages. Stripe keeps its own billing records; an active subscription is
+// NOT auto-canceled here — the danger-zone copy tells the user to cancel it
+// first via the billing portal.
+export async function deleteAccount(): Promise<void> {
+  const userId = await requireUserId();
+  const restaurants = await prisma.restaurant.findMany({
+    where: { ownerId: userId },
+    select: { slug: true, images: { select: { url: true } } },
+  });
+
+  // Blobs before rows: once user.delete cascades, no record of the URLs
+  // survives to retry from. A failed blob delete is logged with its URL so it
+  // can be cleaned up by hand instead of orphaning silently.
+  for (const r of restaurants) {
+    for (const img of r.images) {
+      await del(img.url).catch((err) =>
+        console.error("[deleteAccount] blob delete failed:", img.url, err),
+      );
+    }
+  }
+
+  await prisma.user.delete({ where: { id: userId } });
+  track("account_deleted").catch(() => {});
+
+  // The public menu page is ISR-cached; without this the deleted menu keeps
+  // serving until its next revalidation.
+  for (const r of restaurants) revalidatePath(`/m/${r.slug}`);
+
+  await signOut({ redirectTo: "/" });
 }

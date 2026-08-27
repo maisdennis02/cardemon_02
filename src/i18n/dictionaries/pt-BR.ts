@@ -7,6 +7,8 @@ const ptBR: Dictionary = {
     menuDescriptionFallback: "Cardápio digital de {name}.",
   },
   common: {
+    termsOfService: "Termos de Uso",
+    privacyPolicy: "Política de Privacidade",
     dashboard: "Painel",
     logIn: "Entrar",
     signUp: "Cadastrar",
@@ -164,7 +166,11 @@ const ptBR: Dictionary = {
       accountExists: "Já existe uma conta com esse e-mail.",
       invalidInput: "Dados inválidos",
       passwordTooShort: "A senha deve ter pelo menos 8 caracteres",
+      tooManyAttempts: "Muitas tentativas. Aguarde alguns minutos e tente de novo.",
     },
+    consentPrefix: "Ao criar uma conta, você concorda com os ",
+    consentAnd: " e a ",
+    consentSuffix: ".",
   },
   emails: {
     passwordReset: {
@@ -190,6 +196,14 @@ const ptBR: Dictionary = {
     viewPublicMenu: "Ver cardápio público",
     managePlan: "Gerenciar assinatura",
     upgrade: "Fazer upgrade",
+    dangerZone: {
+      title: "Excluir conta",
+      description:
+        "Exclui permanentemente sua conta, seu restaurante, as imagens do cardápio e a página pública do cardápio. Se você tem uma assinatura ativa, cancele-a antes em \"Gerenciar assinatura\". Essa ação não pode ser desfeita.",
+      confirmPrompt: "Isso vai excluir tudo permanentemente. Tem certeza?",
+      deleteButton: "Excluir minha conta",
+      confirmButton: "Sim, excluir tudo",
+    },
     onboarding: {
       title: "Bem-vindo — vamos configurar seu restaurante.",
       leadPrefix: "Escolha um nome e uma URL pública. Os clientes vão acessar",
