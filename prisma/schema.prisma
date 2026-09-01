@@ -24,6 +24,13 @@ model User {
   billingCycle           BillingCycle?
   billingCustomerId      String?       @unique
   billingSubscriptionId  String?       @unique
+  // True while the Stripe subscription is set to end at the current period
+  // (customer canceled). Only then does an upcoming proExpiresAt mean "Pro
+  // is ending" rather than "Pro will renew" — see lib/pro-ending.ts.
+  billingCancelAtPeriodEnd Boolean     @default(false)
+  // When the last "Pro is ending / has ended" email went out. Compared
+  // against proExpiresAt to decide which reminder is due (lib/pro-ending.ts).
+  proEndingReminderSentAt DateTime?
 
   accounts      Account[]
   sessions      Session[]

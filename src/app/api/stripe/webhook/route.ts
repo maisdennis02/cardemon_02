@@ -2,7 +2,7 @@ import { NextResponse } from "next/server";
 import type Stripe from "stripe";
 import { getDictionary } from "@/i18n";
 import { localeForCountry } from "@/i18n/config";
-import { sendPaymentFailedEmail } from "@/lib/email";
+import { sendPaymentFailedEmail, sendProEndedEmail } from "@/lib/email";
 import { prisma } from "@/lib/prisma";
 import { isOurProduct, stripe } from "@/lib/stripe";
 
@@ -201,17 +201,68 @@ async function applySubscription(userId: string, sub: Stripe.Subscription) {
   const billingCycle =
     cycleMeta === "ANNUAL" ? "ANNUAL" : cycleMeta === "MONTHLY" ? "MONTHLY" : undefined;
 
+  const prev = await prisma.user.findUnique({
+    where: { id: userId },
+    select: {
+      email: true,
+      proExpiresAt: true,
+      billingSubscriptionId: true,
+      proEndingReminderSentAt: true,
+      restaurants: { select: { country: true }, take: 1 },
+    },
+  });
+  if (!prev) return;
+
+  // A lapsed subscription that isn't the one backing Pro must not touch it.
+  // After a re-subscribe, the old (canceled) subscription still fires
+  // customer.subscription.deleted at its period end; without this it would
+  // wipe the Pro the new subscription just paid for.
+  if (!active && prev.billingSubscriptionId && prev.billingSubscriptionId !== sub.id) {
+    return;
+  }
+
+  // Set when the owner canceled from the portal: Pro stays until periodEnd
+  // and then ends instead of renewing. The daily reminder cron keys off it
+  // (lib/pro-ending.ts). cancel_at covers the dated-cancel variant.
+  const cancelAtPeriodEnd = active && (sub.cancel_at_period_end || sub.cancel_at != null);
+
   await prisma.user.update({
     where: { id: userId },
     data: {
-      billingSubscriptionId: sub.id,
+      billingSubscriptionId: active ? sub.id : null,
       billingCustomerId:
         typeof sub.customer === "string" ? sub.customer : sub.customer.id,
       ...(billingCycle ? { billingCycle } : {}),
+      billingCancelAtPeriodEnd: cancelAtPeriodEnd,
       // If the sub has lapsed, clear proExpiresAt. (This used to write
       // periodEnd on both branches, so a canceled sub kept Pro through a
       // period that was never paid for.)
       proExpiresAt: active ? periodEnd : null,
     },
   });
+
+  // Pro just ended (canceled period ran out, or dunning gave up): tell the
+  // owner what changed and how to come back. Guarded by the same
+  // proEndingReminderSentAt the cron uses, so a retried event or a cron run
+  // that beat this webhook to it can't double-send.
+  const proJustEnded =
+    !active &&
+    prev.proExpiresAt !== null &&
+    (!prev.proEndingReminderSentAt || prev.proEndingReminderSentAt < prev.proExpiresAt);
+  if (proJustEnded && prev.email) {
+    try {
+      const dict = await getDictionary(localeForCountry(prev.restaurants[0]?.country));
+      const ok = await sendProEndedEmail({ to: prev.email, dict });
+      if (ok) {
+        await prisma.user.update({
+          where: { id: userId },
+          data: { proEndingReminderSentAt: new Date() },
+        });
+      }
+    } catch (err) {
+      // Pro state is already correct; an email hiccup is not worth a Stripe
+      // retry of the whole event.
+      console.error(`[webhook] pro-ended email failed for user ${userId}:`, err);
+    }
+  }
 }
