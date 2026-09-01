@@ -196,6 +196,16 @@ const ptBR: Dictionary = {
     viewPublicMenu: "Ver cardápio público",
     managePlan: "Gerenciar assinatura",
     upgrade: "Fazer upgrade",
+    changePassword: {
+      title: "Alterar senha",
+      description: "Escolha uma nova senha para sua conta. Sua sessão atual continua ativa.",
+      currentPassword: "Senha atual",
+      newPassword: "Nova senha",
+      confirmPassword: "Confirmar nova senha",
+      submit: "Atualizar senha",
+      saving: "Atualizando…",
+      success: "Sua senha foi atualizada.",
+    },
     dangerZone: {
       title: "Excluir conta",
       description:
@@ -304,6 +314,11 @@ const ptBR: Dictionary = {
     },
     errors: {
       invalidInput: "Dados inválidos",
+      passwordTooShort: "A senha deve ter pelo menos 8 caracteres",
+      passwordMismatch: "As novas senhas não coincidem.",
+      passwordSameAsCurrent: "A nova senha precisa ser diferente da atual.",
+      currentPasswordWrong: "A senha atual está incorreta.",
+      tooManyAttempts: "Muitas tentativas. Aguarde alguns minutos e tente de novo.",
       slugTaken: "Esse slug já está em uso.",
       restaurantNotFound: "Restaurante não encontrado.",
       imageNotFound: "Imagem não encontrada.",

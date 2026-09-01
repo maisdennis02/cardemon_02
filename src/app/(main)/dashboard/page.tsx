@@ -10,6 +10,7 @@ import { MenuQrCard } from "./menu-qr-card";
 import { MenuStatsCard, loadMenuStats } from "./menu-stats-card";
 import { RestaurantSettingsForm } from "./restaurant-settings-form";
 import { DeliverySetupCallout } from "./delivery-setup-callout";
+import { ChangePasswordCard } from "./change-password-card";
 import { DeleteAccountCard } from "./delete-account-card";
 import { getDictionary, getLocale } from "@/i18n";
 import type { Dictionary } from "@/i18n";
@@ -86,6 +87,7 @@ export default async function DashboardPage({
               imageLimit={imageLimit}
               isPro={userIsPro}
             />
+            <ChangePasswordCard />
             <DeleteAccountCard />
           </div>
         )}

@@ -196,6 +196,16 @@ const es: Dictionary = {
     viewPublicMenu: "Ver menú público",
     managePlan: "Gestionar suscripción",
     upgrade: "Mejorar plan",
+    changePassword: {
+      title: "Cambiar contraseña",
+      description: "Elige una nueva contraseña para tu cuenta. Tu sesión actual seguirá activa.",
+      currentPassword: "Contraseña actual",
+      newPassword: "Nueva contraseña",
+      confirmPassword: "Confirmar nueva contraseña",
+      submit: "Actualizar contraseña",
+      saving: "Actualizando…",
+      success: "Tu contraseña fue actualizada.",
+    },
     dangerZone: {
       title: "Eliminar cuenta",
       description:
@@ -305,6 +315,11 @@ const es: Dictionary = {
     },
     errors: {
       invalidInput: "Datos inválidos",
+      passwordTooShort: "La contraseña debe tener al menos 8 caracteres",
+      passwordMismatch: "Las nuevas contraseñas no coinciden.",
+      passwordSameAsCurrent: "La nueva contraseña debe ser distinta de la actual.",
+      currentPasswordWrong: "La contraseña actual es incorrecta.",
+      tooManyAttempts: "Demasiados intentos. Espera unos minutos e inténtalo de nuevo.",
       slugTaken: "Ese slug ya está en uso.",
       restaurantNotFound: "Restaurante no encontrado.",
       imageNotFound: "Imagen no encontrada.",

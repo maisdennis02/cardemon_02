@@ -186,6 +186,16 @@ export const en = {
     viewPublicMenu: "View public menu",
     managePlan: "Manage subscription",
     upgrade: "Upgrade",
+    changePassword: {
+      title: "Change password",
+      description: "Choose a new password for your account. You'll keep your current session.",
+      currentPassword: "Current password",
+      newPassword: "New password",
+      confirmPassword: "Confirm new password",
+      submit: "Update password",
+      saving: "Updating…",
+      success: "Your password was updated.",
+    },
     dangerZone: {
       title: "Delete account",
       description:
@@ -292,6 +302,11 @@ export const en = {
     },
     errors: {
       invalidInput: "Invalid input",
+      passwordTooShort: "Password must be at least 8 characters",
+      passwordMismatch: "The new passwords don't match.",
+      passwordSameAsCurrent: "The new password must be different from the current one.",
+      currentPasswordWrong: "Current password is incorrect.",
+      tooManyAttempts: "Too many attempts. Wait a few minutes and try again.",
       slugTaken: "That slug is already taken.",
       restaurantNotFound: "Restaurant not found.",
       imageNotFound: "Image not found.",

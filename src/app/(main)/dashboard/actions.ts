@@ -3,6 +3,7 @@
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 import { z } from "zod";
+import bcrypt from "bcryptjs";
 import { del } from "@vercel/blob";
 import { track } from "@vercel/analytics/server";
 import { auth, signOut } from "@/auth";
@@ -121,7 +122,7 @@ const reorderMenuImagesSchema = z.object({
   orderedIds: z.array(cuid).min(1).max(200),
 });
 
-export type ActionState = { error?: string };
+export type ActionState = { error?: string; ok?: boolean };
 
 const URL_COLUMN_TO_APP_ID: Record<DeliveryUrlColumn, DeliveryAppId> = DELIVERY_APP_IDS.reduce(
   (acc, id) => {
@@ -378,4 +379,82 @@ export async function deleteAccount(): Promise<void> {
   for (const r of restaurants) revalidatePath(`/m/${r.slug}`);
 
   await signOut({ redirectTo: "/" });
+}
+
+// ---------------------------------------------------------------------------
+// Change password (logged-in user, verified with the current password)
+// ---------------------------------------------------------------------------
+
+const changePasswordSchema = z.object({
+  currentPassword: z.string().min(1),
+  newPassword: z.string().min(8),
+  confirmPassword: z.string().min(1),
+});
+
+// Same in-memory brake as the login form, keyed by user id: a hijacked session
+// gets 5 guesses at the current password per 15 minutes, not unlimited.
+// Per-process, so cold starts reset it — see the note in (auth)/actions.ts.
+const CHANGE_WINDOW_MS = 15 * 60_000;
+const CHANGE_MAX_FAILURES = 5;
+const changeFailures = new Map<string, { count: number; firstAt: number }>();
+
+function changeLocked(userId: string): boolean {
+  const entry = changeFailures.get(userId);
+  if (!entry) return false;
+  if (Date.now() - entry.firstAt > CHANGE_WINDOW_MS) {
+    changeFailures.delete(userId);
+    return false;
+  }
+  return entry.count >= CHANGE_MAX_FAILURES;
+}
+
+function recordChangeFailure(userId: string): void {
+  const now = Date.now();
+  const entry = changeFailures.get(userId);
+  if (!entry || now - entry.firstAt > CHANGE_WINDOW_MS) {
+    changeFailures.set(userId, { count: 1, firstAt: now });
+  } else {
+    entry.count += 1;
+  }
+  console.warn(`[changePassword] wrong current password for user ${userId}`);
+}
+
+export async function changePassword(_p: ActionState, formData: FormData): Promise<ActionState> {
+  const userId = await requireUserId();
+  const t = await dashT();
+
+  const parsed = changePasswordSchema.safeParse({
+    currentPassword: formData.get("currentPassword"),
+    newPassword: formData.get("newPassword"),
+    confirmPassword: formData.get("confirmPassword"),
+  });
+  if (!parsed.success) {
+    const issue = parsed.error.issues[0];
+    if (issue?.code === "too_small" && issue.path[0] === "newPassword") {
+      return { error: t.errors.passwordTooShort };
+    }
+    return { error: t.errors.invalidInput };
+  }
+  const { currentPassword, newPassword, confirmPassword } = parsed.data;
+
+  if (newPassword !== confirmPassword) return { error: t.errors.passwordMismatch };
+  if (newPassword === currentPassword) return { error: t.errors.passwordSameAsCurrent };
+  if (changeLocked(userId)) return { error: t.errors.tooManyAttempts };
+
+  const user = await prisma.user.findUnique({
+    where: { id: userId },
+    select: { passwordHash: true },
+  });
+  const ok = !!user?.passwordHash && (await bcrypt.compare(currentPassword, user.passwordHash));
+  if (!ok) {
+    recordChangeFailure(userId);
+    return { error: t.errors.currentPasswordWrong };
+  }
+
+  const passwordHash = await bcrypt.hash(newPassword, 12);
+  await prisma.user.update({ where: { id: userId }, data: { passwordHash } });
+  changeFailures.delete(userId);
+  track("password_changed").catch(() => {});
+
+  return { ok: true };
 }
