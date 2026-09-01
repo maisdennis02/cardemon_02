@@ -1,0 +1,13 @@
+# Vercel CLI does NOT read .gitignore (only .env.local and a few defaults are
+# skipped). Without this file `vercel deploy` uploaded the local .env and the
+# agent tooling dirs into the deployment source (found 2026-09-01).
+.env
+.env.*
+!.env.example
+.agents/
+.claude/
+.windsurf/
+skills-lock.json
+example/
+menulala-brand-guidelines-delivery.md
+tsconfig.tsbuildinfo
