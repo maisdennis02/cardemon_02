@@ -10,6 +10,7 @@ import { MenuQrCard } from "./menu-qr-card";
 import { MenuStatsCard, loadMenuStats } from "./menu-stats-card";
 import { RestaurantSettingsForm } from "./restaurant-settings-form";
 import { DeliverySetupCallout } from "./delivery-setup-callout";
+import { MenuLiveCallout } from "./menu-live-callout";
 import { ChangePasswordCard } from "./change-password-card";
 import { DeleteAccountCard } from "./delete-account-card";
 import { getDictionary, getLocale } from "@/i18n";
@@ -74,6 +75,11 @@ export default async function DashboardPage({
           <OnboardingForm />
         ) : (
           <div className="flex flex-col gap-6">
+            {/* A menu nobody has opened yet — including its owner — is the one
+                moment worth interrupting for; it outranks the delivery nudge. */}
+            {restaurant.images.length > 0 && stats.totalViews === 0 && !initialEdit && (
+              <MenuLiveCallout slug={restaurant.slug} t={t} />
+            )}
             {needsDeliverySetup && !initialEdit && <DeliverySetupCallout t={t} />}
             <RestaurantSettingsForm
               key={initialEdit ? "edit" : "view"}

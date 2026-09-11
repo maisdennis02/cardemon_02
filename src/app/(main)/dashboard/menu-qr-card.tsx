@@ -66,7 +66,7 @@ export function MenuQrCard({ slug, name }: { slug: string; name: string }) {
   const qr = t.dashboard.qr;
 
   return (
-    <section className="card">
+    <section id="menu-qr" className="card">
       <h2 className="text-lg font-bold text-[color:var(--color-navy)]">{qr.title}</h2>
       <p className="mt-1 mb-5 text-sm text-gray-600">{qr.lead}</p>
 

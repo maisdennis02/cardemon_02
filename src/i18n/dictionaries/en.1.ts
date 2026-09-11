@@ -283,6 +283,12 @@ export const en = {
       deliveryCountryPrompt: "Select your country above to add delivery links.",
       deliveryHint: "Optional. Paste your {appName} link.",
     },
+    menuLive: {
+      title: "Your menu is live — now put it in front of people",
+      body: "Open it to check how it looks on a phone, then print the QR code and put it on the tables. A menu nobody has seen yet can't bring anyone in.",
+      cta: "Open my menu",
+      qrCta: "Get the QR code",
+    },
     deliverySetup: {
       title: "One more thing — your delivery apps",
       body: "Link iFood, UberEats and friends so customers can order in one tap from your menu.",
