@@ -3,7 +3,9 @@
 import Link from "next/link";
 import { useActionState } from "react";
 import { signup, type ActionResult } from "../actions";
+import { GoogleAuth } from "../google-auth";
 import { Logo } from "@/components/logo";
+import { PasswordInput } from "@/components/password-input";
 import { useT } from "@/i18n/provider";
 
 export default function SignupPage() {
@@ -20,6 +22,9 @@ export default function SignupPage() {
           {t.auth.signupTitle}
         </h1>
         <p className="mb-6 text-sm text-gray-600">{t.auth.signupLead}</p>
+        <div className="mb-4">
+          <GoogleAuth />
+        </div>
         <form action={formAction} className="flex flex-col gap-4">
           <label className="label">
             {t.auth.name}
@@ -43,18 +48,14 @@ export default function SignupPage() {
               autoComplete="email"
             />
           </label>
-          <label className="label">
-            {t.auth.password}
-            <span className="label-hint">{t.auth.passwordHintMin}</span>
-            <input
-              name="password"
-              type="password"
-              required
-              minLength={8}
-              className="input"
-              autoComplete="new-password"
-            />
-          </label>
+          <PasswordInput
+            name="password"
+            label={t.auth.password}
+            hint={<span className="label-hint">{t.auth.passwordHintMin}</span>}
+            required
+            minLength={8}
+            autoComplete="new-password"
+          />
           {state.error && (
             <p className="rounded-lg bg-red-50 px-3 py-2 text-sm text-red-700">
               {state.error}
@@ -63,18 +64,20 @@ export default function SignupPage() {
           <button type="submit" disabled={pending} className="btn btn-primary">
             {pending ? t.auth.creatingAccount : t.auth.createAccount}
           </button>
-          <p className="text-xs leading-relaxed text-gray-500">
-            {t.auth.consentPrefix}
-            <Link href="/terms" className="underline hover:text-gray-700">
-              {t.common.termsOfService}
-            </Link>
-            {t.auth.consentAnd}
-            <Link href="/privacy" className="underline hover:text-gray-700">
-              {t.common.privacyPolicy}
-            </Link>
-            {t.auth.consentSuffix}
-          </p>
         </form>
+        {/* Outside the form: signing up with Google skips it entirely, so the
+            consent notice has to cover both buttons, not just the one below. */}
+        <p className="mt-4 text-xs leading-relaxed text-gray-500">
+          {t.auth.consentPrefix}
+          <Link href="/terms" className="underline hover:text-gray-700">
+            {t.common.termsOfService}
+          </Link>
+          {t.auth.consentAnd}
+          <Link href="/privacy" className="underline hover:text-gray-700">
+            {t.common.privacyPolicy}
+          </Link>
+          {t.auth.consentSuffix}
+        </p>
       </div>
       <p className="mt-4 text-sm text-gray-600">
         {t.auth.alreadyHaveAccount}{" "}

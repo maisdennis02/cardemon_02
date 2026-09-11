@@ -2,6 +2,7 @@
 
 import { useActionState, useEffect, useRef } from "react";
 import { changePassword, type ActionState } from "./actions";
+import { PasswordInput } from "@/components/password-input";
 import { useT } from "@/i18n/provider";
 
 export function ChangePasswordCard() {
@@ -21,39 +22,27 @@ export function ChangePasswordCard() {
       <h2 className="mb-1 text-lg font-bold">{c.title}</h2>
       <p className="mb-4 text-sm text-gray-600">{c.description}</p>
       <form ref={formRef} action={action} className="flex max-w-sm flex-col gap-4">
-        <label className="label">
-          {c.currentPassword}
-          <input
-            name="currentPassword"
-            type="password"
-            required
-            className="input"
-            autoComplete="current-password"
-          />
-        </label>
-        <label className="label">
-          {c.newPassword}
-          <input
-            name="newPassword"
-            type="password"
-            required
-            minLength={8}
-            placeholder={t.auth.passwordPlaceholderMin}
-            className="input"
-            autoComplete="new-password"
-          />
-        </label>
-        <label className="label">
-          {c.confirmPassword}
-          <input
-            name="confirmPassword"
-            type="password"
-            required
-            minLength={8}
-            className="input"
-            autoComplete="new-password"
-          />
-        </label>
+        <PasswordInput
+          name="currentPassword"
+          label={c.currentPassword}
+          required
+          autoComplete="current-password"
+        />
+        <PasswordInput
+          name="newPassword"
+          label={c.newPassword}
+          required
+          minLength={8}
+          placeholder={t.auth.passwordPlaceholderMin}
+          autoComplete="new-password"
+        />
+        <PasswordInput
+          name="confirmPassword"
+          label={c.confirmPassword}
+          required
+          minLength={8}
+          autoComplete="new-password"
+        />
         {state.error && (
           <p className="rounded-lg bg-red-50 px-3 py-2 text-sm text-red-700">{state.error}</p>
         )}

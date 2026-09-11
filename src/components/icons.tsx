@@ -190,3 +190,54 @@ export function GripIcon({ className, size }: IconProps) {
     </svg>
   );
 }
+
+export function EyeIcon({ className, size }: IconProps) {
+  return (
+    <svg {...baseProps(size, className)}>
+      <path d="M2 12s3.6-7 10-7 10 7 10 7-3.6 7-10 7-10-7-10-7Z" />
+      <circle cx="12" cy="12" r="3" />
+    </svg>
+  );
+}
+
+export function EyeOffIcon({ className, size }: IconProps) {
+  return (
+    <svg {...baseProps(size, className)}>
+      <path d="M10.7 5.1A10.6 10.6 0 0 1 12 5c6.4 0 10 7 10 7a18.4 18.4 0 0 1-2.4 3.4" />
+      <path d="M6.6 6.6A18.2 18.2 0 0 0 2 12s3.6 7 10 7a10.4 10.4 0 0 0 5.4-1.5" />
+      <path d="M9.9 9.9a3 3 0 0 0 4.2 4.2" />
+      <line x1="3" y1="3" x2="21" y2="21" />
+    </svg>
+  );
+}
+
+// Google's mark is four fixed brand colors, so it can't ride on `baseProps`
+// (stroke + currentColor) like the rest of this file.
+export function GoogleIcon({ className, size = 20 }: IconProps) {
+  return (
+    <svg
+      width={size}
+      height={size}
+      viewBox="0 0 48 48"
+      className={className}
+      aria-hidden
+    >
+      <path
+        fill="#4285F4"
+        d="M45.1 24.5c0-1.6-.1-2.8-.4-4H24v7.3h12.1c-.2 2-1.6 5-4.5 7l6.9 5.4c4.1-3.8 6.6-9.4 6.6-15.7Z"
+      />
+      <path
+        fill="#34A853"
+        d="M24 46c5.9 0 10.9-2 14.5-5.3l-6.9-5.4c-1.9 1.3-4.4 2.2-7.6 2.2-5.8 0-10.7-3.8-12.5-9.1l-7.1 5.5C8 41.1 15.4 46 24 46Z"
+      />
+      <path
+        fill="#FBBC05"
+        d="M11.5 28.4a13.5 13.5 0 0 1 0-8.7l-7.1-5.5a22 22 0 0 0 0 19.8l7.1-5.6Z"
+      />
+      <path
+        fill="#EA4335"
+        d="M24 9.5c4.1 0 6.9 1.8 8.5 3.3l6.2-6C34.9 3.3 29.9 1 24 1 15.4 1 8 5.9 4.4 14.2l7.1 5.5C13.3 14.4 18.2 9.5 24 9.5Z"
+      />
+    </svg>
+  );
+}

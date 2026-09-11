@@ -4,7 +4,9 @@ import Link from "next/link";
 import { Suspense, useActionState } from "react";
 import { useSearchParams } from "next/navigation";
 import { login, type ActionResult } from "../actions";
+import { GoogleAuth } from "../google-auth";
 import { Logo } from "@/components/logo";
+import { PasswordInput } from "@/components/password-input";
 import { useT } from "@/i18n/provider";
 
 function LoginForm() {
@@ -12,54 +14,63 @@ function LoginForm() {
   const params = useSearchParams();
   const callbackUrl = params.get("callbackUrl") ?? "/dashboard";
   const resetSuccess = params.get("reset") === "success";
+  // Auth.js sends OAuth failures back to `pages.signIn` with ?error=… — the
+  // only way a rejected Google sign-in ever surfaces to the owner.
+  const oauthError = params.get("error");
   const [state, formAction, pending] = useActionState<ActionResult, FormData>(login, {});
 
   return (
-    <form action={formAction} className="flex flex-col gap-4">
-      <input type="hidden" name="callbackUrl" value={callbackUrl} />
+    <div className="flex flex-col gap-4">
       {resetSuccess && !state.error && (
         <p className="rounded-lg bg-emerald-50 px-3 py-2 text-sm text-emerald-800">
           {t.auth.reset.successQuery}
         </p>
       )}
-      <label className="label">
-        {t.auth.email}
-        <input
-          name="email"
-          type="email"
-          required
-          placeholder={t.auth.emailPlaceholder}
-          className="input"
-          autoComplete="email"
-        />
-      </label>
-      <label className="label">
-        <span className="flex items-center justify-between gap-2">
-          <span>{t.auth.password}</span>
-          <Link
-            href="/forgot-password"
-            className="text-xs font-bold text-[color:var(--color-brand)] hover:underline"
-          >
-            {t.auth.forgotLink}
-          </Link>
-        </span>
-        <input
+      {oauthError && (
+        <p className="rounded-lg bg-red-50 px-3 py-2 text-sm text-red-700">
+          {t.auth.errors.googleSignInFailed}
+        </p>
+      )}
+      <GoogleAuth callbackUrl={callbackUrl} />
+      <form action={formAction} className="flex flex-col gap-4">
+        <input type="hidden" name="callbackUrl" value={callbackUrl} />
+        <label className="label">
+          {t.auth.email}
+          <input
+            name="email"
+            type="email"
+            required
+            placeholder={t.auth.emailPlaceholder}
+            className="input"
+            autoComplete="email"
+          />
+        </label>
+        <PasswordInput
           name="password"
-          type="password"
+          label={
+            <span className="flex items-center justify-between gap-2">
+              <span>{t.auth.password}</span>
+              <Link
+                href="/forgot-password"
+                className="text-xs font-bold text-[color:var(--color-brand)] hover:underline"
+              >
+                {t.auth.forgotLink}
+              </Link>
+            </span>
+          }
           required
           minLength={8}
           placeholder={t.auth.passwordPlaceholderMin}
-          className="input"
           autoComplete="current-password"
         />
-      </label>
-      {state.error && (
-        <p className="rounded-lg bg-red-50 px-3 py-2 text-sm text-red-700">{state.error}</p>
-      )}
-      <button type="submit" disabled={pending} className="btn btn-primary">
-        {pending ? t.auth.signingIn : t.common.logIn}
-      </button>
-    </form>
+        {state.error && (
+          <p className="rounded-lg bg-red-50 px-3 py-2 text-sm text-red-700">{state.error}</p>
+        )}
+        <button type="submit" disabled={pending} className="btn btn-primary">
+          {pending ? t.auth.signingIn : t.common.logIn}
+        </button>
+      </form>
+    </div>
   );
 }
 

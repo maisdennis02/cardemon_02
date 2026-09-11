@@ -27,6 +27,19 @@ const loginSchema = z.object({
 
 export type ActionResult = { error?: string; ok?: boolean };
 
+// Restrict callbackUrl to same-origin paths to prevent open-redirect.
+function safeCallbackUrl(raw: unknown): string {
+  const value = String(raw ?? "");
+  return /^\/[^/]/.test(value) ? value : "/dashboard";
+}
+
+export async function googleSignIn(formData: FormData): Promise<void> {
+  // Throws a redirect on both paths: to Google on success, and back to
+  // /login?error=… if the callback is rejected (see the `signIn` callback in
+  // auth.ts), which the login page renders.
+  await signIn("google", { redirectTo: safeCallbackUrl(formData.get("callbackUrl")) });
+}
+
 async function authT() {
   const locale = await getLocale();
   const dict = await getDictionary(locale);
@@ -115,9 +128,7 @@ export async function login(_prev: ActionResult, formData: FormData): Promise<Ac
   const email = parsed.data.email.toLowerCase();
   if (loginLocked(email)) return { error: t.errors.tooManyAttempts };
 
-  // Restrict callbackUrl to same-origin paths to prevent open-redirect.
-  const rawCallback = String(formData.get("callbackUrl") ?? "");
-  const redirectTo = /^\/[^/]/.test(rawCallback) ? rawCallback : "/dashboard";
+  const redirectTo = safeCallbackUrl(formData.get("callbackUrl"));
 
   try {
     await signIn("credentials", {

@@ -141,6 +141,10 @@ const ptBR: Dictionary = {
     noAccount: "Não tem uma conta?",
     alreadyHaveAccount: "Já tem uma conta?",
     forgotLink: "Esqueceu a senha?",
+    continueWithGoogle: "Continuar com o Google",
+    orDivider: "ou",
+    showPassword: "Mostrar senha",
+    hidePassword: "Ocultar senha",
     backToLogin: "Voltar para entrar",
     forgot: {
       title: "Redefina sua senha",
@@ -162,6 +166,8 @@ const ptBR: Dictionary = {
     errors: {
       invalidLogin: "E-mail ou senha inválidos.",
       signinFailed: "Falha ao entrar.",
+      googleSignInFailed:
+        "Não foi possível entrar com o Google. Tente de novo ou use seu e-mail e senha.",
       signinFailedAfterSignup: "Falha ao entrar após o cadastro.",
       accountExists: "Já existe uma conta com esse e-mail.",
       invalidInput: "Dados inválidos",

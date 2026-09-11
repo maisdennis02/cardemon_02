@@ -3,6 +3,7 @@
 import { useActionState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { resetPassword, type ActionResult } from "../actions";
+import { PasswordInput } from "@/components/password-input";
 import { useT } from "@/i18n/provider";
 
 export function ResetPasswordForm({ token }: { token: string }) {
@@ -22,18 +23,14 @@ export function ResetPasswordForm({ token }: { token: string }) {
   return (
     <form action={formAction} className="flex flex-col gap-4">
       <input type="hidden" name="token" value={token} />
-      <label className="label">
-        {t.auth.reset.newPassword}
-        <input
-          name="password"
-          type="password"
-          required
-          minLength={8}
-          placeholder={t.auth.passwordPlaceholderMin}
-          className="input"
-          autoComplete="new-password"
-        />
-      </label>
+      <PasswordInput
+        name="password"
+        label={t.auth.reset.newPassword}
+        required
+        minLength={8}
+        placeholder={t.auth.passwordPlaceholderMin}
+        autoComplete="new-password"
+      />
       {state.error && (
         <p className="rounded-lg bg-red-50 px-3 py-2 text-sm text-red-700">{state.error}</p>
       )}

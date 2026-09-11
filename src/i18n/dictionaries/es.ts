@@ -141,6 +141,10 @@ const es: Dictionary = {
     noAccount: "¿No tienes cuenta?",
     alreadyHaveAccount: "¿Ya tienes una cuenta?",
     forgotLink: "¿Olvidaste tu contraseña?",
+    continueWithGoogle: "Continuar con Google",
+    orDivider: "o",
+    showPassword: "Mostrar contraseña",
+    hidePassword: "Ocultar contraseña",
     backToLogin: "Volver a iniciar sesión",
     forgot: {
       title: "Restablece tu contraseña",
@@ -162,6 +166,8 @@ const es: Dictionary = {
     errors: {
       invalidLogin: "Correo o contraseña inválidos.",
       signinFailed: "Error al iniciar sesión.",
+      googleSignInFailed:
+        "No pudimos iniciar tu sesión con Google. Inténtalo de nuevo o usa tu correo y contraseña.",
       signinFailedAfterSignup: "Error al iniciar sesión tras el registro.",
       accountExists: "Ya existe una cuenta con ese correo.",
       invalidInput: "Datos inválidos",

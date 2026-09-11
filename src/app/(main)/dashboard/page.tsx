@@ -34,7 +34,7 @@ export default async function DashboardPage({
     }),
     prisma.user.findUnique({
       where: { id: session.user.id },
-      select: { proExpiresAt: true },
+      select: { proExpiresAt: true, passwordHash: true },
     }),
   ]);
 
@@ -87,7 +87,9 @@ export default async function DashboardPage({
               imageLimit={imageLimit}
               isPro={userIsPro}
             />
-            <ChangePasswordCard />
+            {/* Google-only accounts have no password to change; they can
+                still set one through "Forgot password" if they want one. */}
+            {!!user?.passwordHash && <ChangePasswordCard />}
             <DeleteAccountCard />
           </div>
         )}

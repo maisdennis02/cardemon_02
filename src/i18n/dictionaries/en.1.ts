@@ -131,6 +131,10 @@ export const en = {
     noAccount: "No account?",
     alreadyHaveAccount: "Already have an account?",
     forgotLink: "Forgot password?",
+    continueWithGoogle: "Continue with Google",
+    orDivider: "or",
+    showPassword: "Show password",
+    hidePassword: "Hide password",
     backToLogin: "Back to log in",
     forgot: {
       title: "Reset your password",
@@ -152,6 +156,8 @@ export const en = {
     errors: {
       invalidLogin: "Invalid email or password.",
       signinFailed: "Sign-in failed.",
+      googleSignInFailed:
+        "We couldn't sign you in with Google. Try again, or use your email and password.",
       signinFailedAfterSignup: "Sign-in failed after signup.",
       accountExists: "An account with that email already exists.",
       invalidInput: "Invalid input",
