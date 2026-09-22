@@ -16,6 +16,8 @@ import { DeleteAccountCard } from "./delete-account-card";
 import { getDictionary, getLocale } from "@/i18n";
 import type { Dictionary } from "@/i18n";
 import { imageLimitFor, isPro } from "@/lib/pricing";
+import { DashboardTelemetry } from "./dashboard-telemetry";
+import { SignOutButton } from "./sign-out-button";
 
 export default async function DashboardPage({
   searchParams,
@@ -63,6 +65,14 @@ export default async function DashboardPage({
 
   return (
     <div className="flex min-h-screen flex-col bg-gray-50/60">
+      {/* First authenticated page on every path in — e-mail signup, Google
+          OAuth return and the Stripe return all land here, which is why the
+          ad conversions fire from one place. */}
+      <DashboardTelemetry
+        email={session.user.email ?? null}
+        hasMenu={(restaurant?.images.length ?? 0) > 0}
+        isPro={userIsPro}
+      />
       <DashboardHeader
         userEmail={session.user.email ?? null}
         publicMenuSlug={restaurant?.slug ?? null}
@@ -145,9 +155,10 @@ function DashboardHeader({
               await signOut({ redirectTo: "/" });
             }}
           >
-            <button className="btn btn-ghost btn-sm" title={userEmail ?? t.common.signOut}>
-              {t.common.signOut}
-            </button>
+            <SignOutButton
+              label={t.common.signOut}
+              title={userEmail ?? t.common.signOut}
+            />
           </form>
         </div>
       </div>

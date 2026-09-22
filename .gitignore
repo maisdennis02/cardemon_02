@@ -45,6 +45,13 @@ next-env.d.ts
 
 # local agent / skill tooling
 /.agents/
-/.claude/
+/.claude/*
+# Skills written for this repo are part of how it is operated, not local
+# tooling, so they are versioned. Everything else under .claude stays out:
+# local settings, and the plugin skills, which are symlinks into the ignored
+# .agents/ tree and would commit as broken links.
+!/.claude/skills/
+/.claude/skills/*
+!/.claude/skills/daily-ads-report/
 /.windsurf/
 /skills-lock.json

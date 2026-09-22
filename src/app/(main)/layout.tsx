@@ -7,6 +7,9 @@ import { DictionaryProvider } from "@/i18n/provider";
 import { LOCALES, OG_LOCALE } from "@/i18n/config";
 import { siteUrl } from "@/lib/site";
 import { jsonLdScript } from "@/lib/json-ld";
+import { GoogleAdsTag } from "@/components/google-ads-tag";
+import { PostHogInit } from "@/components/posthog-init";
+import { Telemetry } from "@/components/telemetry";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -122,6 +125,12 @@ export default async function RootLayout({
           </div>
         </footer>
         <Analytics />
+        {/* Ad funnel instrumentation. Deliberately absent from the
+            public-menu layout (src/app/m/[slug]/layout.tsx), which must
+            stay ISR and survive the database being down. */}
+        <GoogleAdsTag />
+        <Telemetry />
+        <PostHogInit />
       </body>
     </html>
   );

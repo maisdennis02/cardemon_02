@@ -3,7 +3,7 @@ import { auth } from "@/auth";
 import { prisma } from "@/lib/prisma";
 import { stripe, priceIdFor, appUrl } from "@/lib/stripe";
 import { getLocale } from "@/i18n";
-import { currencyForLocale } from "@/lib/pricing";
+import { currencyForLocale, pricesFor } from "@/lib/pricing";
 
 // POST /api/stripe/checkout
 // Body (form-encoded): cycle=MONTHLY|ANNUAL
@@ -48,6 +48,19 @@ export async function POST(req: Request) {
     }
   }
 
+  // Carried back on the return URL so the browser can report the Google Ads
+  // purchase conversion with a value. It is our list price, not what Stripe
+  // actually charged (a promotion code can lower it) — close enough for
+  // Smart Bidding, which needs relative value, and the webhook remains the
+  // only thing that decides whether the account is Pro.
+  const prices = pricesFor(currency);
+  const value = cycle === "ANNUAL" ? prices.annualTotal : prices.monthly;
+  const success = new URL(`${appUrl()}/dashboard`);
+  success.searchParams.set("subscribed", "1");
+  success.searchParams.set("cycle", cycle);
+  success.searchParams.set("value", String(value));
+  success.searchParams.set("currency", currency);
+
   const checkout = await stripe().checkout.sessions.create({
     mode: "subscription",
     ...(customerId
@@ -55,7 +68,7 @@ export async function POST(req: Request) {
       : { customer_email: user.email }),
     client_reference_id: userId,
     line_items: [{ price: priceIdFor(cycle, currency), quantity: 1 }],
-    success_url: `${appUrl()}/dashboard?subscribed=1`,
+    success_url: `${success.toString()}&cs={CHECKOUT_SESSION_ID}`,
     cancel_url: `${appUrl()}/pricing?canceled=1`,
     allow_promotion_codes: true,
     subscription_data: {

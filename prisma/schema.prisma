@@ -32,9 +32,22 @@ model User {
   // against proExpiresAt to decide which reminder is due (lib/pro-ending.ts).
   proEndingReminderSentAt DateTime?
 
+  // First-touch acquisition: the UTMs / Google click id of the very first page
+  // this person saw, handed over by the browser right after the account exists
+  // (see src/app/api/attribution/route.ts). Written once and never replaced —
+  // a later visit from another campaign must not steal credit for the signup.
+  // Null on every account created before the ad run, and on organic ones with
+  // no parameters at all.
+  acquisition   Json?
+  acquiredAt    DateTime?
+
   accounts      Account[]
   sessions      Session[]
   restaurants   Restaurant[]
+
+  // The admin funnel reads signups per day over a window; without this the
+  // daily ads read sequential-scans the table.
+  @@index([createdAt])
 }
 
 enum BillingCycle {

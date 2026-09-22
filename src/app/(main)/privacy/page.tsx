@@ -12,7 +12,7 @@ const CONTACT_EMAIL = "contato@menulala.com";
 const CONTENT: Record<Locale, LegalContent> = {
   "pt-BR": {
     title: "Política de Privacidade",
-    updated: "Última atualização: 27 de agosto de 2026",
+    updated: "Última atualização: 20 de setembro de 2026",
     intro:
       "Esta política explica quais dados o menulala coleta, por que coleta e quais são os seus direitos. Ela se aplica ao site menulala.com, ao painel de restaurantes e às páginas públicas de cardápio, em conformidade com a Lei Geral de Proteção de Dados (LGPD, Lei nº 13.709/2018).",
     sections: [
@@ -21,6 +21,14 @@ const CONTENT: Record<Locale, LegalContent> = {
         paragraphs: [
           "Ao criar uma conta: e-mail, nome (opcional) e senha (armazenada apenas como hash criptográfico — nunca em texto claro). Ao configurar seu restaurante: nome, endereço público do cardápio (slug), descrição, país, número de WhatsApp, links de redes sociais e de apps de entrega, e as imagens do cardápio que você envia.",
           "Pagamentos são processados pela Stripe. O menulala não recebe nem armazena números de cartão — guardamos apenas identificadores da assinatura (status e validade do plano).",
+        ],
+      },
+      {
+        heading: "Dados que coletamos no site e no painel",
+        paragraphs: [
+          "Nas páginas do menulala destinadas a donos de restaurante (site institucional, planos, criação de conta e painel) usamos o PostHog, uma ferramenta de análise de produto que registra as páginas visitadas, os cliques e uma gravação da sessão — o que você viu na tela e onde clicou. Serve para entendermos onde as pessoas travam no cadastro e corrigirmos. Tudo o que você digita é mascarado na gravação: e-mail, senha, nome do restaurante e qualquer outro campo de formulário nunca são registrados.",
+          "Se você chegou até nós por um anúncio do Google, guardamos os parâmetros da campanha e o identificador do clique (gclid) da primeira página que você abriu, e os associamos à sua conta quando ela é criada. É assim que medimos quanto custa trazer um novo restaurante. Usamos também a tag do Google Ads para informar ao Google que a conta foi criada, que o cardápio foi publicado e que houve uma assinatura — sempre como eventos, nunca com seus dados pessoais.",
+          "As páginas públicas de cardápio (menulala.com/m/...) não carregam nada disso: nem PostHog, nem gravação de sessão, nem tag de anúncios.",
         ],
       },
       {
@@ -39,13 +47,14 @@ const CONTENT: Record<Locale, LegalContent> = {
       {
         heading: "Com quem compartilhamos",
         paragraphs: [
-          "Usamos operadores que processam dados em nosso nome: Vercel (hospedagem e métricas), Neon (banco de dados), Stripe (pagamentos) e Resend (envio de e-mails). Esses provedores podem processar dados em servidores fora do Brasil; a transferência internacional ocorre com salvaguardas contratuais desses provedores. Não vendemos dados pessoais a ninguém.",
+          "Usamos operadores que processam dados em nosso nome: Vercel (hospedagem e métricas), Neon (banco de dados), Stripe (pagamentos), Resend (envio de e-mails), PostHog (análise de produto e gravação de sessão, com dados hospedados na União Europeia) e Google Ads (medição de anúncios). Esses provedores podem processar dados em servidores fora do Brasil; a transferência internacional ocorre com salvaguardas contratuais desses provedores. Não vendemos dados pessoais a ninguém.",
         ],
       },
       {
         heading: "Cookies",
         paragraphs: [
-          "Usamos apenas cookies essenciais: o cookie de sessão que mantém você conectado ao painel e um cookie de preferência de idioma. Não usamos cookies de publicidade ou rastreamento.",
+          "Cookies essenciais: o cookie de sessão que mantém você conectado ao painel e um cookie de preferência de idioma.",
+          "Nas páginas para donos de restaurante há também cookies de medição: o do PostHog, que liga os cliques de uma mesma visita, e o do Google Ads, que registra que você chegou por um anúncio. Nenhum dos dois é usado para exibir publicidade a você em outros sites, e as páginas públicas de cardápio não os carregam. Para recusá-los, basta bloquear cookies de terceiros no navegador ou ativar o sinal \"Do Not Track\" — o PostHog o respeita e não grava a sessão.",
         ],
       },
       {
@@ -78,7 +87,7 @@ const CONTENT: Record<Locale, LegalContent> = {
   },
   en: {
     title: "Privacy Policy",
-    updated: "Last updated: August 27, 2026",
+    updated: "Last updated: September 20, 2026",
     intro:
       "This policy explains what data menulala collects, why, and what your rights are. It applies to menulala.com, the restaurant dashboard, and public menu pages, and is written to comply with Brazil's data protection law (LGPD, Law 13,709/2018).",
     sections: [
@@ -87,6 +96,14 @@ const CONTENT: Record<Locale, LegalContent> = {
         paragraphs: [
           "When you create an account: email, name (optional), and password (stored only as a cryptographic hash — never in plain text). When you set up your restaurant: name, public menu address (slug), description, country, WhatsApp number, social and delivery-app links, and the menu images you upload.",
           "Payments are processed by Stripe. menulala never receives or stores card numbers — we keep only subscription identifiers (plan status and expiry).",
+        ],
+      },
+      {
+        heading: "Data we collect on the site and dashboard",
+        paragraphs: [
+          "On the owner-facing pages of menulala (marketing site, pricing, sign-up and dashboard) we use PostHog, a product analytics tool that records the pages visited, the clicks, and a replay of the session — what you saw on screen and where you clicked. We use it to find where people get stuck signing up, and fix it. Everything you type is masked in the replay: email, password, restaurant name and every other form field are never recorded.",
+          "If you reached us through a Google ad, we keep the campaign parameters and the click identifier (gclid) from the first page you opened, and attach them to your account once it exists. That is how we measure what it costs to bring in a new restaurant. We also use the Google Ads tag to report to Google that an account was created, that a menu was published, and that a subscription started — always as events, never with your personal data.",
+          "Public menu pages (menulala.com/m/...) load none of this: no PostHog, no session replay, no ads tag.",
         ],
       },
       {
@@ -105,13 +122,14 @@ const CONTENT: Record<Locale, LegalContent> = {
       {
         heading: "Who we share data with",
         paragraphs: [
-          "We use processors acting on our behalf: Vercel (hosting and analytics), Neon (database), Stripe (payments), and Resend (email delivery). These providers may process data on servers outside Brazil under their contractual safeguards. We never sell personal data.",
+          "We use processors acting on our behalf: Vercel (hosting and analytics), Neon (database), Stripe (payments), Resend (email delivery), PostHog (product analytics and session replay, hosted in the European Union), and Google Ads (ad measurement). These providers may process data on servers outside Brazil under their contractual safeguards. We never sell personal data.",
         ],
       },
       {
         heading: "Cookies",
         paragraphs: [
-          "We use essential cookies only: the session cookie that keeps you signed in to the dashboard and a language-preference cookie. No advertising or tracking cookies.",
+          "Essential cookies: the session cookie that keeps you signed in to the dashboard, and a language-preference cookie.",
+          "The owner-facing pages also set measurement cookies: PostHog's, which ties together the clicks of one visit, and Google Ads', which records that you arrived from an ad. Neither is used to show you advertising on other sites, and public menu pages load neither. To refuse them, block third-party cookies in your browser or turn on the \"Do Not Track\" signal — PostHog honours it and will not record the session.",
         ],
       },
       {
@@ -144,7 +162,7 @@ const CONTENT: Record<Locale, LegalContent> = {
   },
   es: {
     title: "Política de Privacidad",
-    updated: "Última actualización: 27 de agosto de 2026",
+    updated: "Última actualización: 20 de septiembre de 2026",
     intro:
       "Esta política explica qué datos recopila menulala, por qué, y cuáles son tus derechos. Se aplica a menulala.com, al panel de restaurantes y a las páginas públicas de menú, y está redactada conforme a la ley brasileña de protección de datos (LGPD, Ley 13.709/2018).",
     sections: [
@@ -153,6 +171,14 @@ const CONTENT: Record<Locale, LegalContent> = {
         paragraphs: [
           "Al crear una cuenta: correo, nombre (opcional) y contraseña (guardada solo como hash criptográfico — nunca en texto plano). Al configurar tu restaurante: nombre, dirección pública del menú (slug), descripción, país, número de WhatsApp, enlaces de redes sociales y apps de entrega, y las imágenes del menú que subes.",
           "Los pagos los procesa Stripe. menulala nunca recibe ni almacena números de tarjeta — solo guardamos identificadores de la suscripción (estado y vigencia del plan).",
+        ],
+      },
+      {
+        heading: "Datos que recopilamos en el sitio y el panel",
+        paragraphs: [
+          "En las páginas de menulala dirigidas a dueños de restaurante (sitio institucional, planes, registro y panel) usamos PostHog, una herramienta de análisis de producto que registra las páginas visitadas, los clics y una grabación de la sesión — lo que viste en pantalla y dónde hiciste clic. Nos sirve para entender dónde se traba la gente al registrarse y corregirlo. Todo lo que escribes se enmascara en la grabación: correo, contraseña, nombre del restaurante y cualquier otro campo de formulario nunca se registran.",
+          "Si llegaste por un anuncio de Google, guardamos los parámetros de la campaña y el identificador del clic (gclid) de la primera página que abriste, y los asociamos a tu cuenta cuando se crea. Así medimos cuánto cuesta traer un nuevo restaurante. También usamos la etiqueta de Google Ads para informar a Google que se creó una cuenta, que se publicó un menú y que hubo una suscripción — siempre como eventos, nunca con tus datos personales.",
+          "Las páginas públicas de menú (menulala.com/m/...) no cargan nada de esto: ni PostHog, ni grabación de sesión, ni etiqueta de anuncios.",
         ],
       },
       {
@@ -171,13 +197,14 @@ const CONTENT: Record<Locale, LegalContent> = {
       {
         heading: "Con quién compartimos",
         paragraphs: [
-          "Usamos encargados que procesan datos en nuestro nombre: Vercel (alojamiento y métricas), Neon (base de datos), Stripe (pagos) y Resend (envío de correos). Estos proveedores pueden procesar datos en servidores fuera de Brasil bajo sus salvaguardas contractuales. Nunca vendemos datos personales.",
+          "Usamos encargados que procesan datos en nuestro nombre: Vercel (alojamiento y métricas), Neon (base de datos), Stripe (pagos), Resend (envío de correos), PostHog (análisis de producto y grabación de sesión, con datos alojados en la Unión Europea) y Google Ads (medición de anuncios). Estos proveedores pueden procesar datos en servidores fuera de Brasil bajo sus salvaguardas contractuales. Nunca vendemos datos personales.",
         ],
       },
       {
         heading: "Cookies",
         paragraphs: [
-          "Usamos solo cookies esenciales: la cookie de sesión que te mantiene conectado al panel y una cookie de preferencia de idioma. Sin cookies de publicidad ni de rastreo.",
+          "Cookies esenciales: la cookie de sesión que te mantiene conectado al panel y una cookie de preferencia de idioma.",
+          "En las páginas para dueños de restaurante hay además cookies de medición: la de PostHog, que enlaza los clics de una misma visita, y la de Google Ads, que registra que llegaste por un anuncio. Ninguna se usa para mostrarte publicidad en otros sitios, y las páginas públicas de menú no las cargan. Para rechazarlas, bloquea las cookies de terceros en tu navegador o activa la señal \"Do Not Track\" — PostHog la respeta y no graba la sesión.",
         ],
       },
       {
