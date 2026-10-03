@@ -3,7 +3,7 @@ import { join, relative, sep } from "node:path";
 import { fileURLToPath } from "node:url";
 import type { Metadata } from "next";
 import { beforeEach, describe, expect, it, vi } from "vitest";
-import type { Locale } from "@/i18n/config";
+import { localizedPath, type Locale } from "@/i18n/config";
 import { NOINDEX_PATHS, PRIVATE_PATHS, PUBLIC_PAGES, type MenuRestaurant } from "@/lib/seo";
 
 // Route modules are imported for their metadata only; everything that needs
@@ -77,10 +77,14 @@ describe("every page is classified", () => {
   });
 
   // A new page.tsx must be added to PUBLIC_PAGES (and so to the sitemap) or
-  // to PRIVATE_PATHS (and get a noindex) in the commit that creates it.
+  // to PRIVATE_PATHS (and get a noindex) in the commit that creates it. The
+  // per-language copies under /[locale] are classified by the page they
+  // translate; locale-routes.test.tsx checks that set in detail.
   it.each(routes)("%s is public (in the sitemap) or private (noindex)", (route) => {
     const known = [...PUBLIC_PAGES.map((p) => p.path), ...PRIVATE_PATHS, "/m/[slug]"] as string[];
-    expect(known).toContain(route);
+    const unprefixed = route.startsWith("/[locale]") ? route.slice("/[locale]".length) || "/" : route;
+    expect(known).toContain(unprefixed);
+    if (unprefixed !== route) expect(PUBLIC_PAGES.map((p) => p.path) as string[]).toContain(unprefixed);
   });
 });
 
@@ -99,13 +103,20 @@ describe("the root layout", () => {
   it("declares no icon by hand — the files in src/app are the icons", async () => {
     const meta = await metadataOf(await import("./(main)/layout"));
     expect(meta.icons).toBeUndefined();
-    for (const layout of ["(main)/layout.tsx", "m/[slug]/layout.tsx"]) {
+    for (const layout of [
+      "(main)/layout.tsx",
+      "(localized)/[locale]/layout.tsx",
+      "m/[slug]/layout.tsx",
+      "../components/site-document.tsx",
+    ]) {
       expect(readFileSync(join(APP_DIR, layout), "utf8")).not.toMatch(/href=["']data:/);
     }
   });
 });
 
-describe.each(["pt-BR", "en", "es"] as const)("public pages (%s)", (locale) => {
+// The un-prefixed routes, rendering whatever language was negotiated. Their
+// per-language twins and the hreflang set are in locale-routes.test.tsx.
+describe.each(["pt-BR", "en", "es"] as const)("un-prefixed public pages rendering %s", (locale) => {
   beforeEach(() => {
     state.locale = locale;
   });
@@ -121,10 +132,12 @@ describe.each(["pt-BR", "en", "es"] as const)("public pages (%s)", (locale) => {
     expect(cases.map(([path]) => path).sort()).toEqual(PUBLIC_PAGES.map((p) => p.path).sort());
   });
 
-  it.each(cases)("%s has its own canonical, description and social tags", async (path, load) => {
+  it.each(cases)("%s has the canonical of its language, a description and social tags", async (path, load) => {
     const meta = await metadataOf(await load());
-    expect(meta.alternates?.canonical).toBe(path);
-    expect(meta.openGraph?.url).toBe(path);
+    // English is canonical where it is; a negotiated Portuguese or Spanish
+    // rendering points at that language's own URL.
+    expect(meta.alternates?.canonical).toBe(localizedPath(locale, path));
+    expect(meta.openGraph?.url).toBe(localizedPath(locale, path));
     expect(robotsIndex(meta)).not.toBe(false);
     expect(meta.title).toBeTruthy();
     expect(meta.description!.length).toBeGreaterThanOrEqual(120);

@@ -1,6 +1,7 @@
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import { readFileSync } from "node:fs";
 import { fileURLToPath } from "node:url";
+import { LOCALES, localizedPath } from "@/i18n/config";
 import {
   NOINDEX_PATHS,
   PRIVATE_PATHS,
@@ -69,11 +70,49 @@ describe("sitemap.xml", () => {
     }
   });
 
-  it("lists only the public pages and the menus", async () => {
-    const publicPaths = PUBLIC_PAGES.map((p) => p.path) as string[];
+  it("lists only the public pages, in every language, and the menus", async () => {
+    const publicPaths = PUBLIC_PAGES.flatMap((p) => LOCALES.map((l) => localizedPath(l, p.path)));
     for (const entry of await sitemap()) {
       const path = new URL(entry.url).pathname;
       expect(publicPaths.includes(path) || /^\/m\/[^/]+$/.test(path), path).toBe(true);
+    }
+  });
+
+  it.each(PUBLIC_PAGES.flatMap((p) => LOCALES.map((l) => [p.path, l] as const)))(
+    "lists %s in %s with its date and the full set of translations",
+    async (path, locale) => {
+      const entries = await sitemap();
+      const entry = entries.find((e) => e.url === `${BASE}${localizedPath(locale, path)}`);
+      expect(entry, `${locale} ${path}`).toBeDefined();
+      expect(entry!.lastModified).toBe(PUBLIC_PAGES.find((p) => p.path === path)!.lastModified);
+      expect(entry!.alternates?.languages).toEqual({
+        en: `${BASE}${path}`,
+        "pt-BR": `${BASE}${localizedPath("pt-BR", path)}`,
+        es: `${BASE}${localizedPath("es", path)}`,
+        "x-default": `${BASE}${path}`,
+      });
+    },
+  );
+
+  // hreflang must be reciprocal: every URL an entry names as a translation
+  // is itself an entry, and names the same set back.
+  it("every translation named in the sitemap is listed and points back", async () => {
+    const entries = await sitemap();
+    const byUrl = new Map(entries.map((e) => [e.url, e]));
+    for (const entry of entries) {
+      for (const url of Object.values(entry.alternates?.languages ?? {})) {
+        expect(byUrl.has(url as string), `${url} named by ${entry.url}`).toBe(true);
+        expect(byUrl.get(url as string)!.alternates?.languages).toEqual(entry.alternates?.languages);
+      }
+    }
+  });
+
+  it("menus have one URL each and no hreflang", async () => {
+    const menus = (await sitemap()).filter((e) => new URL(e.url).pathname.startsWith("/m/"));
+    expect(menus).toHaveLength(2);
+    for (const menu of menus) expect(menu.alternates).toBeUndefined();
+    for (const entry of await sitemap()) {
+      expect(new URL(entry.url).pathname).not.toMatch(/^\/(pt-BR|es)\/m\//);
     }
   });
 
@@ -110,7 +149,9 @@ describe("sitemap.xml", () => {
     vi.spyOn(console, "warn").mockImplementation(() => {});
     findMany.mockRejectedValue(new Error("db down"));
     const entries = await sitemap();
-    expect(entries.map((e) => e.url)).toEqual(PUBLIC_PAGES.map((p) => `${BASE}${p.path}`));
+    expect(entries.map((e) => e.url)).toEqual(
+      PUBLIC_PAGES.flatMap((p) => LOCALES.map((l) => `${BASE}${localizedPath(l, p.path)}`)),
+    );
   });
 });
 

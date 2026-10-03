@@ -4,7 +4,15 @@
 // without leaving ISR, and so vitest can exercise it directly.
 
 import type { Metadata } from "next";
-import { LOCALES, OG_LOCALE, format, type Locale } from "@/i18n/config";
+import {
+  LOCALES,
+  OG_LOCALE,
+  UNPREFIXED_LOCALE,
+  format,
+  localizedPath,
+  type Locale,
+} from "@/i18n/config";
+import type { Dictionary } from "@/i18n/dictionaries/en";
 
 export const SITE_NAME = "menulala";
 export const CONTACT_EMAIL = "contato@menulala.com";
@@ -66,12 +74,31 @@ export const NOINDEX: NonNullable<Metadata["robots"]> = {
   follow: true,
 };
 
+// The hreflang set of a public page: one URL per locale plus `x-default`,
+// which is the un-prefixed (English, language-negotiating) URL. The same set
+// goes on every language version of the page — that is what makes the
+// annotations reciprocal and self-referencing, which Google requires before
+// it trusts them. Paths are relative; `metadataBase` makes them absolute.
+export function languageAlternates(path: string): Record<Locale | "x-default", string> {
+  const urls = Object.fromEntries(
+    LOCALES.map((l) => [l, localizedPath(l, path)]),
+  ) as Record<Locale, string>;
+  return { ...urls, "x-default": localizedPath(UNPREFIXED_LOCALE, path) };
+}
+
 // Full metadata for one public page. Next merges metadata SHALLOWLY, so a
 // page that sets only `alternates` or only `openGraph.url` silently drops the
 // rest of that object — and a canonical set in the root layout is inherited
 // by every page that forgets its own (that is how /pricing, /login and
 // /signup all ended up declaring themselves duplicates of the home page).
 // Every public page goes through here instead.
+//
+// `path` is the un-prefixed path of the page ("/", "/pricing"); `locale` is
+// the language being RENDERED. The canonical is that locale's own URL. For a
+// prefixed route that is the URL itself. For the un-prefixed route it is the
+// URL itself only when it renders English: when the cookie or
+// `Accept-Language` made "/" render Portuguese, the canonical is "/pt-BR", so
+// the negotiated copy never competes with the page that owns that language.
 export function pageMetadata({
   locale,
   title,
@@ -86,16 +113,17 @@ export function pageMetadata({
   // true: `title` is used as is; false: the layout appends " — menulala".
   absoluteTitle?: boolean;
 }): Metadata {
+  const canonical = localizedPath(locale, path);
   return {
     title: absoluteTitle ? { absolute: title } : title,
     description,
-    alternates: { canonical: path },
+    alternates: { canonical, languages: languageAlternates(path) },
     openGraph: {
       type: "website",
       siteName: SITE_NAME,
       title,
       description,
-      url: path,
+      url: canonical,
       locale: OG_LOCALE[locale],
       alternateLocale: LOCALES.filter((l) => l !== locale).map((l) => OG_LOCALE[l]),
       images: [{ ...OG_IMAGE, alt: title }],
@@ -106,6 +134,47 @@ export function pageMetadata({
       description,
       images: [OG_IMAGE.url],
     },
+  };
+}
+
+// Site-wide defaults, shared by the two root layouts of the marketing site
+// ((main), which negotiates the language, and (localized)/[locale], which
+// reads it from the path). Deliberately NO `alternates` and NO
+// `openGraph.url` here: both would be inherited by every page that does not
+// set its own. Each public page sets them through pageMetadata().
+export function rootMetadata({
+  base,
+  locale,
+  t,
+}: {
+  base: string;
+  locale: Locale;
+  t: Dictionary;
+}): Metadata {
+  return {
+    metadataBase: new URL(base),
+    title: {
+      default: t.metadata.rootTitle,
+      template: `%s — ${SITE_NAME}`,
+    },
+    description: t.metadata.rootDescription,
+    applicationName: SITE_NAME,
+    openGraph: {
+      type: "website",
+      siteName: SITE_NAME,
+      title: t.metadata.rootTitle,
+      description: t.metadata.rootDescription,
+      locale: OG_LOCALE[locale],
+      alternateLocale: LOCALES.filter((l) => l !== locale).map((l) => OG_LOCALE[l]),
+      images: [{ ...OG_IMAGE, alt: t.metadata.rootTitle }],
+    },
+    twitter: {
+      card: "summary_large_image",
+      title: t.metadata.rootTitle,
+      description: t.metadata.rootDescription,
+      images: [OG_IMAGE.url],
+    },
+    robots: { index: true, follow: true },
   };
 }
 
@@ -215,11 +284,14 @@ export function softwareApplicationLd({
   currency: string;
   monthly: number;
 }) {
+  // The URLs of the language being rendered, same rule as the canonical.
+  const home = `${base}${localizedPath(locale, "/").replace(/^\/$/, "")}`;
+  const pricing = `${base}${localizedPath(locale, "/pricing")}`;
   return {
     "@context": "https://schema.org",
     "@type": "SoftwareApplication",
     name: SITE_NAME,
-    url: base,
+    url: home,
     applicationCategory: "BusinessApplication",
     operatingSystem: "Web",
     inLanguage: locale,
@@ -230,14 +302,14 @@ export function softwareApplicationLd({
         name: "Free",
         price: "0",
         priceCurrency: currency,
-        url: `${base}/pricing`,
+        url: pricing,
       },
       {
         "@type": "Offer",
         name: "Pro",
         price: String(monthly),
         priceCurrency: currency,
-        url: `${base}/pricing`,
+        url: pricing,
         priceSpecification: {
           "@type": "UnitPriceSpecification",
           price: String(monthly),

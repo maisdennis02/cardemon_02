@@ -2,21 +2,32 @@ import type { MetadataRoute } from "next";
 import { PHASE_PRODUCTION_BUILD } from "next/constants";
 import { prisma } from "@/lib/prisma";
 import { siteUrl } from "@/lib/site";
-import { PUBLIC_PAGES } from "@/lib/seo";
+import { LOCALES, localizedPath } from "@/i18n/config";
+import { PUBLIC_PAGES, languageAlternates } from "@/lib/seo";
 
 export const revalidate = 3600;
 
 // No `changeFrequency` / `priority`: Google ignores both. What it does read
 // is `lastModified`, so every entry carries a true one — the static pages
 // from PUBLIC_PAGES (never "now": a date that moves on every regeneration
-// teaches the crawler to distrust it), the menus from the database.
+// teaches the crawler to distrust it), the menus from the database. Menus
+// have one URL each, whatever their language, and no hreflang.
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const base = siteUrl();
 
-  const staticEntries: MetadataRoute.Sitemap = PUBLIC_PAGES.map((page) => ({
-    url: `${base}${page.path}`,
-    lastModified: page.lastModified,
-  }));
+  // Every public page once per language, each entry carrying the full set of
+  // its translations (hreflang) — the same set the pages declare in their
+  // <head>, so the two sources cannot disagree.
+  const staticEntries: MetadataRoute.Sitemap = PUBLIC_PAGES.flatMap((page) => {
+    const languages = Object.fromEntries(
+      Object.entries(languageAlternates(page.path)).map(([lang, path]) => [lang, `${base}${path}`]),
+    );
+    return LOCALES.map((locale) => ({
+      url: `${base}${localizedPath(locale, page.path)}`,
+      lastModified: page.lastModified,
+      alternates: { languages },
+    }));
+  });
 
   const menuEntries: MetadataRoute.Sitemap = (await listedMenus()).map((r) => ({
     url: `${base}/m/${r.slug}`,

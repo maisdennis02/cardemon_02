@@ -18,6 +18,7 @@ import {
   PRIVATE_PATHS,
   PUBLIC_PAGES,
   SITE_NAME,
+  languageAlternates,
   menuDescription,
   organizationLd,
   pageMetadata,
@@ -99,9 +100,25 @@ describe("pageMetadata", () => {
     path: "/pricing",
   });
 
-  it("gives the page its own canonical and og:url", () => {
-    expect(meta.alternates?.canonical).toBe("/pricing");
-    expect(meta.openGraph?.url).toBe("/pricing");
+  it("canonical and og:url are the URL of the language being rendered", () => {
+    expect(meta.alternates?.canonical).toBe("/pt-BR/pricing");
+    expect(meta.openGraph?.url).toBe("/pt-BR/pricing");
+    const english = pageMetadata({ locale: "en", title: "x", description: "y", path: "/pricing" });
+    expect(english.alternates?.canonical).toBe("/pricing");
+    expect(english.openGraph?.url).toBe("/pricing");
+  });
+
+  it("carries the same full hreflang set whatever the language", () => {
+    const expected = {
+      en: "/pricing",
+      "pt-BR": "/pt-BR/pricing",
+      es: "/es/pricing",
+      "x-default": "/pricing",
+    };
+    for (const locale of LOCALES) {
+      const m = pageMetadata({ locale, title: "x", description: "y", path: "/pricing" });
+      expect(m.alternates?.languages).toEqual(expected);
+    }
   });
 
   it("carries the complete Open Graph and Twitter set", () => {
@@ -131,6 +148,23 @@ describe("pageMetadata", () => {
   });
 });
 
+describe("languageAlternates", () => {
+  it("lists every locale plus x-default, which is the un-prefixed URL", () => {
+    expect(languageAlternates("/")).toEqual({
+      en: "/",
+      "pt-BR": "/pt-BR",
+      es: "/es",
+      "x-default": "/",
+    });
+    for (const page of PUBLIC_PAGES) {
+      const alternates = languageAlternates(page.path);
+      expect(Object.keys(alternates).sort()).toEqual([...LOCALES, "x-default"].sort());
+      expect(alternates["x-default"]).toBe(page.path);
+      expect(new Set(Object.values(alternates)).size).toBe(LOCALES.length);
+    }
+  });
+});
+
 describe("page lists", () => {
   it("no path is both public and private", () => {
     const publicPaths = PUBLIC_PAGES.map((p) => p.path) as string[];
@@ -154,7 +188,7 @@ describe("page lists", () => {
       new Date(`${iso}T00:00:00Z`),
     );
     const source = readFileSync(
-      fileURLToPath(new URL(`../app/(main)${path}/page.tsx`, import.meta.url)),
+      fileURLToPath(new URL(`../app/(main)${path}/content.ts`, import.meta.url)),
       "utf8",
     );
     expect(source).toContain(`Last updated: ${printed}`);
@@ -235,6 +269,10 @@ describe("JSON-LD", () => {
       }),
     );
     expect(app["@type"]).toBe("SoftwareApplication");
+    // URLs are those of the language being rendered, like the canonical.
+    expect(app.url).toBe({ en: BASE, "pt-BR": `${BASE}/pt-BR`, es: `${BASE}/es` }[locale]);
+    const pricingUrl = { en: `${BASE}/pricing`, "pt-BR": `${BASE}/pt-BR/pricing`, es: `${BASE}/es/pricing` }[locale];
+    expect(app.offers.map((o: { url: string }) => o.url)).toEqual([pricingUrl, pricingUrl]);
     expect(app.offers).toHaveLength(2);
     expect(app.offers[0]).toMatchObject({ price: "0", priceCurrency: prices.currency });
     expect(app.offers[1]).toMatchObject({
