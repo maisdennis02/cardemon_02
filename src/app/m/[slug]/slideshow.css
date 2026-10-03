@@ -197,3 +197,31 @@
   border-radius: 40px;
   background: #ffffff;
 }
+
+/* Example menus (src/lib/example-menus.ts): a small label over the first
+   page, in the corner the contact buttons use on a real menu — examples have
+   no buttons — and a sentence under the name on the last slide. */
+.example-badge {
+  position: fixed;
+  top: 12px;
+  left: 12px;
+  z-index: 20;
+  padding: 6px 12px;
+  border-radius: 999px;
+  background: rgba(16, 21, 34, 0.86);
+  color: #ffffff;
+  font-family: var(--font-encode-sans), system-ui, sans-serif;
+  font-size: 12px;
+  font-weight: bold;
+  letter-spacing: 0.04em;
+  pointer-events: none;
+}
+
+.example-note {
+  max-width: 280px;
+  margin: -8px 0 16px;
+  text-align: center;
+  font-size: 12px;
+  line-height: 1.4;
+  color: #555555;
+}

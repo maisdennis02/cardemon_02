@@ -5,6 +5,7 @@ const es: Dictionary = {
     rootTitle: "Menú digital con código QR para restaurantes — menulala",
     rootDescription: "Menú digital en 5 minutos: sube la foto de tu menú, comparte el link o el código QR y el cliente desliza en el móvil. Sin PDF, sin app que descargar.",
     menuDescriptionFallback: "Menú digital de {name}. Mira todas las páginas del menú directo en el celular: solo abre y desliza, sin descargar app ni PDF.",
+    exampleMenuDescription: "{name} es un menú de ejemplo hecho por menulala para mostrar cómo se ve un menú digital en el celular. No es un restaurante real.",
     pricingTitle: "Precios del menú digital: gratis o Pro",
     pricingDescription: "Menú digital gratis con hasta {free} páginas, código QR y links de delivery. En Pro, por {price}/mes, tienes hasta {pro} páginas y soporte prioritario.",
     privacyDescription: "Cómo menulala recopila, usa y protege los datos de dueños de restaurantes y de visitantes de los menús, cuáles son tus derechos y cómo contactarnos.",
@@ -52,7 +53,8 @@ const es: Dictionary = {
     ctaHeading: "¿Listo para digitalizar?",
     ctaLead: "Gratis para probar. Configura tu menú en cinco minutos.",
     footerTagline: "Menú digital",
-    heroDemoLink: "Ver un menú real →",
+    heroDemoLink: "Ver un menú de ejemplo →",
+    heroDemoSlug: "taqueria-la-esquina",
     painHeading: "¿Cansado de esto?",
     painLead:
       "Los pequeños restaurantes pierden tiempo y dinero con menús impresos que quedan desactualizados apenas salen de la imprenta.",
@@ -91,25 +93,6 @@ const es: Dictionary = {
     audienceNo2: "Quieres POS, control de stock, dashboard fiscal, KDS.",
     audienceNo3: "Quieres un chatbot IA atendiendo clientes en WhatsApp 24h.",
     audienceNo4: "Cadena con varias sucursales, reportes complejos, integraciones pesadas.",
-    testimonialsHeading: "Restaurantes que ya usan menulala",
-    testimonial1Restaurant: "Barraca da Sônia",
-    testimonial1City: "Santos / SP",
-    testimonial1Slug: "barraca-da-sonia",
-    testimonial1Quote:
-      "Reimprimíamos el menú cada dos meses. Ahora cambio la foto desde el celular y listo.",
-    testimonial1Name: "Sônia Ribeiro",
-    testimonial2Restaurant: "Boteco do Marcão",
-    testimonial2City: "Belo Horizonte / MG",
-    testimonial2Slug: "boteco-do-marcao",
-    testimonial2Quote:
-      "Los clientes dejaron de pedir el menú por WhatsApp. Abren el enlace y ya está.",
-    testimonial2Name: "Marcos Almeida",
-    testimonial3Restaurant: "Cantina da Júlia",
-    testimonial3City: "Curitiba / PR",
-    testimonial3Slug: "cantina-da-julia",
-    testimonial3Quote:
-      "Cinco minutos para configurarlo. El QR está en las mesas desde entonces.",
-    testimonial3Name: "Júlia Tanaka",
     pricingTeaserLine: "Gratis hasta {free} páginas · Pro desde {price} / mes.",
     pricingTeaserCta: "Ver planes →",
     faqHeading: "Preguntas frecuentes",
@@ -409,6 +392,8 @@ const es: Dictionary = {
     cardapioDigital: "Menú Digital",
     madeBy: "hecho por",
     orderOn: "Pedir en {appName}",
+    exampleLabel: "Menú de ejemplo",
+    exampleNote: "Un menú de ejemplo hecho por menulala. No es un restaurante real.",
   },
 };
 

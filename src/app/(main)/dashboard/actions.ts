@@ -9,6 +9,7 @@ import { track } from "@vercel/analytics/server";
 import { auth, signOut } from "@/auth";
 import { prisma } from "@/lib/prisma";
 import { slugify } from "@/lib/slug";
+import { isReservedSlug } from "@/lib/example-menus";
 import { getDictionary, getLocale } from "@/i18n";
 import { format } from "@/i18n/config";
 import {
@@ -165,6 +166,10 @@ export async function createRestaurant(_p: ActionState, formData: FormData): Pro
   });
   if (!parsed.success) return { error: restaurantParseError(parsed.error, t) };
 
+  // The example menus own their slugs: /m/<slug> answers from the registry
+  // before the database, so a restaurant created there would never be seen.
+  if (isReservedSlug(parsed.data.slug)) return { error: t.errors.slugTaken };
+
   const taken = await prisma.restaurant.findUnique({ where: { slug: parsed.data.slug } });
   if (taken) return { error: t.errors.slugTaken };
 
@@ -209,6 +214,8 @@ export async function updateRestaurant(_p: ActionState, formData: FormData): Pro
     ...deliveryInput,
   });
   if (!parsed.success) return { error: restaurantParseError(parsed.error, t) };
+
+  if (isReservedSlug(parsed.data.slug)) return { error: t.errors.slugTaken };
 
   const slugTaken = await prisma.restaurant.findFirst({
     where: { slug: parsed.data.slug, NOT: { id } },

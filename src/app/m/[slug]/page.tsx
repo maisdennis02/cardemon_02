@@ -1,7 +1,7 @@
 import { notFound } from "next/navigation";
 import { MenuSlideshow } from "./slideshow";
 import { getDictionary } from "@/i18n";
-import { OG_LOCALE, localeForCountry } from "@/i18n/config";
+import { OG_LOCALE, format, localeForCountry } from "@/i18n/config";
 import { absoluteUrl } from "@/lib/site";
 import { jsonLdScript } from "@/lib/json-ld";
 import { NOINDEX, SITE_NAME, menuDescription, restaurantLd } from "@/lib/seo";
@@ -24,12 +24,16 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
 
   const locale = localeForCountry(r.country);
   const t = await getDictionary(locale);
-  const title = `${r.name} — ${t.menu.cardapioDigital}`;
-  const description = menuDescription({
-    name: r.name,
-    description: r.description,
-    template: t.metadata.menuDescriptionFallback,
-  });
+  // An example menu says so in the title and the description, in place of
+  // the copy written for real restaurants.
+  const title = `${r.name} — ${r.example ? t.menu.exampleLabel : t.menu.cardapioDigital}`;
+  const description = r.example
+    ? format(t.metadata.exampleMenuDescription, { name: r.name })
+    : menuDescription({
+        name: r.name,
+        description: r.description,
+        template: t.metadata.menuDescriptionFallback,
+      });
   const path = `/m/${slug}`;
   const cover = r.images[0]?.url;
 
@@ -37,9 +41,10 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
     title,
     description,
     alternates: { canonical: path },
-    // A menu with no pages yet shows only "being prepared": keep it out of
-    // the index until the owner uploads something.
-    ...(r.images.length === 0 && { robots: NOINDEX }),
+    // Out of the index: a menu with no pages yet (it shows only "being
+    // prepared", until the owner uploads something) and the example menus,
+    // which are not restaurants and must never rank as one.
+    ...((r.images.length === 0 || r.example) && { robots: NOINDEX }),
     openGraph: {
       type: "website",
       title,
@@ -68,17 +73,21 @@ export default async function PublicMenuPage({
 
   if (!restaurant) notFound();
 
-  const url = absoluteUrl(`/m/${slug}`);
-  const ld = restaurantLd(restaurant, url);
+  // No Restaurant structured data for an example: it would tell search
+  // engines that a business exists at this URL.
+  const ld = restaurant.example ? null : restaurantLd(restaurant, absoluteUrl(`/m/${slug}`));
 
   return (
     <>
-      <script
-        type="application/ld+json"
-        dangerouslySetInnerHTML={{ __html: jsonLdScript(ld) }}
-      />
+      {ld && (
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{ __html: jsonLdScript(ld) }}
+        />
+      )}
       <MenuSlideshow
         slug={slug}
+        example={restaurant.example}
         name={restaurant.name}
         whatsappNumber={restaurant.whatsappNumber}
         instagramUrl={restaurant.instagramUrl}

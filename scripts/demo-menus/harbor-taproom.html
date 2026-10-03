@@ -1,0 +1,135 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Harbor Taproom — example menu</title>
+<link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@500;600;700;800&family=Barlow:wght@400;500&family=Caveat:wght@600&display=block" rel="stylesheet">
+<style>
+  :root { --night:#12202b; --deep:#0c161e; --amber:#f2a93b; --foam:#f4ead7; --rope:#8fa3ad; --line:#2c4352; }
+  * { box-sizing:border-box; margin:0; padding:0; }
+  body { width:720px; background:var(--night); color:var(--foam); font-family:Barlow, "Trebuchet MS", sans-serif; }
+  .page { width:720px; height:1418px; position:relative; overflow:hidden;
+          background:radial-gradient(ellipse at 50% 0%, #1d3442 0%, var(--night) 55%, var(--deep) 100%); }
+  .frame { position:absolute; inset:26px; border:2px solid var(--line); border-radius:6px; pointer-events:none; }
+  .cond { font-family:"Barlow Condensed", "Arial Narrow", sans-serif; text-transform:uppercase; }
+  .hand { font-family:Caveat, cursive; color:var(--amber); }
+
+  /* cover */
+  .cover { text-align:center; }
+  .cover .top { padding-top:120px; font-size:30px; letter-spacing:.42em; color:var(--rope); font-weight:600; }
+  .anchor { width:230px; height:230px; margin:54px auto 0; }
+  .cover h1 { font-weight:800; line-height:.86; margin-top:40px; }
+  .cover h1 .a { display:block; font-size:170px; letter-spacing:.02em; }
+  .cover h1 .b { display:block; font-size:118px; letter-spacing:.14em; color:var(--amber); margin-top:10px; }
+  .cover .tag { margin-top:44px; font-size:60px; }
+  .pills { margin:56px auto 0; display:flex; justify-content:center; gap:12px; }
+  .pill { border:2px solid var(--amber); color:var(--amber); border-radius:999px; padding:9px 20px; font-size:28px; font-weight:600; letter-spacing:.07em; }
+  .cover .hours { position:absolute; left:0; right:0; bottom:104px; font-size:27px; line-height:1.5; color:var(--rope); }
+  .cover .hours b { color:var(--foam); font-weight:500; }
+
+  /* inner pages */
+  .inner { padding:78px 62px 0; }
+  h2 { font-weight:800; font-size:92px; line-height:.9; letter-spacing:.04em; }
+  h2 em { font-style:normal; color:var(--amber); }
+  .sub { font-size:25px; color:var(--rope); margin-top:10px; }
+  .bar { height:3px; background:var(--amber); margin:26px 0 8px; }
+  .beer { display:grid; grid-template-columns:54px 1fr auto; column-gap:16px; align-items:start; padding:19px 0; border-bottom:1px solid var(--line); }
+  .beer .no { font-size:44px; font-weight:800; color:var(--amber); line-height:1; }
+  .beer .name { font-size:40px; font-weight:700; letter-spacing:.03em; line-height:1; }
+  .beer .meta { font-size:23px; color:var(--rope); margin-top:6px; }
+  .beer .note { font-size:24px; color:#d7cdb9; margin-top:4px; }
+  .beer .price { font-size:40px; font-weight:700; line-height:1; }
+  .flight { margin-top:30px; border:2px dashed var(--amber); border-radius:14px; padding:20px 26px; display:flex; justify-content:space-between; align-items:center; }
+  .flight .t { font-size:40px; font-weight:800; letter-spacing:.05em; }
+  .flight .s { font-size:23px; color:var(--rope); }
+  .flight .p { font-size:52px; font-weight:800; color:var(--amber); }
+
+  h3 { font-weight:700; font-size:42px; letter-spacing:.14em; color:var(--amber); margin-top:34px; padding-bottom:8px; border-bottom:2px solid var(--line); }
+  .food { display:flex; justify-content:space-between; align-items:baseline; gap:18px; margin-top:19px; }
+  .food .name { font-size:36px; font-weight:700; letter-spacing:.03em; }
+  .food .price { font-size:36px; font-weight:700; }
+  .desc { font-size:24px; line-height:1.3; color:#c9d3d8; margin-top:2px; max-width:520px; }
+  .happy { position:absolute; left:62px; right:62px; bottom:76px; background:var(--amber); color:var(--deep); border-radius:14px; padding:22px 28px; }
+  .happy .t { font-size:42px; font-weight:800; letter-spacing:.06em; line-height:1; }
+  .happy .s { font-size:26px; font-weight:500; margin-top:6px; }
+</style>
+</head>
+<body>
+
+<!-- page 1 — cover -->
+<section class="page cover">
+  <div class="frame"></div>
+  <p class="top cond">Pier 9 · Old Harbor</p>
+  <svg class="anchor" viewBox="0 0 230 230" fill="none" stroke="#f2a93b" stroke-width="9" stroke-linecap="round" stroke-linejoin="round">
+    <circle cx="115" cy="42" r="20"/>
+    <path d="M115 62v140"/>
+    <path d="M75 96h80"/>
+    <path d="M38 138c6 44 40 64 77 64s71-20 77-64"/>
+    <path d="M22 150l16-14 16 14M176 150l16-14 16 14"/>
+  </svg>
+  <h1 class="cond"><span class="a">Harbor</span><span class="b">Taproom</span></h1>
+  <p class="tag hand">craft beer &amp; honest bar food</p>
+  <div class="pills cond"><span class="pill">16 taps</span><span class="pill">Small batch</span><span class="pill">Dog friendly</span></div>
+  <p class="hours">
+    <b>Tue–Thu</b> 4 pm – 11 pm &nbsp;·&nbsp; <b>Fri–Sat</b> noon – 1 am<br>
+    <b>Sun</b> noon – 9 pm &nbsp;·&nbsp; closed Mondays
+  </p>
+</section>
+
+<!-- page 2 — on tap -->
+<section class="page">
+  <div class="frame"></div>
+  <div class="inner">
+    <h2 class="cond">On <em>tap</em></h2>
+    <p class="sub">Brewed in the back room. 16 oz pours unless noted — ask for a taste first.</p>
+    <div class="bar"></div>
+
+    <div class="beer cond"><span class="no">01</span><div><div class="name">Low Tide Lager</div><div class="meta">Helles lager · 4.8% ABV</div></div><span class="price">$7</span></div>
+    <div class="beer cond"><span class="no">02</span><div><div class="name">Breakwater Pils</div><div class="meta">Dry-hopped pilsner · 5.1% ABV</div></div><span class="price">$7</span></div>
+    <div class="beer cond"><span class="no">03</span><div><div class="name">Dockhand Pale Ale</div><div class="meta">American pale ale · 5.4% ABV</div></div><span class="price">$7.50</span></div>
+    <div class="beer cond"><span class="no">04</span><div><div class="name">Signal Fire IPA</div><div class="meta">West Coast IPA · 6.8% ABV</div></div><span class="price">$8</span></div>
+    <div class="beer cond"><span class="no">05</span><div><div class="name">Fog Bank Hazy</div><div class="meta">Hazy IPA · 6.4% ABV</div></div><span class="price">$8.50</span></div>
+    <div class="beer cond"><span class="no">06</span><div><div class="name">Salt &amp; Lime Gose</div><div class="meta">Tart wheat ale · 4.2% ABV</div></div><span class="price">$7.50</span></div>
+    <div class="beer cond"><span class="no">07</span><div><div class="name">Night Watch Stout</div><div class="meta">Oatmeal stout on nitro · 5.9% ABV</div></div><span class="price">$8</span></div>
+    <div class="beer cond"><span class="no">08</span><div><div class="name">Keel Hauler</div><div class="meta">Barleywine · 10.5% ABV · 10 oz pour</div></div><span class="price">$9</span></div>
+
+    <div class="flight cond">
+      <div><div class="t">Tasting flight</div><div class="s" style="font-family:Barlow,sans-serif;text-transform:none;">Any four, 5 oz each</div></div>
+      <div class="p">$12</div>
+    </div>
+  </div>
+</section>
+
+<!-- page 3 — bar food -->
+<section class="page">
+  <div class="frame"></div>
+  <div class="inner">
+    <h2 class="cond">Bar <em>food</em></h2>
+    <p class="sub">Kitchen closes one hour before last call.</p>
+
+    <h3 class="cond">To share</h3>
+    <div class="food cond"><span class="name">Soft pretzel &amp; beer cheese</span><span class="price">$9</span></div>
+    <p class="desc">Baked to order, with stout mustard.</p>
+    <div class="food cond"><span class="name">Fried pickles</span><span class="price">$8</span></div>
+    <p class="desc">Dill spears, buttermilk ranch.</p>
+    <div class="food cond"><span class="name">Loaded fries</span><span class="price">$11</span></div>
+    <p class="desc">Beer cheese, bacon, scallions, pickled jalapeño.</p>
+    <div class="food cond"><span class="name">Wings (8)</span><span class="price">$14</span></div>
+    <p class="desc">Buffalo, honey-garlic or dry rub.</p>
+
+    <h3 class="cond">Handhelds</h3>
+    <div class="food cond"><span class="name">Smash burger</span><span class="price">$15</span></div>
+    <p class="desc">Two patties, American cheese, pickles, house sauce. Fries included.</p>
+    <div class="food cond"><span class="name">Beer-battered fish sandwich</span><span class="price">$16</span></div>
+    <p class="desc">Tartar sauce, slaw, toasted bun. Fries included.</p>
+    <div class="food cond"><span class="name">Grilled cheese &amp; tomato soup</span><span class="price">$12</span></div>
+    <p class="desc">Sourdough, cheddar and Swiss.</p>
+  </div>
+  <div class="happy cond">
+    <div class="t">Happy hour · Tue–Fri, 4–6 pm</div>
+    <div class="s" style="font-family:Barlow,sans-serif;text-transform:none;">$2 off every pint and half-price pretzels.</div>
+  </div>
+</section>
+
+</body>
+</html>

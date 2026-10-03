@@ -4,6 +4,7 @@ import { prisma } from "@/lib/prisma";
 import { siteUrl } from "@/lib/site";
 import { LOCALES, localizedPath } from "@/i18n/config";
 import { PUBLIC_PAGES, languageAlternates } from "@/lib/seo";
+import { isReservedSlug } from "@/lib/example-menus";
 
 export const revalidate = 3600;
 
@@ -51,7 +52,10 @@ async function listedMenus(): Promise<{ slug: string; lastModified: Date }[]> {
       },
       orderBy: { updatedAt: "desc" },
     });
-    return restaurants.map((r) => {
+    // Example menus are served from the code, are `noindex` and their slugs
+    // cannot be registered; the filter only makes sure a stray row with one
+    // of those slugs could never put an example in the sitemap.
+    return restaurants.filter((r) => !isReservedSlug(r.slug)).map((r) => {
       // Uploading a page does not touch Restaurant.updatedAt, so the newest
       // image counts too.
       const newestImage = r.images[0]?.createdAt;

@@ -25,6 +25,9 @@ type Props = {
   country: string | null;
   deliveryUrls: DeliveryUrls;
   images: string[];
+  // A fictional menu from src/lib/example-menus.ts: labelled as an example
+  // and never counted (there is no restaurant row to count it against).
+  example?: boolean;
 };
 
 function pingMenuEvent(slug: string, kind: string) {
@@ -44,6 +47,7 @@ export function MenuSlideshow({
   country,
   deliveryUrls,
   images,
+  example = false,
 }: Props) {
   const t = useT();
   const deliveryLinks = getOrderedDeliveryLinks(country, deliveryUrls);
@@ -68,6 +72,7 @@ export function MenuSlideshow({
   useEffect(measureTallest, []);
 
   useEffect(() => {
+    if (example) return;
     const key = `mv:${slug}`;
     try {
       if (sessionStorage.getItem(key)) return;
@@ -76,10 +81,11 @@ export function MenuSlideshow({
       // sessionStorage can throw in privacy mode — fall through and still ping.
     }
     pingMenuEvent(slug, "view");
-  }, [slug]);
+  }, [slug, example]);
   const hasAnyButton = whatsappNumber || instagramUrl || deliveryLinks.length > 0;
   return (
     <div className="menu-root" ref={rootRef}>
+      {example && <div className="example-badge">{t.menu.exampleLabel}</div>}
       {hasAnyButton && (
         <div className="social-buttons">
           {whatsappNumber && (
@@ -151,8 +157,11 @@ export function MenuSlideshow({
 
         <SwiperSlide>
           <div className="last-slide">
-            <span className="last-label-01">{t.menu.cardapioDigital}</span>
+            <span className="last-label-01">
+              {example ? t.menu.exampleLabel : t.menu.cardapioDigital}
+            </span>
             <span className="last-label-02">{name}</span>
+            {example && <p className="example-note">{t.menu.exampleNote}</p>}
             <div className="menulala-credit">
               <p>{t.menu.madeBy}</p>
               <a

@@ -1,0 +1,123 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<title>Café Buen Día — menú de ejemplo</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,500;0,700;1,500&family=Jost:wght@300;400;500&display=block" rel="stylesheet">
+<style>
+  :root { --papel:#f6f1e7; --salvia:#73866b; --salvia-osc:#4b5c45; --barro:#c56f4a; --cafe:#3b2a20; --arena:#e7dcc6; }
+  * { box-sizing:border-box; margin:0; padding:0; }
+  body { width:720px; background:var(--papel); color:var(--cafe); font-family:Jost, "Trebuchet MS", sans-serif; font-weight:400; }
+  .page { width:720px; height:1418px; position:relative; overflow:hidden; background:var(--papel); }
+  .serif { font-family:"Playfair Display", Georgia, serif; }
+
+  /* portada */
+  .cover { background:var(--salvia); color:var(--papel); text-align:center; }
+  .arco { position:absolute; left:70px; right:70px; top:96px; bottom:0; background:var(--papel); border-radius:290px 290px 0 0; color:var(--cafe); }
+  .sol { width:210px; height:210px; margin:96px auto 0; }
+  .cover .peq { font-size:26px; letter-spacing:.5em; text-transform:uppercase; color:var(--salvia-osc); margin-top:30px; font-weight:500; }
+  .cover h1 { font-weight:500; line-height:.98; margin-top:22px; }
+  .cover h1 .a { display:block; font-size:86px; font-style:italic; color:var(--barro); }
+  .cover h1 .b { display:block; font-size:128px; font-weight:700; }
+  .cover .linea { width:90px; height:3px; background:var(--barro); margin:36px auto; }
+  .cover .tres { font-size:31px; line-height:1.7; font-weight:300; }
+  .cover .horario { position:absolute; left:0; right:0; bottom:74px; font-size:25px; line-height:1.6; color:var(--salvia-osc); letter-spacing:.04em; }
+  .cover .horario b { font-weight:500; color:var(--cafe); }
+
+  /* páginas */
+  .inner { padding:62px 68px 0; }
+  .kicker { font-size:23px; letter-spacing:.42em; text-transform:uppercase; color:var(--salvia); font-weight:500; }
+  h2 { font-weight:500; font-size:92px; line-height:1; margin-top:8px; }
+  h2 i { color:var(--barro); }
+  .intro { font-size:26px; font-weight:300; line-height:1.4; margin-top:16px; color:#5d4a3d; max-width:560px; }
+  h3 { font-style:italic; font-weight:500; font-size:46px; color:var(--salvia-osc); margin-top:34px; padding-bottom:10px; border-bottom:1.5px solid var(--salvia); }
+  .it { display:flex; justify-content:space-between; align-items:baseline; gap:20px; margin-top:16px; }
+  .it .n { font-size:33px; font-weight:500; }
+  .it .p { font-size:31px; font-weight:400; color:var(--barro); white-space:nowrap; }
+  .de { font-size:24px; font-weight:300; line-height:1.35; color:#6a5648; margin-top:2px; max-width:490px; }
+  .nota { margin-top:32px; background:var(--arena); border-radius:18px; padding:22px 28px; font-size:25px; line-height:1.4; font-weight:300; }
+  .nota b { font-weight:500; color:var(--salvia-osc); }
+  .hoja { position:absolute; right:-30px; top:18px; width:190px; height:190px; opacity:.9; }
+  .pie { position:absolute; left:0; right:0; bottom:52px; text-align:center; font-style:italic; font-size:34px; color:var(--barro); }
+  .franja { position:absolute; left:0; right:0; bottom:0; height:22px; background:var(--salvia); }
+</style>
+</head>
+<body>
+
+<!-- página 1 — portada -->
+<section class="page cover">
+  <div class="arco">
+    <svg class="sol" viewBox="0 0 210 210" fill="none" stroke="#c56f4a" stroke-width="5" stroke-linecap="round">
+      <path d="M45 140a60 60 0 0 1 120 0" fill="#c56f4a" stroke="none"/>
+      <path d="M105 46v-24M58 68l-17-17M152 68l17-17M32 112H10M178 112h22M78 52l-9-22M132 52l9-22"/>
+      <path d="M20 140h170M48 160h114M76 180h58" stroke="#73866b"/>
+    </svg>
+    <p class="peq">Bienvenidos</p>
+    <h1 class="serif"><span class="a">Café</span><span class="b">Buen Día</span></h1>
+    <div class="linea"></div>
+    <p class="tres">Café de especialidad<br>Pan hecho en casa<br>Desayunos todo el día</p>
+    <p class="horario"><b>Lunes a sábado</b> · 7:30 a 20:00<br><b>Domingo</b> · 8:00 a 15:00</p>
+  </div>
+</section>
+
+<!-- página 2 — bebidas -->
+<section class="page">
+  <svg class="hoja" viewBox="0 0 230 230" fill="none" stroke="#73866b" stroke-width="4" stroke-linecap="round">
+    <path d="M30 210C60 120 120 60 210 30"/>
+    <path d="M70 150c-30-10-44-34-40-62 28 0 48 16 54 44M106 108c-26-16-32-44-22-70 26 8 40 30 38 56M150 72c-16-22-12-48 6-66 20 16 24 40 12 62M96 162c22 22 52 22 74 6-14-24-42-32-68-20M134 122c26 14 54 6 70-14-20-18-48-18-68 0"/>
+  </svg>
+  <div class="inner">
+    <p class="kicker">Para empezar</p>
+    <h2 class="serif">Café <i>y más</i></h2>
+    <p class="intro">Granos de Veracruz y Chiapas, tostados cada semana. Leche de avena o de almendra sin costo.</p>
+
+    <h3 class="serif">Calientes</h3>
+    <div class="it"><span class="n">Espresso</span><span class="p">$38</span></div>
+    <div class="it"><span class="n">Americano</span><span class="p">$42</span></div>
+    <div class="it"><span class="n">Capuchino</span><span class="p">$58</span></div>
+    <div class="it"><span class="n">Latte</span><span class="p">$62</span></div>
+    <p class="de">Con vainilla, cajeta o canela +$10.</p>
+    <div class="it"><span class="n">Café de olla</span><span class="p">$45</span></div>
+    <p class="de">Con piloncillo y canela, como en casa.</p>
+    <div class="it"><span class="n">Chocolate de metate</span><span class="p">$65</span></div>
+    <div class="it"><span class="n">Té chai o matcha latte</span><span class="p">$68</span></div>
+
+    <h3 class="serif">Fríos</h3>
+    <div class="it"><span class="n">Cold brew</span><span class="p">$58</span></div>
+    <p class="de">Doce horas de infusión en frío.</p>
+    <div class="it"><span class="n">Latte helado</span><span class="p">$65</span></div>
+    <div class="it"><span class="n">Jugo verde o de naranja</span><span class="p">$55</span></div>
+    <div class="it"><span class="n">Limonada con hierbabuena</span><span class="p">$48</span></div>
+  </div>
+  <div class="franja"></div>
+</section>
+
+<!-- página 3 — desayunos y pan -->
+<section class="page">
+  <div class="inner">
+    <p class="kicker">Todo el día</p>
+    <h2 class="serif">Desayunos</h2>
+
+    <div class="it" style="margin-top:34px;"><span class="n">Chilaquiles verdes o rojos</span><span class="p">$128</span></div>
+    <p class="de">Con crema, queso fresco, cebolla y frijoles. Con huevo o pollo +$25.</p>
+    <div class="it"><span class="n">Molletes de la casa</span><span class="p">$98</span></div>
+    <p class="de">Pan de masa madre, frijoles, queso gratinado y pico de gallo.</p>
+    <div class="it"><span class="n">Huevos al gusto</span><span class="p">$105</span></div>
+    <p class="de">Revueltos, estrellados o a la mexicana, con frijoles y tortillas.</p>
+    <div class="it"><span class="n">Pan francés</span><span class="p">$115</span></div>
+    <p class="de">Brioche, frutos rojos y miel de maple.</p>
+
+    <h3 class="serif">Pan y algo dulce</h3>
+    <div class="it"><span class="n">Concha de vainilla o chocolate</span><span class="p">$32</span></div>
+    <div class="it"><span class="n">Croissant de mantequilla</span><span class="p">$45</span></div>
+    <div class="it"><span class="n">Panqué de elote</span><span class="p">$48</span></div>
+    <div class="it"><span class="n">Galleta de avena y nuez</span><span class="p">$35</span></div>
+
+    <div class="nota"><b>Paquete Buen Día · $149</b><br>Cualquier desayuno con café americano o de olla y un jugo chico.</div>
+  </div>
+  <p class="pie serif">Gracias por empezar el día con nosotros.</p>
+  <div class="franja"></div>
+</section>
+
+</body>
+</html>

@@ -29,6 +29,7 @@ import {
 import { siteUrl } from "@/lib/site";
 import { jsonLdScript } from "@/lib/json-ld";
 import { softwareApplicationLd } from "@/lib/seo";
+import { LANDING_SHOWCASE, type LandingShowcase } from "@/lib/landing-showcase";
 import "./landing.css";
 
 // The landing page, rendered by two routes:
@@ -91,7 +92,7 @@ export function LandingPage({
         <AntiCanva t={t} priceLabel={priceLabel} />
         <Features t={t} />
         <Audience t={t} />
-        <Examples t={t} />
+        <Examples t={t} showcase={LANDING_SHOWCASE[locale]} />
         <Faq t={t} />
         <BottomCta signedIn={signedIn} t={t} priceLabel={priceLabel} pricingHref={pricingHref} />
       </main>
@@ -222,7 +223,7 @@ function Hero({
             )}
           </div>
           <Link
-            href="/m/cavalo-marinho"
+            href={`/m/${t.landing.heroDemoSlug}`}
             target="_blank"
             rel="noreferrer"
             className="inline-flex min-h-11 items-center gap-2 self-start rounded-full border border-[color:var(--color-brand)]/15 bg-[color:var(--color-brand-50)] px-4 py-2 text-sm font-bold text-[color:var(--color-brand-700)] transition hover:border-[color:var(--color-brand)]/30 hover:bg-[color:var(--color-brand-100)]"
@@ -489,37 +490,15 @@ function Audience({ t }: { t: Dictionary }) {
   );
 }
 
-function Examples({ t }: { t: Dictionary }) {
-  const items = [
-    {
-      restaurant: t.landing.testimonial3Restaurant,
-      city: t.landing.testimonial3City,
-      slug: t.landing.testimonial3Slug,
-      quote: t.landing.testimonial3Quote,
-      name: t.landing.testimonial3Name,
-    },
-    {
-      restaurant: t.landing.testimonial1Restaurant,
-      city: t.landing.testimonial1City,
-      slug: t.landing.testimonial1Slug,
-      quote: t.landing.testimonial1Quote,
-      name: t.landing.testimonial1Name,
-    },
-    {
-      restaurant: t.landing.testimonial2Restaurant,
-      city: t.landing.testimonial2City,
-      slug: t.landing.testimonial2Slug,
-      quote: t.landing.testimonial2Quote,
-      name: t.landing.testimonial2Name,
-    },
-  ];
+function Examples({ t, showcase }: { t: Dictionary; showcase: LandingShowcase }) {
+  const items = showcase.cards;
   const tilts = ["md:-rotate-2", "md:rotate-[1.5deg]", "md:-rotate-1"];
 
   return (
     <section className="overflow-hidden border-t border-gray-200/70 bg-[color:var(--color-brand-50)]">
       <div className="mx-auto max-w-6xl px-6 py-16 sm:py-24">
         <h2 className="lp-reveal mb-12 text-center text-3xl font-bold tracking-tight text-[color:var(--color-navy)] sm:text-4xl">
-          {t.landing.testimonialsHeading}
+          {showcase.heading}
         </h2>
         <ul className="grid gap-6 md:grid-cols-3">
           {items.map((it, i) => (
@@ -545,21 +524,31 @@ function Examples({ t }: { t: Dictionary }) {
                     {it.restaurant}
                   </div>
                   <div className="text-[11px] font-bold uppercase tracking-[0.14em] text-gray-500">
-                    {it.city}
+                    {it.label}
                   </div>
                 </div>
-                <blockquote className="relative w-full border-t border-gray-100 pt-4 text-sm italic leading-relaxed text-gray-600">
-                  <span
-                    aria-hidden
-                    className="absolute -top-1 left-1/2 -translate-x-1/2 bg-white px-2 font-serif text-2xl leading-none text-[color:var(--color-brand)]"
-                  >
-                    &ldquo;
-                  </span>
-                  {it.quote}
-                </blockquote>
-                <div className="mt-auto text-xs font-medium text-gray-500">
-                  — {it.name}
-                </div>
+                {it.kind === "customer" ? (
+                  <>
+                    <blockquote className="relative w-full border-t border-gray-100 pt-4 text-sm italic leading-relaxed text-gray-600">
+                      <span
+                        aria-hidden
+                        className="absolute -top-1 left-1/2 -translate-x-1/2 bg-white px-2 font-serif text-2xl leading-none text-[color:var(--color-brand)]"
+                      >
+                        &ldquo;
+                      </span>
+                      {it.quote}
+                    </blockquote>
+                    <div className="mt-auto text-xs font-medium text-gray-500">
+                      — {it.person}
+                    </div>
+                  </>
+                ) : (
+                  // An example or a real restaurant we have no statement
+                  // from: a plain factual line, never dressed up as a quote.
+                  <p className="w-full border-t border-gray-100 pt-4 text-sm leading-relaxed text-gray-600">
+                    {it.line}
+                  </p>
+                )}
               </Link>
             </li>
           ))}

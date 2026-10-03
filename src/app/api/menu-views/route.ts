@@ -1,6 +1,7 @@
 import { unstable_cache } from "next/cache";
 import { prisma } from "@/lib/prisma";
 import { DELIVERY_APP_IDS } from "@/lib/delivery-apps";
+import { isReservedSlug } from "@/lib/example-menus";
 
 // Slug → id barely ever changes; caching it halves the DB round trips this
 // endpoint adds per menu visit (it fires on every view and button tap).
@@ -38,6 +39,10 @@ export async function POST(request: Request): Promise<Response> {
   if (typeof kind !== "string" || !ALLOWED_KINDS.has(kind)) {
     return new Response(null, { status: 400 });
   }
+
+  // Example menus have no restaurant row. Their page does not ping, but a
+  // stray request must not cost two database lookups either.
+  if (isReservedSlug(slug)) return new Response(null, { status: 204 });
 
   let restaurantId = await cachedRestaurantId(slug);
   if (!restaurantId) {
