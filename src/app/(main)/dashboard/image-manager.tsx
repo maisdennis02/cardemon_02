@@ -32,6 +32,7 @@ import {
 import { GripIcon, TrashIcon, UploadIcon } from "@/components/icons";
 import { useT } from "@/i18n/provider";
 import { format } from "@/i18n/config";
+import { PRO_IMAGE_LIMIT } from "@/lib/pricing";
 
 type MenuImage = {
   id: string;
@@ -128,7 +129,13 @@ export function ImageManager({
         </p>
       )}
 
-      <UploadDropzone restaurantId={restaurant.id} disabled={atLimit} />
+      <UploadDropzone
+        restaurantId={restaurant.id}
+        disabled={atLimit}
+        slotsLeft={imageLimit - images.length}
+        imageLimit={imageLimit}
+        isPro={isPro}
+      />
 
       {images.length === 0 ? (
         <p className="mt-6 rounded-lg border border-dashed border-gray-200 bg-gray-50 px-4 py-6 text-center text-sm text-gray-500">
@@ -157,9 +164,15 @@ export function ImageManager({
 function UploadDropzone({
   restaurantId,
   disabled = false,
+  slotsLeft,
+  imageLimit,
+  isPro,
 }: {
   restaurantId: string;
   disabled?: boolean;
+  slotsLeft: number;
+  imageLimit: number;
+  isPro: boolean;
 }) {
   const t = useT();
   const inputRef = useRef<HTMLInputElement>(null);
@@ -175,7 +188,12 @@ function UploadDropzone({
     if (!fileList || fileList.length === 0) return;
     setError(null);
 
-    const files = Array.from(fileList);
+    // Upload only what fits. The server rejects a batch that overflows the
+    // limit as a whole, so a free user picking 3+ phone photos used to end
+    // up with zero pages and an upgrade message.
+    const picked = Array.from(fileList);
+    const files = picked.slice(0, Math.max(slotsLeft, 0));
+    if (files.length === 0) return;
     for (const f of files) {
       if (!f.type.startsWith("image/")) {
         setError(format(im.errorNotImage, { name: f.name }));
@@ -204,6 +222,18 @@ function UploadDropzone({
 
       const res = await recordMenuImages({ restaurantId, urls });
       if (res.error) setError(res.error);
+      else if (files.length < picked.length) {
+        setError(
+          isPro
+            ? format(t.dashboard.errors.imageLimitPro, { limit: imageLimit })
+            : format(im.overflowKept, {
+                kept: files.length,
+                picked: picked.length,
+                limit: imageLimit,
+                pro: PRO_IMAGE_LIMIT,
+              }),
+        );
+      }
       if (inputRef.current) inputRef.current.value = "";
     } catch (err) {
       setError(err instanceof Error ? err.message : im.uploadFailed);

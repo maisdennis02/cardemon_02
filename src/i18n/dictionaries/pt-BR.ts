@@ -344,6 +344,7 @@ const ptBR: Dictionary = {
       counter: "{used} / {limit} páginas usadas",
       upgradeCta: "Faça upgrade para adicionar mais",
       limitReachedHint: "O plano gratuito permite {limit} páginas. Faça upgrade para até {pro}.",
+      overflowKept: "Enviamos as primeiras {kept} de {picked} imagens — o plano gratuito permite {limit} páginas. Faça upgrade para até {pro}.",
     },
     errors: {
       invalidInput: "Dados inválidos",

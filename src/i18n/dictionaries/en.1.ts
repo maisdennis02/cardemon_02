@@ -332,6 +332,7 @@ export const en = {
       counter: "{used} / {limit} pages used",
       upgradeCta: "Upgrade to add more",
       limitReachedHint: "Free plan caps at {limit} pages. Upgrade to add up to {pro}.",
+      overflowKept: "Uploaded the first {kept} of {picked} images — the free plan caps at {limit} pages. Upgrade to add up to {pro}.",
     },
     errors: {
       invalidInput: "Invalid input",

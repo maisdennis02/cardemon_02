@@ -345,6 +345,7 @@ const es: Dictionary = {
       counter: "{used} / {limit} páginas usadas",
       upgradeCta: "Mejora tu plan para añadir más",
       limitReachedHint: "El plan gratuito permite {limit} páginas. Mejora para hasta {pro}.",
+      overflowKept: "Subimos las primeras {kept} de {picked} imágenes: el plan gratuito permite {limit} páginas. Mejora para hasta {pro}.",
     },
     errors: {
       invalidInput: "Datos inválidos",
