@@ -31,14 +31,34 @@ export const PUBLIC_PAGES = [
   { path: "/terms", lastModified: "2026-08-27" },
 ] as const;
 
-// Pages that exist but must stay out of the index and out of the sitemap.
-export const PRIVATE_PATHS = [
+// Keeping a page out of Google takes one of two tools, and they do not mix:
+//
+// - `noindex` in the page's own metadata — for pages that OPEN without a
+//   session. The crawler has to be able to fetch the page to read the tag, so
+//   these must NOT be disallowed in robots.txt: a URL that robots.txt blocks
+//   can still be indexed, bare, from links pointing at it, and the noindex
+//   that would have prevented it is never seen.
+// - `Disallow` in robots.txt — for prefixes with no HTML to index at all:
+//   route handlers, and pages that answer an anonymous request with a
+//   redirect to the sign-in screen.
+//
+// robots.test / seo-routes.test fail if a path ends up in both.
+
+// Open without a session, carry `noindex` (see (main)/(auth)/layout.tsx).
+export const NOINDEX_PATHS = [
   "/login",
   "/signup",
   "/forgot-password",
   "/reset-password",
-  "/dashboard",
 ] as const;
+
+// What robots.txt disallows. `/dashboard` is redirected to /login for
+// anonymous visitors by src/proxy.ts; `/api` is route handlers only.
+export const ROBOTS_DISALLOW = ["/dashboard", "/api"] as const;
+
+// Every page that must stay out of the index and out of the sitemap,
+// whichever of the two tools keeps it out.
+export const PRIVATE_PATHS = [...NOINDEX_PATHS, "/dashboard"] as const;
 
 // "noindex, follow": keep the page out of results without hiding its links.
 export const NOINDEX: NonNullable<Metadata["robots"]> = {

@@ -4,7 +4,7 @@ import { fileURLToPath } from "node:url";
 import type { Metadata } from "next";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import type { Locale } from "@/i18n/config";
-import { PRIVATE_PATHS, PUBLIC_PAGES, type MenuRestaurant } from "@/lib/seo";
+import { NOINDEX_PATHS, PRIVATE_PATHS, PUBLIC_PAGES, type MenuRestaurant } from "@/lib/seo";
 
 // Route modules are imported for their metadata only; everything that needs
 // a request, a database or the Next compiler is replaced.
@@ -158,6 +158,18 @@ describe("private pages", () => {
     expect(meta.alternates?.canonical).toBeUndefined();
     // Must not undo the segment's noindex.
     expect(robotsIndex(meta)).not.toBe(true);
+  });
+
+  // NOINDEX_PATHS is the list robots.txt must leave crawlable. It has to be
+  // exactly the pages under the (auth) segment: a page added there without
+  // being listed would be noindex but could later be disallowed unnoticed.
+  it("NOINDEX_PATHS is exactly the pages of the (auth) segment", () => {
+    const authDir = join(APP_DIR, "(main)/(auth)");
+    const authPages = readdirSync(authDir, { withFileTypes: true })
+      .filter((e) => e.isDirectory())
+      .filter((e) => readdirSync(join(authDir, e.name)).includes("page.tsx"))
+      .map((e) => `/${e.name}`);
+    expect(authPages.sort()).toEqual([...NOINDEX_PATHS].sort());
   });
 
   it("every private path sits under a noindex layout", () => {

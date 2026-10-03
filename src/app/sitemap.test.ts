@@ -1,5 +1,12 @@
 import { beforeEach, describe, expect, it, vi } from "vitest";
-import { PRIVATE_PATHS, PUBLIC_PAGES } from "@/lib/seo";
+import { readFileSync } from "node:fs";
+import { fileURLToPath } from "node:url";
+import {
+  NOINDEX_PATHS,
+  PRIVATE_PATHS,
+  PUBLIC_PAGES,
+  ROBOTS_DISALLOW,
+} from "@/lib/seo";
 
 const findMany = vi.hoisted(() => vi.fn());
 vi.mock("@/lib/prisma", () => ({ prisma: { restaurant: { findMany } } }));
@@ -53,11 +60,20 @@ describe("sitemap.xml", () => {
     }
   });
 
-  it("lists no private page and nothing under /api", async () => {
+  it("lists no private page, no noindex page and nothing robots.txt disallows", async () => {
     const paths = (await sitemap()).map((e) => new URL(e.url).pathname);
     for (const path of paths) {
-      expect(path.startsWith("/api")).toBe(false);
-      for (const priv of PRIVATE_PATHS) expect(path.startsWith(priv), path).toBe(false);
+      for (const hidden of [...PRIVATE_PATHS, ...NOINDEX_PATHS, ...ROBOTS_DISALLOW]) {
+        expect(path.startsWith(hidden), `${path} is under ${hidden}`).toBe(false);
+      }
+    }
+  });
+
+  it("lists only the public pages and the menus", async () => {
+    const publicPaths = PUBLIC_PAGES.map((p) => p.path) as string[];
+    for (const entry of await sitemap()) {
+      const path = new URL(entry.url).pathname;
+      expect(publicPaths.includes(path) || /^\/m\/[^/]+$/.test(path), path).toBe(true);
     }
   });
 
@@ -104,23 +120,47 @@ describe("robots.txt", () => {
     return Array.isArray(r) ? r : [r];
   };
   const disallowed = () => rules().flatMap((r) => r.disallow ?? []);
+  // robots.txt rules are path PREFIXES: "/login" blocks /login, /login?x=1
+  // and /login/anything.
+  const blockedBy = (path: string) => disallowed().find((rule) => path.startsWith(rule));
 
   it("points at the sitemap on the canonical host", () => {
     expect(robots().sitemap).toBe(`${BASE}/sitemap.xml`);
   });
 
-  it("blocks the dashboard and the API", () => {
+  it("disallows exactly the declared prefixes", () => {
+    expect(disallowed()).toEqual([...ROBOTS_DISALLOW]);
     expect(disallowed()).toEqual(expect.arrayContaining(["/dashboard", "/api"]));
   });
 
-  it("blocks no public page and no menu", () => {
-    const blocked = disallowed();
-    for (const path of [...PUBLIC_PAGES.map((p) => p.path), "/m/cavalo-marinho", "/sitemap.xml"]) {
-      for (const rule of blocked) {
-        expect(path === rule || path.startsWith(`${rule}/`), `${rule} blocks ${path}`).toBe(false);
-      }
+  // Google cannot read a noindex on a URL robots.txt blocks, and may index
+  // the bare URL from links. Pages that open without a session and carry
+  // noindex must therefore stay crawlable.
+  it.each([...NOINDEX_PATHS])("does not block %s, which relies on its noindex tag", (path) => {
+    expect(blockedBy(path), `${path} is disallowed`).toBeUndefined();
+    expect(blockedBy(`${path}?callbackUrl=%2Fdashboard`)).toBeUndefined();
+  });
+
+  it("keeps the two ways of hiding a page apart", () => {
+    for (const path of NOINDEX_PATHS) expect([...ROBOTS_DISALLOW] as string[]).not.toContain(path);
+  });
+
+  // A Disallow is only right where there is no HTML to index: route handlers
+  // (/api) or a prefix the proxy redirects to the sign-in screen.
+  it("disallows only /api and prefixes the proxy sends to /login", () => {
+    const proxy = readFileSync(fileURLToPath(new URL("../proxy.ts", import.meta.url)), "utf8");
+    for (const prefix of ROBOTS_DISALLOW) {
+      if (prefix === "/api") continue;
+      expect(proxy, prefix).toContain(`pathname.startsWith("${prefix}") && !isLoggedIn`);
+      expect(proxy, prefix).toContain(`"${prefix}/:path*"`);
     }
-    expect(blocked).not.toContain("/");
+  });
+
+  it("blocks no public page and no menu", () => {
+    for (const path of [...PUBLIC_PAGES.map((p) => p.path), "/m/cavalo-marinho", "/sitemap.xml"]) {
+      expect(blockedBy(path), path).toBeUndefined();
+    }
+    expect(disallowed()).not.toContain("/");
   });
 
   it("carries no Host directive", () => {
