@@ -2,9 +2,13 @@ import type { Dictionary } from "./en";
 
 const es: Dictionary = {
   metadata: {
-    rootTitle: "menulala — Menú digital simple en 5 minutos",
-    rootDescription: "Sube la foto de tu menú, comparte el link, el cliente desliza en el móvil. Sin PDF, sin reescribir ítem por ítem, sin app que descargar.",
-    menuDescriptionFallback: "Menú digital de {name}.",
+    rootTitle: "Menú digital con código QR para restaurantes — menulala",
+    rootDescription: "Menú digital en 5 minutos: sube la foto de tu menú, comparte el link o el código QR y el cliente desliza en el móvil. Sin PDF, sin app que descargar.",
+    menuDescriptionFallback: "Menú digital de {name}. Mira todas las páginas del menú directo en el celular: solo abre y desliza, sin descargar app ni PDF.",
+    pricingTitle: "Precios del menú digital: gratis o Pro",
+    pricingDescription: "Menú digital gratis con hasta {free} páginas, código QR y links de delivery. En Pro, por {price}/mes, tienes hasta {pro} páginas y soporte prioritario.",
+    privacyDescription: "Cómo menulala recopila, usa y protege los datos de dueños de restaurantes y de visitantes de los menús, cuáles son tus derechos y cómo contactarnos.",
+    termsDescription: "Las reglas de uso de menulala, el servicio de menú digital para restaurantes: tu cuenta, tu contenido, suscripción y pago, y terminación.",
   },
   common: {
     termsOfService: "Términos de Servicio",

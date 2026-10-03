@@ -1,9 +1,10 @@
 import { notFound } from "next/navigation";
 import { MenuSlideshow } from "./slideshow";
 import { getDictionary } from "@/i18n";
-import { format, localeForCountry } from "@/i18n/config";
+import { OG_LOCALE, localeForCountry } from "@/i18n/config";
 import { absoluteUrl } from "@/lib/site";
 import { jsonLdScript } from "@/lib/json-ld";
+import { NOINDEX, SITE_NAME, menuDescription, restaurantLd } from "@/lib/seo";
 import { getRestaurant } from "./data";
 
 export const revalidate = 60;
@@ -24,8 +25,11 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
   const locale = localeForCountry(r.country);
   const t = await getDictionary(locale);
   const title = `${r.name} — ${t.menu.cardapioDigital}`;
-  const description =
-    r.description ?? format(t.metadata.menuDescriptionFallback, { name: r.name });
+  const description = menuDescription({
+    name: r.name,
+    description: r.description,
+    template: t.metadata.menuDescriptionFallback,
+  });
   const path = `/m/${slug}`;
   const cover = r.images[0]?.url;
 
@@ -33,12 +37,16 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
     title,
     description,
     alternates: { canonical: path },
+    // A menu with no pages yet shows only "being prepared": keep it out of
+    // the index until the owner uploads something.
+    ...(r.images.length === 0 && { robots: NOINDEX }),
     openGraph: {
       type: "website",
       title,
       description,
       url: path,
-      siteName: "menulala",
+      siteName: SITE_NAME,
+      locale: OG_LOCALE[locale],
       images: cover ? [{ url: cover }] : undefined,
     },
     twitter: {
@@ -61,26 +69,13 @@ export default async function PublicMenuPage({
   if (!restaurant) notFound();
 
   const url = absoluteUrl(`/m/${slug}`);
-  const restaurantLd = {
-    "@context": "https://schema.org",
-    "@type": "Restaurant",
-    name: restaurant.name,
-    url,
-    hasMenu: url,
-    ...(restaurant.description && { description: restaurant.description }),
-    ...(restaurant.images[0]?.url && { image: restaurant.images[0].url }),
-    ...(restaurant.country && {
-      address: { "@type": "PostalAddress", addressCountry: restaurant.country },
-    }),
-    ...(restaurant.whatsappNumber && { telephone: `+${restaurant.whatsappNumber}` }),
-    ...(restaurant.instagramUrl && { sameAs: [restaurant.instagramUrl] }),
-  };
+  const ld = restaurantLd(restaurant, url);
 
   return (
     <>
       <script
         type="application/ld+json"
-        dangerouslySetInnerHTML={{ __html: jsonLdScript(restaurantLd) }}
+        dangerouslySetInnerHTML={{ __html: jsonLdScript(ld) }}
       />
       <MenuSlideshow
         slug={slug}

@@ -1,3 +1,4 @@
+import type { Metadata } from "next";
 import Link from "next/link";
 import { auth } from "@/auth";
 import { BrandedQrCode } from "./dashboard/branded-qr";
@@ -30,7 +31,20 @@ import {
 } from "@/lib/pricing";
 import { siteUrl } from "@/lib/site";
 import { jsonLdScript } from "@/lib/json-ld";
+import { pageMetadata, softwareApplicationLd } from "@/lib/seo";
 import "./landing.css";
+
+export async function generateMetadata(): Promise<Metadata> {
+  const locale = await getLocale();
+  const t = await getDictionary(locale);
+  return pageMetadata({
+    locale,
+    title: t.metadata.rootTitle,
+    absoluteTitle: true,
+    description: t.metadata.rootDescription,
+    path: "/",
+  });
+}
 
 export default async function Home() {
   const session = await auth();
@@ -42,9 +56,22 @@ export default async function Home() {
   const deliveryStrip = topAppsForCountry(country, 4);
   const prices = pricesFor(currencyForLocale(locale));
   const priceLabel = `${prices.symbol}${prices.monthly}`;
+  // Same price table the page renders, so the structured data cannot say a
+  // different number than the copy.
+  const productLd = softwareApplicationLd({
+    base: siteUrl(),
+    locale,
+    description: t.metadata.rootDescription,
+    currency: prices.currency,
+    monthly: prices.monthly,
+  });
 
   return (
     <div className="flex min-h-screen flex-col">
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: jsonLdScript(productLd) }}
+      />
       <SiteHeader signedIn={!!session?.user} t={t} />
       <main className="flex flex-col">
         <Hero

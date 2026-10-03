@@ -1,8 +1,16 @@
 export const en = {
+  // Search-facing strings. Titles: the searched term first, brand last,
+  // 60 characters at most INCLUDING the " — menulala" the layout appends to
+  // every page title but rootTitle. Descriptions: 120–160 characters.
+  // seo.test.ts enforces both in every locale.
   metadata: {
-    rootTitle: "menulala — Simple digital menu in 5 minutes",
-    rootDescription: "Upload your menu photo, share a clean link, customers swipe on their phone. No PDF, no rebuilding item by item, no app to download.",
-    menuDescriptionFallback: "Digital menu for {name}.",
+    rootTitle: "Digital menu with QR code for restaurants — menulala",
+    rootDescription: "Digital menu in 5 minutes: upload your menu photo, share the link or QR code, and customers swipe on their phone. No PDF, no app to download.",
+    menuDescriptionFallback: "Digital menu for {name}. See every page of the menu right on your phone: just open and swipe, no app or PDF to download.",
+    pricingTitle: "Digital menu pricing: free or Pro",
+    pricingDescription: "Free digital menu with up to {free} pages, QR code and delivery links. Pro, at {price}/month, gives you up to {pro} pages and priority support.",
+    privacyDescription: "How menulala collects, uses and protects data from restaurant owners and menu visitors, what your rights are, and how to reach us about it.",
+    termsDescription: "The rules for using menulala, the digital menu service for restaurants: your account, your content, subscription and payment, and termination.",
   },
   common: {
     termsOfService: "Terms of Service",

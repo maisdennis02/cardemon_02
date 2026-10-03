@@ -1,10 +1,37 @@
+import type { Metadata } from "next";
 import Link from "next/link";
 import { auth } from "@/auth";
 import { prisma } from "@/lib/prisma";
 import { Logo } from "@/components/logo";
 import { getDictionary, getLocale } from "@/i18n";
-import { currencyForLocale, isPro } from "@/lib/pricing";
+import { format } from "@/i18n/config";
+import {
+  FREE_IMAGE_LIMIT,
+  PRO_IMAGE_LIMIT,
+  currencyForLocale,
+  isPro,
+  pricesFor,
+} from "@/lib/pricing";
+import { pageMetadata } from "@/lib/seo";
 import { PricingPlans } from "./plans";
+
+export async function generateMetadata(): Promise<Metadata> {
+  const locale = await getLocale();
+  const t = await getDictionary(locale);
+  // Limits and price are read from the plan table, not written into the
+  // sentence, so the description cannot advertise a stale price.
+  const prices = pricesFor(currencyForLocale(locale));
+  return pageMetadata({
+    locale,
+    title: t.metadata.pricingTitle,
+    description: format(t.metadata.pricingDescription, {
+      free: FREE_IMAGE_LIMIT,
+      pro: PRO_IMAGE_LIMIT,
+      price: `${prices.symbol}${prices.monthly}`,
+    }),
+    path: "/pricing",
+  });
+}
 
 export default async function PricingPage() {
   const session = await auth();

@@ -2,9 +2,13 @@ import type { Dictionary } from "./en";
 
 const ptBR: Dictionary = {
   metadata: {
-    rootTitle: "menulala — Cardápio digital simples em 5 minutos",
-    rootDescription: "Sobe a foto do seu cardápio, compartilha o link, cliente desliza no celular. Sem PDF, sem reescrever item por item, sem app pra baixar.",
-    menuDescriptionFallback: "Cardápio digital de {name}.",
+    rootTitle: "Cardápio digital com QR Code para restaurantes — menulala",
+    rootDescription: "Cardápio digital em 5 minutos: sobe a foto do seu cardápio, compartilha o link ou o QR Code e o cliente desliza no celular. Sem PDF, sem app pra baixar.",
+    menuDescriptionFallback: "Cardápio digital de {name}. Veja todas as páginas do cardápio direto no celular: é só abrir e deslizar, sem baixar aplicativo nem PDF.",
+    pricingTitle: "Preços do cardápio digital: grátis ou Pro",
+    pricingDescription: "Cardápio digital grátis com até {free} páginas, QR Code e links de delivery. No Pro, por {price}/mês, são até {pro} páginas e suporte prioritário.",
+    privacyDescription: "Como o menulala coleta, usa e protege os dados de donos de restaurante e de visitantes dos cardápios, seus direitos pela LGPD e como falar com a gente.",
+    termsDescription: "As regras de uso do menulala, o serviço de cardápio digital para restaurantes: sua conta, seu conteúdo, assinatura e pagamento, e encerramento.",
   },
   common: {
     termsOfService: "Termos de Uso",

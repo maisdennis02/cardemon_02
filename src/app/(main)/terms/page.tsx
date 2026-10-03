@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { getDictionary, getLocale } from "@/i18n";
 import type { Locale } from "@/i18n";
 import { LegalArticle, type LegalContent } from "@/components/legal-article";
+import { pageMetadata } from "@/lib/seo";
 
 // Terms of service. Same structure decision as /privacy: long-form legal prose
 // lives in the page, not in the i18n dictionaries.
@@ -191,10 +192,12 @@ const CONTENT: Record<Locale, LegalContent> = {
 export async function generateMetadata(): Promise<Metadata> {
   const locale = await getLocale();
   const t = await getDictionary(locale);
-  return {
+  return pageMetadata({
+    locale,
     title: t.common.termsOfService,
-    alternates: { canonical: "/terms" },
-  };
+    description: t.metadata.termsDescription,
+    path: "/terms",
+  });
 }
 
 export default async function TermsPage() {

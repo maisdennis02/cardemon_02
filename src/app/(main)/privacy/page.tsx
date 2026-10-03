@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { getDictionary, getLocale } from "@/i18n";
 import type { Locale } from "@/i18n";
 import { LegalArticle, type LegalContent } from "@/components/legal-article";
+import { pageMetadata } from "@/lib/seo";
 
 // Privacy policy (LGPD-oriented — menulala's market is Brazil-first). Content
 // lives here rather than in the i18n dictionaries: legal text is long-form
@@ -240,10 +241,12 @@ const CONTENT: Record<Locale, LegalContent> = {
 export async function generateMetadata(): Promise<Metadata> {
   const locale = await getLocale();
   const t = await getDictionary(locale);
-  return {
+  return pageMetadata({
+    locale,
     title: t.common.privacyPolicy,
-    alternates: { canonical: "/privacy" },
-  };
+    description: t.metadata.privacyDescription,
+    path: "/privacy",
+  });
 }
 
 export default async function PrivacyPage() {

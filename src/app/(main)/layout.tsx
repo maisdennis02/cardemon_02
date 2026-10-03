@@ -7,6 +7,7 @@ import { DictionaryProvider } from "@/i18n/provider";
 import { LOCALES, OG_LOCALE } from "@/i18n/config";
 import { siteUrl } from "@/lib/site";
 import { jsonLdScript } from "@/lib/json-ld";
+import { OG_IMAGE, SITE_NAME, organizationLd, websiteLd } from "@/lib/seo";
 import { GoogleAdsTag } from "@/components/google-ads-tag";
 import { PostHogInit } from "@/components/posthog-init";
 import { Telemetry } from "@/components/telemetry";
@@ -32,38 +33,32 @@ export async function generateMetadata(): Promise<Metadata> {
   const t = await getDictionary(locale);
   const base = siteUrl();
 
+  // Defaults only. Deliberately NO `alternates.canonical` and NO
+  // `openGraph.url` here: both are inherited by every page that does not set
+  // its own, which made /pricing, /login and /signup declare the home page as
+  // their canonical. Each public page sets them through pageMetadata().
   return {
     metadataBase: new URL(base),
     title: {
       default: t.metadata.rootTitle,
-      template: `%s — menulala`,
+      template: `%s — ${SITE_NAME}`,
     },
     description: t.metadata.rootDescription,
-    applicationName: "menulala",
-    alternates: { canonical: "/" },
+    applicationName: SITE_NAME,
     openGraph: {
       type: "website",
-      siteName: "menulala",
+      siteName: SITE_NAME,
       title: t.metadata.rootTitle,
       description: t.metadata.rootDescription,
-      url: "/",
       locale: OG_LOCALE[locale],
       alternateLocale: LOCALES.filter((l) => l !== locale).map((l) => OG_LOCALE[l]),
-      images: [
-        {
-          url: "/og-image.jpg",
-          width: 1200,
-          height: 630,
-          alt: t.metadata.rootTitle,
-          type: "image/jpeg",
-        },
-      ],
+      images: [{ ...OG_IMAGE, alt: t.metadata.rootTitle }],
     },
     twitter: {
       card: "summary_large_image",
       title: t.metadata.rootTitle,
       description: t.metadata.rootDescription,
-      images: ["/og-image.jpg"],
+      images: [OG_IMAGE.url],
     },
     robots: { index: true, follow: true },
   };
@@ -78,23 +73,8 @@ export default async function RootLayout({
   const dictionary = await getDictionary(locale);
   const base = siteUrl();
 
-  const organizationLd = {
-    "@context": "https://schema.org",
-    "@type": "Organization",
-    name: "menulala",
-    url: base,
-    logo: `${base}/icon.svg`,
-    description: dictionary.metadata.rootDescription,
-  };
-
-  const websiteLd = {
-    "@context": "https://schema.org",
-    "@type": "WebSite",
-    name: "menulala",
-    url: base,
-    inLanguage: locale,
-    description: dictionary.metadata.rootDescription,
-  };
+  const organization = organizationLd(base, dictionary.metadata.rootDescription);
+  const website = websiteLd(base, locale, dictionary.metadata.rootDescription);
 
   return (
     <html
@@ -104,11 +84,11 @@ export default async function RootLayout({
       <body className="min-h-full flex flex-col">
         <script
           type="application/ld+json"
-          dangerouslySetInnerHTML={{ __html: jsonLdScript(organizationLd) }}
+          dangerouslySetInnerHTML={{ __html: jsonLdScript(organization) }}
         />
         <script
           type="application/ld+json"
-          dangerouslySetInnerHTML={{ __html: jsonLdScript(websiteLd) }}
+          dangerouslySetInnerHTML={{ __html: jsonLdScript(website) }}
         />
         <DictionaryProvider locale={locale} dictionary={dictionary}>
           {children}
