@@ -58,7 +58,7 @@ async function main() {
       where: { id: restaurant.id },
       data: { menuMode: "built", menuDraft: parsed.data, menuPublished: parsed.data },
     });
-    console.log(`${slug}: ${countItems(parsed.data)} itens publicados. Aparece em /m/${slug} em até ~60 s.`);
+    console.log(`${slug}: ${countItems(parsed.data)} itens publicados. Aparece em /m/${slug} na primeira visita depois da que dispara a regeneração (passados ~60 s).`);
   } finally {
     await prisma.$disconnect();
   }

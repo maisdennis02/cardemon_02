@@ -5,3 +5,6 @@
   position: static;
   justify-content: center;
 }
+.built-menu-actions:empty {
+  display: none;
+}

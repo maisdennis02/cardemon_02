@@ -49,9 +49,13 @@ export const MenuSchema: z.ZodType<Menu> = z
     }
   });
 
+// Logos are uploaded by the builder to logos/<restaurantId>/ in our Blob store.
+// Anything else is refused: the URL ends up in an <img> on the public page.
+export const LOGO_URL_RE = /^https:\/\/[a-z0-9-]+\.public\.blob\.vercel-storage\.com\/logos\/[a-z0-9]+\//i;
+
 export const MenuThemeSchema: z.ZodType<MenuTheme> = z.object({
-  logoUrl: z.string().url().optional(),
-  color: z.string(),
+  logoUrl: z.string().regex(LOGO_URL_RE).optional(),
+  color: z.string().regex(/^#[0-9a-f]{6}$/i),
   headerStyle: z.enum(["centered", "band"]),
 });
 

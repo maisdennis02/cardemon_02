@@ -5,6 +5,7 @@ import {
   MenuDataError,
   PublishMenuInputSchema,
   MenuSchema,
+  MenuThemeSchema,
   countItems,
   currencyForCountry,
   effectiveMode,
@@ -246,5 +247,49 @@ describe("PublishMenuInputSchema", () => {
 
   it("rejects a restaurant id that is not a cuid", () => {
     expect(ok({ restaurantId: "nope nope", menu: {} })).toBe(false);
+  });
+});
+
+describe("MenuThemeSchema", () => {
+  const blob = "https://abc.public.blob.vercel-storage.com";
+  const theme = (patch: Record<string, unknown>) =>
+    MenuThemeSchema.safeParse({ color: "#a1b2c3", headerStyle: "centered", ...patch }).success;
+
+  it("accepts a logo under our Blob logos/ path", () => {
+    expect(theme({ logoUrl: `${blob}/logos/ckabc123/logo-x.png` })).toBe(true);
+  });
+
+  it("rejects a logo from another host, another scheme or another Blob folder", () => {
+    expect(theme({ logoUrl: "https://evil.com/logos/x/a.png" })).toBe(false);
+    expect(theme({ logoUrl: "javascript:alert(1)" })).toBe(false);
+    expect(theme({ logoUrl: `${blob}/menu-pages/ckabc123/a.png` })).toBe(false);
+  });
+
+  it("takes six-digit hex colors only", () => {
+    expect(theme({ color: "#a1b2c3" })).toBe(true);
+    expect(theme({ color: "red" })).toBe(false);
+    expect(theme({ color: "#fff" })).toBe(false);
+  });
+});
+
+describe("stage A follow-ups", () => {
+  it("puts only the visible items in the JSON-LD", () => {
+    const ld = menuJsonLd(visibleMenu(menuWith([15, 10]), false).menu, "BR");
+    expect(JSON.stringify(ld).match(/"MenuItem"/g)).toHaveLength(20);
+  });
+
+  it("falls back to the default dark tone for a non-hex color", () => {
+    expect(headerColors("red")).toEqual({ accent: "#1f2937", title: "#1f2937" });
+  });
+
+  it("reads a missing theme as the default", () => {
+    expect(readMenuTheme(null)).toEqual(DEFAULT_MENU_THEME);
+  });
+
+  it("does not mutate the menu it cuts", () => {
+    const menu = menuWith([15, 10]);
+    const before = structuredClone(menu);
+    visibleMenu(menu, false);
+    expect(menu).toEqual(before);
   });
 });
