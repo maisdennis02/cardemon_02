@@ -3,18 +3,21 @@ import { MenuSlideshow } from "./slideshow";
 import { BuiltMenu } from "./built-menu";
 import { MenuActions } from "./menu-actions";
 import { getDictionary } from "@/i18n";
-import { format, localeForCountry } from "@/i18n/config";
+import { OG_LOCALE, format, localeForCountry } from "@/i18n/config";
 import { absoluteUrl } from "@/lib/site";
 import { jsonLdScript } from "@/lib/json-ld";
 import { isPro } from "@/lib/pricing";
 import {
   countItems,
   effectiveMode,
+  isPublished,
+  publishedItemCount,
   menuJsonLd,
   readMenuTheme,
   readPublishedMenu,
   visibleMenu,
 } from "@/lib/menu";
+import { NOINDEX, SITE_NAME, menuDescription, restaurantLd } from "@/lib/seo";
 import { getRestaurant } from "./data";
 
 export const revalidate = 60;
@@ -34,9 +37,16 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
 
   const locale = localeForCountry(r.country);
   const t = await getDictionary(locale);
-  const title = `${r.name} — ${t.menu.cardapioDigital}`;
-  const description =
-    r.description ?? format(t.metadata.menuDescriptionFallback, { name: r.name });
+  // An example menu says so in the title and the description, in place of
+  // the copy written for real restaurants.
+  const title = `${r.name} — ${r.example ? t.menu.exampleLabel : t.menu.cardapioDigital}`;
+  const description = r.example
+    ? format(t.metadata.exampleMenuDescription, { name: r.name })
+    : menuDescription({
+        name: r.name,
+        description: r.description,
+        template: t.metadata.menuDescriptionFallback,
+      });
   const path = `/m/${slug}`;
   const cover = r.images[0]?.url;
 
@@ -44,12 +54,22 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
     title,
     description,
     alternates: { canonical: path },
+    // Out of the index: a menu with nothing published yet (it shows only
+    // "being prepared": no photos and no text menu) and the example menus,
+    // which are not restaurants and must never rank as one.
+    ...((r.example ||
+      !isPublished({
+        menuMode: r.menuMode,
+        imageCount: r.images.length,
+        publishedItemCount: publishedItemCount(r.menuPublished),
+      })) && { robots: NOINDEX }),
     openGraph: {
       type: "website",
       title,
       description,
       url: path,
-      siteName: "menulala",
+      siteName: SITE_NAME,
+      locale: OG_LOCALE[locale],
       images: cover ? [{ url: cover }] : undefined,
     },
     twitter: {
@@ -82,21 +102,13 @@ export default async function PublicMenuPage({
   const visible =
     mode === "built" && published ? visibleMenu(published, isPro(restaurant.owner)).menu : null;
 
+  // No Restaurant structured data for an example: it would tell search
+  // engines that a business exists at this URL. A text menu goes in as a
+  // schema.org Menu, with only the items the page shows.
   const url = absoluteUrl(`/m/${slug}`);
-  const restaurantLd = {
-    "@context": "https://schema.org",
-    "@type": "Restaurant",
-    name: restaurant.name,
-    url,
-    hasMenu: visible ? menuJsonLd(visible, restaurant.country) : url,
-    ...(restaurant.description && { description: restaurant.description }),
-    ...(restaurant.images[0]?.url && { image: restaurant.images[0].url }),
-    ...(restaurant.country && {
-      address: { "@type": "PostalAddress", addressCountry: restaurant.country },
-    }),
-    ...(restaurant.whatsappNumber && { telephone: `+${restaurant.whatsappNumber}` }),
-    ...(restaurant.instagramUrl && { sameAs: [restaurant.instagramUrl] }),
-  };
+  const ld = restaurant.example
+    ? null
+    : { ...restaurantLd(restaurant, url), hasMenu: visible ? menuJsonLd(visible, restaurant.country) : url };
 
   const deliveryUrls = {
     ifoodUrl: restaurant.ifoodUrl,
@@ -111,10 +123,12 @@ export default async function PublicMenuPage({
 
   return (
     <>
-      <script
-        type="application/ld+json"
-        dangerouslySetInnerHTML={{ __html: jsonLdScript(restaurantLd) }}
-      />
+      {ld && (
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{ __html: jsonLdScript(ld) }}
+        />
+      )}
       {visible ? (
         <BuiltMenu
           slug={slug}
@@ -137,6 +151,7 @@ export default async function PublicMenuPage({
       ) : (
         <MenuSlideshow
           slug={slug}
+          example={restaurant.example}
           name={restaurant.name}
           whatsappNumber={restaurant.whatsappNumber}
           instagramUrl={restaurant.instagramUrl}

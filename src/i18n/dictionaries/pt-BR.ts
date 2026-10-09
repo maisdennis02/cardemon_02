@@ -2,9 +2,14 @@ import type { Dictionary } from "./en";
 
 const ptBR: Dictionary = {
   metadata: {
-    rootTitle: "menulala — Cardápio digital simples em 5 minutos",
-    rootDescription: "Sobe a foto do seu cardápio, compartilha o link, cliente desliza no celular. Sem PDF, sem reescrever item por item, sem app pra baixar.",
-    menuDescriptionFallback: "Cardápio digital de {name}.",
+    rootTitle: "Cardápio digital com QR Code para restaurantes — menulala",
+    rootDescription: "Cardápio digital em 5 minutos: sobe a foto do seu cardápio, compartilha o link ou o QR Code e o cliente desliza no celular. Sem PDF, sem app pra baixar.",
+    menuDescriptionFallback: "Cardápio digital de {name}. Veja todas as páginas do cardápio direto no celular: é só abrir e deslizar, sem baixar aplicativo nem PDF.",
+    exampleMenuDescription: "{name} é um cardápio de exemplo feito pelo menulala para mostrar como fica um cardápio digital no celular. Não é um restaurante de verdade.",
+    pricingTitle: "Preços do cardápio digital: grátis ou Pro",
+    pricingDescription: "Cardápio digital grátis com até {free} páginas, QR Code e links de delivery. No Pro, por {price}/mês, são até {pro} páginas e suporte prioritário.",
+    privacyDescription: "Como o menulala coleta, usa e protege os dados de donos de restaurante e de visitantes dos cardápios, seus direitos pela LGPD e como falar com a gente.",
+    termsDescription: "As regras de uso do menulala, o serviço de cardápio digital para restaurantes: sua conta, seu conteúdo, assinatura e pagamento, e encerramento.",
   },
   common: {
     termsOfService: "Termos de Uso",
@@ -49,6 +54,7 @@ const ptBR: Dictionary = {
     ctaLead: "Grátis para experimentar. Configure seu cardápio em cinco minutos.",
     footerTagline: "Cardápio digital",
     heroDemoLink: "Ver um cardápio de verdade →",
+    heroDemoSlug: "cavalo-marinho",
     painHeading: "Cansado disso?",
     painLead:
       "Pequenos restaurantes gastam tempo e dinheiro com cardápios impressos que já saem da gráfica desatualizados.",
@@ -87,25 +93,6 @@ const ptBR: Dictionary = {
     audienceNo2: "Você quer POS, controle de estoque, dashboard fiscal, KDS.",
     audienceNo3: "Você quer chatbot IA atendendo cliente no WhatsApp 24h.",
     audienceNo4: "Cadeia com várias unidades, relatórios complexos, integrações pesadas.",
-    testimonialsHeading: "Restaurantes que já usam o menulala",
-    testimonial1Restaurant: "Barraca da Sônia",
-    testimonial1City: "Bertioga / SP",
-    testimonial1Slug: "barraca-da-sonia",
-    testimonial1Quote:
-      "A gente reimprimia o cardápio a cada dois meses. Agora troco a foto pelo celular e tá pronto.",
-    testimonial1Name: "Sônia Ribeiro",
-    testimonial2Restaurant: "Cavalo Marinho",
-    testimonial2City: "Riviera / SP",
-    testimonial2Slug: "cavalo-marinho",
-    testimonial2Quote:
-      "Consigo deixar o cardápio disponível no Google e enviar o link pelo Whatsapp. Muito prático.",
-    testimonial2Name: "Roger Almeida",
-    testimonial3Restaurant: "Art Sabor Sushi",
-    testimonial3City: "Piumhi / MG",
-    testimonial3Slug: "art-sabor-sushi",
-    testimonial3Quote:
-      "Cinco minutos pra configurar. O QR tá nas mesas desde então.",
-    testimonial3Name: "Mylena Tanaka",
     pricingTeaserLine: "Grátis até {free} páginas · Pro a partir de {price} / mês.",
     pricingTeaserCta: "Ver planos →",
     faqHeading: "Perguntas frequentes",
@@ -562,6 +549,8 @@ const ptBR: Dictionary = {
     cardapioDigital: "Cardápio Digital",
     madeBy: "feito por",
     orderOn: "Pedir no {appName}",
+    exampleLabel: "Cardápio de exemplo",
+    exampleNote: "Um cardápio de exemplo feito pelo menulala. Não é um restaurante de verdade.",
   },
 };
 

@@ -21,6 +21,9 @@ type Props = {
   country: string | null;
   deliveryUrls: DeliveryUrls;
   images: string[];
+  // A fictional menu from src/lib/example-menus.ts: labelled as an example
+  // and never counted (there is no restaurant row to count it against).
+  example?: boolean;
 };
 
 export function MenuSlideshow({
@@ -31,6 +34,7 @@ export function MenuSlideshow({
   country,
   deliveryUrls,
   images,
+  example = false,
 }: Props) {
   const t = useT();
   const rootRef = useRef<HTMLDivElement>(null);
@@ -55,7 +59,9 @@ export function MenuSlideshow({
 
   return (
     <div className="menu-root" ref={rootRef}>
-      <MenuViewPing slug={slug} />
+      {/* An example menu is not a restaurant: no view is counted for it. */}
+      {!example && <MenuViewPing slug={slug} />}
+      {example && <div className="example-badge">{t.menu.exampleLabel}</div>}
       <MenuActions
         slug={slug}
         whatsappNumber={whatsappNumber}
@@ -93,8 +99,11 @@ export function MenuSlideshow({
 
         <SwiperSlide>
           <div className="last-slide">
-            <span className="last-label-01">{t.menu.cardapioDigital}</span>
+            <span className="last-label-01">
+              {example ? t.menu.exampleLabel : t.menu.cardapioDigital}
+            </span>
             <span className="last-label-02">{name}</span>
+            {example && <p className="example-note">{t.menu.exampleNote}</p>}
             <div className="menulala-credit">
               <p>{t.menu.madeBy}</p>
               <a

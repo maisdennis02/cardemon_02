@@ -17,7 +17,10 @@ export function regionFromLocale(locale: Locale): MockupRegion {
   return "usa";
 }
 
-function countryFromLocaleFallback(locale: Locale): CountryCode {
+// The country a locale stands for when nothing about the visitor is known:
+// the fallback of detectCountry(), and the only source on the static
+// per-locale pages (/pt-BR, /es), which must not read the request.
+export function countryForLocale(locale: Locale): CountryCode {
   if (locale === "pt-BR") return "BR";
   if (locale === "es") return "MX";
   return "US";
@@ -40,7 +43,7 @@ export async function detectCountry(locale: Locale): Promise<CountryCode> {
   }
   const fromAcceptLang = countryFromAcceptLanguage(h.get("accept-language"));
   if (fromAcceptLang) return fromAcceptLang;
-  return countryFromLocaleFallback(locale);
+  return countryForLocale(locale);
 }
 
 // Stripped of RegExp fields so it can cross the server/client boundary.

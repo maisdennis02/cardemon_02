@@ -1,9 +1,16 @@
+import type { Metadata } from "next";
 import Link from "next/link";
 import { redirect } from "next/navigation";
 import { Logo } from "@/components/logo";
 import { getDictionary, getLocale } from "@/i18n";
 import { lookupPasswordResetToken } from "@/lib/password-reset";
 import { ResetPasswordForm } from "./reset-password-form";
+
+// noindex comes from ../layout.tsx.
+export async function generateMetadata(): Promise<Metadata> {
+  const t = await getDictionary(await getLocale());
+  return { title: t.auth.reset.title };
+}
 
 export default async function ResetPasswordPage({
   searchParams,

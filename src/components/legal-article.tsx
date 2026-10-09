@@ -12,13 +12,20 @@ export type LegalContent = {
   sections: LegalSection[];
 };
 
-export function LegalArticle({ content }: { content: LegalContent }) {
+export function LegalArticle({
+  content,
+  homeHref,
+}: {
+  content: LegalContent;
+  // "/" on the un-prefixed pages, "/pt-BR" or "/es" on the per-locale ones.
+  homeHref: string;
+}) {
   return (
     <div className="flex min-h-screen flex-col bg-white">
       <header className="border-b border-gray-100">
         <div className="mx-auto flex max-w-3xl items-center justify-between px-6 py-4">
-          <Link href="/">
-            <Logo />
+          <Link href={homeHref}>
+            <Logo href={homeHref} />
           </Link>
         </div>
       </header>

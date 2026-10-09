@@ -2,6 +2,7 @@
 
 import { useEffect } from "react";
 import { isAdClick } from "@/lib/acquisition";
+import { isFunnelHref } from "@/lib/funnel-links";
 import { captureAcquisition } from "@/lib/acquisition-store";
 import { capture } from "@/lib/posthog";
 
@@ -40,7 +41,7 @@ export function Telemetry() {
       const el = (e.target as Element | null)?.closest?.("a[href]");
       if (!(el instanceof HTMLAnchorElement)) return;
       const href = el.getAttribute("href") ?? "";
-      if (!/^\/(signup|login|pricing)(\?|#|$)/.test(href)) return;
+      if (!isFunnelHref(href)) return;
       capture("cta_click", {
         href,
         text: (el.textContent ?? "").trim().slice(0, 60),

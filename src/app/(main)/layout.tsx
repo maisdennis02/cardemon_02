@@ -1,73 +1,19 @@
 import type { Metadata } from "next";
-import { Geist, Geist_Mono, Encode_Sans_Expanded } from "next/font/google";
 import "../globals.css";
-import { Analytics } from "@vercel/analytics/next";
 import { getDictionary, getLocale } from "@/i18n";
-import { DictionaryProvider } from "@/i18n/provider";
-import { LOCALES, OG_LOCALE } from "@/i18n/config";
 import { siteUrl } from "@/lib/site";
-import { jsonLdScript } from "@/lib/json-ld";
-import { GoogleAdsTag } from "@/components/google-ads-tag";
-import { PostHogInit } from "@/components/posthog-init";
-import { Telemetry } from "@/components/telemetry";
-import { menuFontVariables } from "../menu-fonts";
+import { rootMetadata } from "@/lib/seo";
+import { SiteDocument } from "@/components/site-document";
 
-const geistSans = Geist({
-  variable: "--font-geist-sans",
-  subsets: ["latin"],
-});
-
-const geistMono = Geist_Mono({
-  variable: "--font-geist-mono",
-  subsets: ["latin"],
-});
-
-const encodeSans = Encode_Sans_Expanded({
-  variable: "--font-encode-sans",
-  subsets: ["latin"],
-  weight: ["400", "700"],
-});
+// Root layout of the un-prefixed URLs: "/", "/pricing", the sign-in screens,
+// the dashboard. The language is negotiated per request (cookie, then
+// Accept-Language), so everything under here is dynamic. The same pages also
+// exist at one static URL per language under (localized)/[locale].
 
 export async function generateMetadata(): Promise<Metadata> {
   const locale = await getLocale();
   const t = await getDictionary(locale);
-  const base = siteUrl();
-
-  return {
-    metadataBase: new URL(base),
-    title: {
-      default: t.metadata.rootTitle,
-      template: `%s — menulala`,
-    },
-    description: t.metadata.rootDescription,
-    applicationName: "menulala",
-    alternates: { canonical: "/" },
-    openGraph: {
-      type: "website",
-      siteName: "menulala",
-      title: t.metadata.rootTitle,
-      description: t.metadata.rootDescription,
-      url: "/",
-      locale: OG_LOCALE[locale],
-      alternateLocale: LOCALES.filter((l) => l !== locale).map((l) => OG_LOCALE[l]),
-      images: [
-        {
-          url: "/og-image.jpg",
-          width: 1200,
-          height: 630,
-          alt: t.metadata.rootTitle,
-          type: "image/jpeg",
-        },
-      ],
-    },
-    twitter: {
-      card: "summary_large_image",
-      title: t.metadata.rootTitle,
-      description: t.metadata.rootDescription,
-      images: ["/og-image.jpg"],
-    },
-    robots: { index: true, follow: true },
-  };
+  return rootMetadata({ base: siteUrl(), locale, t });
 }
 
 export default async function RootLayout({
@@ -77,62 +23,12 @@ export default async function RootLayout({
 }>) {
   const locale = await getLocale();
   const dictionary = await getDictionary(locale);
-  const base = siteUrl();
 
-  const organizationLd = {
-    "@context": "https://schema.org",
-    "@type": "Organization",
-    name: "menulala",
-    url: base,
-    logo: `${base}/icon.svg`,
-    description: dictionary.metadata.rootDescription,
-  };
-
-  const websiteLd = {
-    "@context": "https://schema.org",
-    "@type": "WebSite",
-    name: "menulala",
-    url: base,
-    inLanguage: locale,
-    description: dictionary.metadata.rootDescription,
-  };
-
+  // pathPrefix "": links on these pages stay un-prefixed, as they always
+  // were, even when the page renders Portuguese or Spanish.
   return (
-    <html
-      lang={locale}
-      className={`${geistSans.variable} ${geistMono.variable} ${encodeSans.variable} ${menuFontVariables} h-full antialiased`}
-    >
-      <body className="min-h-full flex flex-col">
-        <script
-          type="application/ld+json"
-          dangerouslySetInnerHTML={{ __html: jsonLdScript(organizationLd) }}
-        />
-        <script
-          type="application/ld+json"
-          dangerouslySetInnerHTML={{ __html: jsonLdScript(websiteLd) }}
-        />
-        <DictionaryProvider locale={locale} dictionary={dictionary}>
-          {children}
-        </DictionaryProvider>
-        <footer className="border-t border-gray-100 bg-white">
-          <div className="mx-auto flex max-w-4xl flex-wrap items-center justify-center gap-x-4 gap-y-1 px-6 py-4 text-xs text-gray-500">
-            <span>© {new Date().getFullYear()} menulala</span>
-            <a href="/terms" className="hover:underline">
-              {dictionary.common.termsOfService}
-            </a>
-            <a href="/privacy" className="hover:underline">
-              {dictionary.common.privacyPolicy}
-            </a>
-          </div>
-        </footer>
-        <Analytics />
-        {/* Ad funnel instrumentation. Deliberately absent from the
-            public-menu layout (src/app/m/[slug]/layout.tsx), which must
-            stay ISR and survive the database being down. */}
-        <GoogleAdsTag />
-        <Telemetry />
-        <PostHogInit />
-      </body>
-    </html>
+    <SiteDocument locale={locale} dictionary={dictionary} pathPrefix="">
+      {children}
+    </SiteDocument>
   );
 }

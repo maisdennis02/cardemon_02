@@ -1,0 +1,150 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Maple Street Diner — example menu</title>
+<link href="https://fonts.googleapis.com/css2?family=Pacifico&family=Bebas+Neue&family=Karla:ital,wght@0,400;0,700;1,400&display=block" rel="stylesheet">
+<style>
+  :root { --cream:#fdf3dc; --red:#c8321f; --teal:#1f6f6b; --ink:#2b2118; --mustard:#e9a82b; }
+  * { box-sizing:border-box; margin:0; padding:0; }
+  body { width:720px; background:var(--cream); color:var(--ink); font-family:Karla, "Trebuchet MS", sans-serif; }
+  .page { width:720px; height:1418px; position:relative; overflow:hidden; background:var(--cream); }
+  .checker { height:44px; background:
+      conic-gradient(var(--red) 25%, var(--cream) 0 50%, var(--red) 0 75%, var(--cream) 0) 0 0/44px 44px; }
+  .checker.bottom { position:absolute; left:0; right:0; bottom:0; }
+  .script { font-family:Pacifico, "Brush Script MT", cursive; }
+  .caps { font-family:"Bebas Neue", Impact, sans-serif; letter-spacing:.06em; }
+
+  /* cover */
+  .cover { text-align:center; }
+  .cover .since { margin-top:150px; font-size:30px; color:var(--teal); }
+  .cover h1 { font-weight:400; line-height:1; margin-top:26px; color:var(--red); }
+  .cover h1 .a { display:block; font-size:98px; }
+  .cover h1 .b { display:block; font-size:150px; margin-top:4px; color:var(--teal); }
+  .sign { margin:44px auto 0; width:520px; padding:22px 0; border:6px solid var(--ink); border-radius:18px;
+          background:var(--mustard); font-size:58px; box-shadow:10px 10px 0 var(--ink); transform:rotate(-2deg); }
+  .mug { margin:44px auto 0; width:280px; height:280px; }
+  .cover .three { margin-top:30px; font-size:46px; color:var(--ink); }
+  .cover .three span { color:var(--red); padding:0 10px; }
+  .cover .hours { margin:30px auto 0; width:560px; border-top:3px dashed var(--teal); border-bottom:3px dashed var(--teal);
+                  padding:20px 0; font-size:29px; line-height:1.45; }
+  .cover .hours b { color:var(--teal); }
+
+  /* menu pages */
+  .inner { padding:54px 52px 0; }
+  h2 { font-weight:400; font-size:82px; line-height:1; color:var(--red); text-align:center; }
+  h2 small { display:block; font-family:Karla, sans-serif; font-size:25px; font-style:italic; color:var(--teal); margin-top:26px; }
+  .rule { height:6px; margin:22px 0 26px; background:
+      repeating-linear-gradient(90deg, var(--teal) 0 18px, transparent 18px 28px); }
+  .item { display:flex; align-items:baseline; gap:10px; margin-top:22px; }
+  .item .n { font-family:"Bebas Neue", Impact, sans-serif; font-size:40px; letter-spacing:.03em; white-space:nowrap; }
+  .item .dots { flex:1; border-bottom:4px dotted #b9a47f; transform:translateY(-8px); }
+  .item .p { font-family:"Bebas Neue", Impact, sans-serif; font-size:40px; color:var(--red); }
+  .d { font-size:26px; line-height:1.3; color:#5c4a38; margin-top:2px; max-width:540px; }
+  .box { margin-top:30px; background:var(--teal); color:var(--cream); border-radius:16px; padding:24px 30px; }
+  .box h3 { font-family:"Bebas Neue", Impact, sans-serif; font-weight:400; font-size:44px; letter-spacing:.06em; color:var(--mustard); }
+  .box .row { display:flex; justify-content:space-between; font-size:29px; margin-top:8px; }
+  .foot { position:absolute; left:0; right:0; bottom:66px; text-align:center; font-size:25px; color:var(--teal); font-style:italic; }
+  .two { display:grid; grid-template-columns:1fr 1fr; gap:0 34px; }
+  .two .item .n, .two .item .p { font-size:34px; }
+</style>
+</head>
+<body>
+
+<!-- page 1 — cover -->
+<section class="page cover">
+  <div class="checker"></div>
+  <p class="since caps">Corner of Maple &amp; 3rd · Est. 1987</p>
+  <h1 class="script"><span class="a">Maple Street</span><span class="b">Diner</span></h1>
+  <div class="sign caps">Breakfast all day</div>
+  <svg class="mug" viewBox="0 0 300 300" fill="none" stroke="#2b2118" stroke-width="9" stroke-linecap="round" stroke-linejoin="round">
+    <path d="M70 120h130v95a45 45 0 0 1-45 45h-40a45 45 0 0 1-45-45z" fill="#fff"/>
+    <path d="M200 140h22a30 30 0 0 1 0 60h-22"/>
+    <path d="M70 150h130" stroke="#c8321f"/>
+    <path d="M105 95c-14-18 14-26 0-46M140 95c-14-18 14-26 0-46M175 95c-14-18 14-26 0-46" stroke="#1f6f6b"/>
+    <path d="M40 272h200"/>
+  </svg>
+  <p class="three caps">Griddle<span>★</span>Burgers<span>★</span>Homemade pie</p>
+  <div class="hours">
+    <b>Open every day</b> · 6 am – 10 pm<br>
+    Coffee refills are on the house.
+  </div>
+  <div class="checker bottom"></div>
+</section>
+
+<!-- page 2 — breakfast -->
+<section class="page">
+  <div class="checker"></div>
+  <div class="inner">
+    <h2 class="script">Breakfast<small>eggs any style · toast or biscuit on the side</small></h2>
+    <div class="rule"></div>
+
+    <div class="item"><span class="n">The Maple Street Special</span><span class="dots"></span><span class="p">$13.50</span></div>
+    <p class="d">Two eggs, bacon or sausage, hash browns and two buttermilk pancakes.</p>
+
+    <div class="item"><span class="n">Two Eggs &amp; Hash Browns</span><span class="dots"></span><span class="p">$8.75</span></div>
+    <p class="d">With toast or a warm biscuit and jam.</p>
+
+    <div class="item"><span class="n">Country Skillet</span><span class="dots"></span><span class="p">$12.95</span></div>
+    <p class="d">Potatoes, peppers, onions, sausage and cheddar, topped with two eggs.</p>
+
+    <div class="item"><span class="n">Buttermilk Pancakes (3)</span><span class="dots"></span><span class="p">$9.50</span></div>
+    <p class="d">Butter and warm maple syrup. Add blueberries or chocolate chips +$1.50.</p>
+
+    <div class="item"><span class="n">Veggie Omelet</span><span class="dots"></span><span class="p">$11.50</span></div>
+    <p class="d">Spinach, mushrooms, tomato and Swiss. Hash browns and toast.</p>
+
+    <div class="item"><span class="n">Biscuits &amp; Sausage Gravy</span><span class="dots"></span><span class="p">$8.95</span></div>
+    <p class="d">Two split biscuits, plenty of gravy.</p>
+
+    <div class="box">
+      <h3>On the side</h3>
+      <div class="row"><span>Bacon or sausage links</span><span>$4.25</span></div>
+      <div class="row"><span>Hash browns</span><span>$3.50</span></div>
+      <div class="row"><span>One pancake</span><span>$3.25</span></div>
+      <div class="row"><span>Bottomless coffee</span><span>$2.95</span></div>
+    </div>
+  </div>
+  <div class="checker bottom"></div>
+</section>
+
+<!-- page 3 — burgers, pie, drinks -->
+<section class="page">
+  <div class="checker"></div>
+  <div class="inner">
+    <h2 class="script">Burgers<small>half-pound patties, hand-cut fries included</small></h2>
+    <div class="rule"></div>
+
+    <div class="item"><span class="n">Classic Cheeseburger</span><span class="dots"></span><span class="p">$13.25</span></div>
+    <p class="d">American cheese, lettuce, tomato, onion, pickles.</p>
+
+    <div class="item"><span class="n">Patty Melt</span><span class="dots"></span><span class="p">$13.95</span></div>
+    <p class="d">Griddled rye, Swiss and a pile of caramelized onions.</p>
+
+    <div class="item"><span class="n">Bacon &amp; Egg Burger</span><span class="dots"></span><span class="p">$15.50</span></div>
+    <p class="d">Cheddar, crispy bacon and a fried egg on top.</p>
+
+    <div class="item"><span class="n">Black Bean Burger</span><span class="dots"></span><span class="p">$12.75</span></div>
+    <p class="d">House-made patty, avocado, chipotle mayo.</p>
+
+    <div class="item"><span class="n">Turkey Club</span><span class="dots"></span><span class="p">$12.50</span></div>
+    <p class="d">Triple-decker with bacon, lettuce and tomato.</p>
+
+    <h2 class="script" style="margin-top:40px; font-size:70px;">Pie &amp; Shakes</h2>
+    <div class="rule"></div>
+    <div class="two">
+      <div class="item"><span class="n">Apple pie</span><span class="dots"></span><span class="p">$6.50</span></div>
+      <div class="item"><span class="n">Milkshake</span><span class="dots"></span><span class="p">$6.95</span></div>
+      <div class="item"><span class="n">Cherry pie</span><span class="dots"></span><span class="p">$6.50</span></div>
+      <div class="item"><span class="n">Root beer float</span><span class="dots"></span><span class="p">$5.75</span></div>
+      <div class="item"><span class="n">Pecan pie</span><span class="dots"></span><span class="p">$6.95</span></div>
+      <div class="item"><span class="n">Fresh lemonade</span><span class="dots"></span><span class="p">$3.75</span></div>
+    </div>
+    <p class="d" style="margin-top:18px; max-width:none;">Pie baked here every morning. À la mode +$2. Shakes: vanilla, chocolate or strawberry.</p>
+  </div>
+  <p class="foot">Thanks for stopping by — see you tomorrow morning!</p>
+  <div class="checker bottom"></div>
+</section>
+
+</body>
+</html>
