@@ -35,20 +35,25 @@ A **404** means that Chrome is not signed in as an admin — ask, don't guess.
 What matters, in order:
 
 - `totals` — `signups`, `adSignups`, `onboarded`, `published`, `viewed`,
+  `ordered` (accounts with at least one order sent), `orders` (orders sent),
   `paying` for the window, plus `payingNow` (Pro accounts across the whole
-  product, not just this window).
+  product, not just this window). `published` counts photo menus **and** text
+  menus (since 10/10/2026; before that it counted photos only).
 - `sources[]` — the attributed truth, one row per origin:
-  `{source, signups, onboarded, published, viewed, paying}`. `source:
+  `{source, signups, onboarded, published, viewed, ordered, paying}`. `source:
   "google-ads"` is the only row the budget is judged on.
 - `daily[]` — per-UTC-day `signups / adSignups / published`.
 - `accounts[]` — one row per account created in the window, newest first, with
   a masked e-mail, `source`, `ad`, `gclid`, `campaign`, `landing`, the menu
-  `slug`, `images`, `views` and a `status`:
+  `slug`, `mode` (`photos`, `built` = text menu, or `null` = nothing
+  published), `images`, `items` (on the text menu), `views` (menu opened —
+  clicks are not counted), `orders` (orders sent to WhatsApp — intent: the
+  diner still taps send) and a `status`:
 
   | status | means | the question it raises |
   |---|---|---|
   | `no_restaurant` | signed up, never opened the onboarding | is the dashboard's first screen clear? |
-  | `no_images` | restaurant created, no menu uploaded | did the upload fail, or was the photo not to hand? |
+  | `no_menu` | restaurant created, nothing published (no photos, no text menu) | did they open the builder (`builder_step` in PostHog) and stop? at which step? |
   | `live` | menu published, nobody has opened it — not even the owner | they never shared the QR |
   | `viewed` | menu published and opened | the product worked |
   | `paying` | Pro | — |
@@ -187,7 +192,7 @@ banners and the cursor are all visible, and that is where the answers are.
   session, from a datacentre city, is not a person.
 - **`status: "live"` is not failure** — it is a menu nobody has been shown yet.
   The dashboard already nudges those owners; the ads read should count them
-  separately from `no_images`, which *is* a product failure.
+  separately from `no_menu`, which *is* a product failure.
 - **`adSignups` can be lower than the Ads conversion count** and that is
   correct: attribution is only written for accounts created within a day of the
   click, in the same browser that stored the parameters.
