@@ -36,7 +36,7 @@ export function BuiltMenu({
 
   return (
     <div
-      className={`flex flex-col bg-white text-gray-900 ${preview ? "min-h-0" : "min-h-dvh"}`}
+      className={`flex flex-col bg-white text-gray-900 ${preview ? "min-h-0" : "min-h-dvh"} ${ordering ? "pb-24" : ""}`}
       style={{ fontFamily: fonts.body }}
     >
       {!preview && <MenuViewPing slug={slug} />}

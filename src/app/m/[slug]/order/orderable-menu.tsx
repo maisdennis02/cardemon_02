@@ -5,6 +5,7 @@ import { useT } from "@/i18n/provider";
 import { format } from "@/i18n/config";
 import { formatPrice, type Menu } from "@/lib/menu";
 import { addToCart, cartTotals, emptyCart, readCart, resolveCart, setQty, type Cart } from "@/lib/cart";
+import type { OrderDetails } from "@/lib/order";
 import { readCartRaw, subscribeCart, writeCartRaw } from "./cart-store";
 import { OrderSheet } from "./order-sheet";
 
@@ -37,6 +38,10 @@ export function OrderableMenu({
   const lines = resolveCart(cart, menu);
   const totals = cartTotals(lines);
   const [sheetOpen, setSheetOpen] = useState(false);
+  // Kept here, not in the sheet, so closing it to add one more item doesn't
+  // wipe the name and address the diner already typed.
+  const [details, setDetails] = useState<OrderDetails>({ name: "", mode: null, address: "", table: "", notes: "" });
+  const [tried, setTried] = useState(false);
 
   const save = (next: Cart) => writeCartRaw(key, JSON.stringify(next));
   const qtyOf = (id: string) => cart.lines.find((l) => l.id === id)?.qty ?? 0;
@@ -49,7 +54,7 @@ export function OrderableMenu({
 
   return (
     <>
-      <main className={`flex-1 px-6 pt-4 ${totals.count > 0 ? "pb-28" : "pb-10"}`}>
+      <main className="flex-1 px-6 pb-10 pt-4">
         {menu.sections.map((section) => (
           <section key={section.id} className="mt-6 first:mt-2">
             {section.title && (
@@ -121,6 +126,10 @@ export function OrderableMenu({
           whatsappNumber={whatsappNumber}
           lines={lines}
           totalText={totalText}
+          details={details}
+          setDetails={setDetails}
+          tried={tried}
+          setTried={setTried}
           accent={accent}
           onQty={(id, n) => save(setQty(cart, id, n, Date.now()))}
           onClear={() => save(emptyCart(Date.now()))}

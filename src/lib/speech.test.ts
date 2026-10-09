@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { appendTranscript, speechLang } from "@/lib/speech";
+import { appendTranscript, isFatalSpeechError, joinResults, speechLang } from "@/lib/speech";
 
 describe("speechLang", () => {
   it("maps the app's locales to recognizer languages", () => {
@@ -21,5 +21,25 @@ describe("appendTranscript", () => {
 
   it("leaves the field alone when nothing was heard", () => {
     expect(appendTranscript("Ana", "  ")).toBe("Ana");
+  });
+});
+
+describe("isFatalSpeechError", () => {
+  it("gives up only when the microphone cannot be used at all", () => {
+    for (const code of ["not-allowed", "service-not-allowed", "audio-capture", "language-not-supported"]) {
+      expect(isFatalSpeechError(code)).toBe(true);
+    }
+  });
+
+  it("keeps the mic for silence, a quick release or a network blip", () => {
+    for (const code of ["no-speech", "aborted", "network", "whatever-new"]) {
+      expect(isFatalSpeechError(code)).toBe(false);
+    }
+  });
+});
+
+describe("joinResults", () => {
+  it("joins recognizer results with single spaces", () => {
+    expect(joinResults(["Rua A", " 123", "  ap 4 "])).toBe("Rua A 123 ap 4");
   });
 });

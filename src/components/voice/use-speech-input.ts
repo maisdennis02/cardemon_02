@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useRef, useState, useSyncExternalStore } from "react";
+import { isFatalSpeechError, joinResults } from "@/lib/speech";
 
 // The browser's own speech recognition (Safari and Chrome; not Firefox, nor
 // some in-app browsers). No service, no cost. Typed locally: TypeScript's DOM
@@ -13,7 +14,7 @@ type Recognition = {
   stop(): void;
   abort(): void;
   onresult: ((e: { results: ArrayLike<ArrayLike<{ transcript: string }>> }) => void) | null;
-  onerror: (() => void) | null;
+  onerror: ((e: { error: string }) => void) | null;
   onend: (() => void) | null;
 };
 
@@ -43,16 +44,27 @@ export function useSpeechInput({ lang, onText }: { lang: string; onText: (text: 
 
   function start() {
     const Recognizer = recognitionClass();
-    if (!Recognizer || recognition.current) return;
+    if (!Recognizer) return;
+    // Pressed again before the last attempt finished winding down: drop it
+    // and listen afresh rather than ignoring the press.
+    if (recognition.current) {
+      const previous = recognition.current;
+      previous.onend = null;
+      previous.onresult = null;
+      previous.abort();
+      recognition.current = null;
+    }
     const r = new Recognizer();
     r.lang = lang;
     r.interimResults = true;
     r.continuous = true;
     r.onresult = (e) => {
-      const heard = Array.from(e.results, (result) => result[0]?.transcript ?? "").join(" ");
+      const heard = joinResults(Array.from(e.results, (result) => result[0]?.transcript ?? ""));
       onTextRef.current(heard);
     };
-    r.onerror = () => setFailed(true);
+    r.onerror = (e) => {
+      if (isFatalSpeechError(e.error)) setFailed(true);
+    };
     r.onend = () => {
       recognition.current = null;
       setListening(false);

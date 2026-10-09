@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useRef, useState, type Dispatch, type SetStateAction } from "react";
 import { useLocale, useT } from "@/i18n/provider";
 import { formatPrice, type MenuItem } from "@/lib/menu";
 import { buildOrderMessage, orderErrors, whatsappOrderUrl, type OrderDetails } from "@/lib/order";
@@ -18,6 +18,10 @@ export function OrderSheet({
   whatsappNumber,
   lines,
   totalText,
+  details,
+  setDetails,
+  tried,
+  setTried,
   accent,
   onQty,
   onClear,
@@ -29,6 +33,10 @@ export function OrderSheet({
   whatsappNumber: string;
   lines: { item: MenuItem; qty: number }[];
   totalText: string;
+  details: OrderDetails;
+  setDetails: Dispatch<SetStateAction<OrderDetails>>;
+  tried: boolean;
+  setTried: (tried: boolean) => void;
   accent: string;
   onQty: (id: string, qty: number) => void;
   onClear: () => void;
@@ -37,15 +45,27 @@ export function OrderSheet({
   const t = useT();
   const o = t.menu.order;
   const lang = speechLang(useLocale());
-  const [details, setDetails] = useState<OrderDetails>({ name: "", mode: null, address: "", table: "", notes: "" });
-  const [tried, setTried] = useState(false);
   const [sent, setSent] = useState(false);
+  const dialog = useRef<HTMLDialogElement>(null);
+
+  // A native modal dialog: focus moves in, Escape closes, the menu behind is
+  // inert. The page itself is held still, or iOS scrolls it under the sheet.
+  useEffect(() => {
+    const d = dialog.current;
+    if (d && !d.open) d.showModal();
+    const overflow = document.body.style.overflow;
+    document.body.style.overflow = "hidden";
+    return () => {
+      document.body.style.overflow = overflow;
+      if (d?.open) d.close();
+    };
+  }, []);
   const errors = tried ? orderErrors(details) : {};
   const set = (patch: Partial<OrderDetails>) => setDetails((d) => ({ ...d, ...patch }));
 
   function send() {
     setTried(true);
-    if (Object.keys(orderErrors(details)).length > 0 || lines.length === 0) return;
+    if (sent || Object.keys(orderErrors(details)).length > 0 || lines.length === 0) return;
     const text = buildOrderMessage({
       restaurantName,
       slug,
@@ -71,7 +91,15 @@ export function OrderSheet({
   }
 
   return (
-    <div className="fixed inset-0 z-50 overflow-y-auto bg-white" role="dialog" aria-modal="true" aria-labelledby="order-title">
+    <dialog
+      ref={dialog}
+      aria-labelledby="order-title"
+      onCancel={(e) => {
+        e.preventDefault();
+        onClose();
+      }}
+      className="m-0 h-dvh max-h-none w-full max-w-none overflow-y-auto bg-white p-0 text-gray-900 backdrop:bg-black/40"
+    >
       <div className="mx-auto flex min-h-full w-full max-w-lg flex-col px-6 pb-[max(1.5rem,env(safe-area-inset-bottom))] pt-6">
         <div className="mb-4 flex items-center justify-between">
           <h2 id="order-title" className="text-2xl font-bold">
@@ -201,7 +229,7 @@ export function OrderSheet({
           </>
         )}
       </div>
-    </div>
+    </dialog>
   );
 }
 
