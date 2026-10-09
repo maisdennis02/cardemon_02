@@ -11,6 +11,7 @@ import { parseItemLine } from "@/lib/menu-parse";
 import {
   addItem,
   addSection,
+  newId,
   moveItem,
   moveItemToSection,
   moveSection,
@@ -42,6 +43,10 @@ export function StepItems({
   const [editingId, setEditingId] = useState<string | null>(null);
   const [newSection, setNewSection] = useState<string | null>(null);
   const [pasting, setPasting] = useState(false);
+  // The section whose add field should take the focus when it mounts: the
+  // first item and a new section both swap in a field that wasn't there, and
+  // dictating item after item must not need a tap on the screen.
+  const [focusSectionId, setFocusSectionId] = useState<string | null>(null);
 
   const total = countItems(menu);
   const { menu: shown, hidden } = visibleMenu(menu, isPro);
@@ -51,7 +56,11 @@ export function StepItems({
 
   function createSection(title: string) {
     const clean = title.trim().slice(0, 60);
-    if (clean) setMenu(addSection(menu, clean));
+    if (clean) {
+      const id = newId();
+      setMenu(addSection(menu, clean, id));
+      setFocusSectionId(id);
+    }
     setNewSection(null);
   }
 
@@ -87,7 +96,13 @@ export function StepItems({
 
       {menu.sections.length === 0 && (
         <section className="card p-5">
-          <AddItemField onAdd={(item) => setMenu(addItem(menu, null, item))} />
+          <AddItemField
+            onAdd={(item) => {
+              const next = addItem(menu, null, item);
+              setMenu(next);
+              setFocusSectionId(next.sections[0]?.id ?? null);
+            }}
+          />
           <p className="mt-3 text-sm text-gray-500">{it.empty}</p>
         </section>
       )}
@@ -98,6 +113,7 @@ export function StepItems({
           section={section}
           first={index === 0}
           last={index === menu.sections.length - 1}
+          focusAdd={focusSectionId === section.id}
           country={country}
           visibleIds={visibleIds}
           editingId={editingId}
@@ -168,6 +184,7 @@ function SectionBlock({
   section,
   first,
   last,
+  focusAdd,
   country,
   visibleIds,
   editingId,
@@ -185,6 +202,7 @@ function SectionBlock({
   section: MenuSection;
   first: boolean;
   last: boolean;
+  focusAdd: boolean;
   country: string;
   visibleIds: Set<string>;
   editingId: string | null;
@@ -272,14 +290,20 @@ function SectionBlock({
         </ul>
       )}
 
-      <AddItemField onAdd={onAdd} />
+      <AddItemField onAdd={onAdd} autoFocus={focusAdd} />
     </section>
   );
 }
 
 // Enter adds the item and keeps the focus here, so dictating one item after
 // another never needs a tap on the screen.
-function AddItemField({ onAdd }: { onAdd: (item: { name: string; priceCents: number | null }) => void }) {
+function AddItemField({
+  onAdd,
+  autoFocus = false,
+}: {
+  onAdd: (item: { name: string; priceCents: number | null }) => void;
+  autoFocus?: boolean;
+}) {
   const t = useT();
   const it = t.dashboard.builder.items;
   const [line, setLine] = useState("");
@@ -300,6 +324,7 @@ function AddItemField({ onAdd }: { onAdd: (item: { name: string; priceCents: num
         <input
           className="input"
           enterKeyHint="done"
+          autoFocus={autoFocus}
           autoComplete="off"
           placeholder={it.addPlaceholder}
           aria-label={it.addPlaceholder}
