@@ -53,7 +53,7 @@ describe("buildOrderMessage", () => {
     expect(text).toBe(
       nb(
         [
-          "🛎️ *Pedido — Lanchonete Teste*",
+          "🛎️🛎️🛎️ *Pedido — Lanchonete Teste*",
           "",
           "2x X-Burguer — R$ 51,80",
           "1x Coca — R$ 7,90",
@@ -62,6 +62,7 @@ describe("buildOrderMessage", () => {
           "",
           "Nome: Ana",
           "Entrega: Rua das Flores, 123",
+          "",
           "Obs.: sem cebola",
           "",
           "Podem confirmar meu pedido? 🙏",

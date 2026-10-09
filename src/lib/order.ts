@@ -73,7 +73,7 @@ export function buildOrderMessage({
   return [
     // The emoji makes the order stand out in the restaurant's chat list,
     // which previews the first line.
-    `🛎️ *${format(labels.title, { name: restaurantName })}*`,
+    `🛎️🛎️🛎️ *${format(labels.title, { name: restaurantName })}*`,
     "",
     ...lines.map(({ item, qty }) =>
       `${qty}x ${item.name} — ${item.priceCents === null ? labels.toArrange : formatPrice(item.priceCents * qty, country)}`,
@@ -83,7 +83,8 @@ export function buildOrderMessage({
     "",
     `${labels.name}: ${details.name.trim()}`,
     where,
-    ...(notes ? [`${labels.notes}: ${notes}`] : []),
+    // A blank line keeps the notes from reading as part of the address.
+    ...(notes ? ["", `${labels.notes}: ${notes}`] : []),
     "",
     // Asks the restaurant to answer, so the diner knows the order was seen.
     labels.confirm,
