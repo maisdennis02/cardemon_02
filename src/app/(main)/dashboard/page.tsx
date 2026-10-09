@@ -16,6 +16,7 @@ import { DeleteAccountCard } from "./delete-account-card";
 import { getDictionary, getLocale } from "@/i18n";
 import type { Dictionary } from "@/i18n";
 import { imageLimitFor, isPro } from "@/lib/pricing";
+import { isPublished, publishedItemCount } from "@/lib/menu";
 import { DashboardTelemetry } from "./dashboard-telemetry";
 import { SignOutButton } from "./sign-out-button";
 
@@ -60,6 +61,16 @@ export default async function DashboardPage({
     !restaurant.pedidosyaUrl &&
     !restaurant.didifoodUrl;
 
+  // Photos or a published text menu both count. publishedItemCount never
+  // throws, so a corrupt menu can't take the dashboard down.
+  const hasMenu =
+    !!restaurant &&
+    isPublished({
+      menuMode: restaurant.menuMode,
+      imageCount: restaurant.images.length,
+      publishedItemCount: publishedItemCount(restaurant.menuPublished),
+    });
+
   const userIsPro = isPro(user);
   const imageLimit = imageLimitFor(user);
 
@@ -70,7 +81,7 @@ export default async function DashboardPage({
           ad conversions fire from one place. */}
       <DashboardTelemetry
         email={session.user.email ?? null}
-        hasMenu={(restaurant?.images.length ?? 0) > 0}
+        hasMenu={hasMenu}
         isPro={userIsPro}
       />
       <DashboardHeader
@@ -87,7 +98,7 @@ export default async function DashboardPage({
           <div className="flex flex-col gap-6">
             {/* A menu nobody has opened yet — including its owner — is the one
                 moment worth interrupting for; it outranks the delivery nudge. */}
-            {restaurant.images.length > 0 && stats.totalViews === 0 && !initialEdit && (
+            {hasMenu && stats.totalViews === 0 && !initialEdit && (
               <MenuLiveCallout slug={restaurant.slug} t={t} />
             )}
             {needsDeliverySetup && !initialEdit && <DeliverySetupCallout t={t} />}

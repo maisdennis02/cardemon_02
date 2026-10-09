@@ -355,6 +355,7 @@ const ptBR: Dictionary = {
       tooManyAttempts: "Muitas tentativas. Aguarde alguns minutos e tente de novo.",
       slugTaken: "Esse slug já está em uso.",
       restaurantNotFound: "Restaurante não encontrado.",
+      invalidMenu: "Não foi possível salvar o cardápio. Confira os itens e tente de novo.",
       imageNotFound: "Imagem não encontrada.",
       invalidImageId: "ID de imagem inválido.",
       reorderInvalid: "Pedido de reordenação inválido.",

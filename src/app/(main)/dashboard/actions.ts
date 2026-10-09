@@ -6,10 +6,9 @@ import { z } from "zod";
 import bcrypt from "bcryptjs";
 import { del } from "@vercel/blob";
 import { track } from "@vercel/analytics/server";
-import { auth, signOut } from "@/auth";
+import { signOut } from "@/auth";
 import { prisma } from "@/lib/prisma";
 import { slugify } from "@/lib/slug";
-import { getDictionary, getLocale } from "@/i18n";
 import { format } from "@/i18n/config";
 import {
   DELIVERY_APP_IDS,
@@ -21,30 +20,7 @@ import {
   type DeliveryUrlColumn,
 } from "@/lib/delivery-apps";
 import { FREE_IMAGE_LIMIT, PRO_IMAGE_LIMIT, imageLimitFor, isPro } from "@/lib/pricing";
-
-async function dashT() {
-  const locale = await getLocale();
-  const dict = await getDictionary(locale);
-  return dict.dashboard;
-}
-
-async function requireUserId(): Promise<string> {
-  const session = await auth();
-  const id = session?.user?.id;
-  if (!id) redirect("/login");
-  return id;
-}
-
-async function requireOwnedRestaurant(userId: string, restaurantId: string) {
-  const r = await prisma.restaurant.findFirst({
-    where: { id: restaurantId, ownerId: userId },
-  });
-  if (!r) {
-    const t = await dashT();
-    throw new Error(t.errors.restaurantNotFound);
-  }
-  return r;
-}
+import { dashT, requireOwnedRestaurant, requireUserId } from "./guards";
 
 async function requireOwnedImage(userId: string, imageId: string) {
   const img = await prisma.menuImage.findFirst({

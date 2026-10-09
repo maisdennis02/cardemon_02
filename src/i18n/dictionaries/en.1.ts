@@ -343,6 +343,7 @@ export const en = {
       tooManyAttempts: "Too many attempts. Wait a few minutes and try again.",
       slugTaken: "That slug is already taken.",
       restaurantNotFound: "Restaurant not found.",
+      invalidMenu: "Couldn't save the menu. Check the items and try again.",
       imageNotFound: "Image not found.",
       invalidImageId: "Invalid image id.",
       reorderInvalid: "Invalid reorder request.",
