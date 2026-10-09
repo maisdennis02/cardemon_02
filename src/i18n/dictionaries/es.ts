@@ -257,6 +257,13 @@ const es: Dictionary = {
       dismiss: "Cerrar",
       sectionSuggestions: ["Sándwiches", "Platos", "Pizzas", "Para compartir", "Bebidas", "Postres", "Cafetería"],
       visual: {
+        font: "Tipografía del menú",
+        fonts: {
+          default: "Predeterminada",
+          modern: "Moderna",
+          elegant: "Elegante",
+          casual: "Informal",
+        },
         saveFailed: "No se pudo guardar. Revisa la conexión e inténtalo de nuevo.",
         country: "País del restaurante",
         countryHint: "Define el idioma del menú y la moneda de los precios.",

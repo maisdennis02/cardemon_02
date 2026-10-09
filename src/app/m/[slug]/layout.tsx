@@ -6,6 +6,7 @@ import { DictionaryProvider } from "@/i18n/provider";
 import { localeForCountry } from "@/i18n/config";
 import { siteUrl } from "@/lib/site";
 import { getRestaurant } from "./data";
+import { menuFontVariables } from "../../menu-fonts";
 
 const encodeSans = Encode_Sans_Expanded({
   variable: "--font-encode-sans",
@@ -36,7 +37,7 @@ export default async function MenuLayout({
   const dictionary = await getDictionary(locale);
 
   return (
-    <html lang={locale} className={`${encodeSans.variable} h-full antialiased`}>
+    <html lang={locale} className={`${encodeSans.variable} ${menuFontVariables} h-full antialiased`}>
       <body className="min-h-full flex flex-col">
         <DictionaryProvider locale={locale} dictionary={dictionary}>
           {children}

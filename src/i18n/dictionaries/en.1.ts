@@ -247,6 +247,13 @@ export const en = {
       dismiss: "Dismiss",
       sectionSuggestions: ["Sandwiches", "Mains", "Pizzas", "Sides", "Drinks", "Desserts", "Breakfast"],
       visual: {
+        font: "Menu font",
+        fonts: {
+          default: "Default",
+          modern: "Modern",
+          elegant: "Elegant",
+          casual: "Casual",
+        },
         saveFailed: "Could not save. Check your connection and try again.",
         country: "Restaurant country",
         countryHint: "Sets the menu's language and the currency of its prices.",

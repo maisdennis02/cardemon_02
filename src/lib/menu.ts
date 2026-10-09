@@ -11,7 +11,9 @@ import { FREE_ITEM_LIMIT } from "@/lib/pricing";
 export type MenuItem = { id: string; name: string; description?: string; priceCents: number | null };
 export type MenuSection = { id: string; title: string | null; items: MenuItem[] };
 export type Menu = { v: 1; sections: MenuSection[] };
-export type MenuTheme = { logoUrl?: string; color: string; headerStyle: "centered" | "band" };
+export const MENU_FONTS = ["default", "modern", "elegant", "casual"] as const;
+export type MenuFont = (typeof MENU_FONTS)[number];
+export type MenuTheme = { logoUrl?: string; color: string; headerStyle: "centered" | "band"; font?: MenuFont };
 export type MenuMode = "photos" | "built";
 
 export const MENU_MAX_SECTIONS = 30;
@@ -58,6 +60,7 @@ export const MenuThemeSchema: z.ZodType<MenuTheme> = z.object({
   logoUrl: z.string().regex(LOGO_URL_RE).optional(),
   color: z.string().regex(/^#[0-9a-f]{6}$/i),
   headerStyle: z.enum(["centered", "band"]),
+  font: z.enum(MENU_FONTS).optional(),
 });
 
 // Server actions receive whatever the client sends: check the envelope before
@@ -196,6 +199,28 @@ function luminance(hex: string): number | null {
     return c <= 0.03928 ? c / 12.92 : ((c + 0.055) / 1.055) ** 2.4;
   });
   return 0.2126 * r + 0.7152 * g + 0.0722 * b;
+}
+
+const SERIF = 'ui-serif, Georgia, Cambria, "Times New Roman", Times, serif';
+
+// CSS font families for a menu. The web fonts behind the CSS variables are
+// declared by the layouts that render menus (public page and dashboard).
+// "default" is the original look: a serif name over the page's own font.
+export function menuFontFamilies(font: MenuFont | undefined): { body: string | undefined; title: string } {
+  switch (font) {
+    case "modern":
+      return twice('ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, sans-serif');
+    case "elegant":
+      return twice(`var(--font-menu-elegant), ${SERIF}`);
+    case "casual":
+      return twice("var(--font-menu-casual), cursive");
+    default:
+      return { body: undefined, title: SERIF };
+  }
+}
+
+function twice(family: string) {
+  return { body: family, title: family };
 }
 
 // WCAG AA for large text is 3:1. Below that against the white page, the owner's

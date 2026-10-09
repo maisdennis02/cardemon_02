@@ -257,6 +257,13 @@ const ptBR: Dictionary = {
       dismiss: "Fechar",
       sectionSuggestions: ["Lanches", "Pratos", "Pizzas", "Porções", "Bebidas", "Sobremesas", "Açaí"],
       visual: {
+        font: "Fonte do cardápio",
+        fonts: {
+          default: "Padrão",
+          modern: "Moderna",
+          elegant: "Elegante",
+          casual: "Descontraída",
+        },
         saveFailed: "Não foi possível salvar. Confira a conexão e tente de novo.",
         country: "País do restaurante",
         countryHint: "Define o idioma do cardápio e a moeda dos preços.",

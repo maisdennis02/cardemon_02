@@ -10,6 +10,7 @@ import { jsonLdScript } from "@/lib/json-ld";
 import { GoogleAdsTag } from "@/components/google-ads-tag";
 import { PostHogInit } from "@/components/posthog-init";
 import { Telemetry } from "@/components/telemetry";
+import { menuFontVariables } from "../menu-fonts";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -99,7 +100,7 @@ export default async function RootLayout({
   return (
     <html
       lang={locale}
-      className={`${geistSans.variable} ${geistMono.variable} ${encodeSans.variable} h-full antialiased`}
+      className={`${geistSans.variable} ${geistMono.variable} ${encodeSans.variable} ${menuFontVariables} h-full antialiased`}
     >
       <body className="min-h-full flex flex-col">
         <script

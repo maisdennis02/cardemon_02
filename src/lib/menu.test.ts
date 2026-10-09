@@ -7,6 +7,8 @@ import {
   MenuSchema,
   MenuThemeSchema,
   MenuVisualInputSchema,
+  MENU_FONTS,
+  menuFontFamilies,
   isOwnLogoUrl,
   uploadRulesFor,
   countItems,
@@ -331,5 +333,32 @@ describe("MenuVisualInputSchema", () => {
   it("takes a supported country only", () => {
     expect(MenuVisualInputSchema.safeParse(input("BR")).success).toBe(true);
     expect(MenuVisualInputSchema.safeParse(input("XX")).success).toBe(false);
+  });
+});
+
+describe("menu fonts", () => {
+  const theme = (font: unknown) =>
+    MenuThemeSchema.safeParse({ color: "#a1b2c3", headerStyle: "centered", font }).success;
+
+  it("accepts the offered fonts, and no font at all", () => {
+    for (const font of MENU_FONTS) expect(theme(font)).toBe(true);
+    expect(MenuThemeSchema.safeParse({ color: "#a1b2c3", headerStyle: "centered" }).success).toBe(true);
+  });
+
+  it("rejects any other font", () => {
+    expect(theme("comic-sans")).toBe(false);
+  });
+
+  it("keeps the original look by default: serif name, page font for the items", () => {
+    expect(menuFontFamilies(undefined)).toEqual({ body: undefined, title: expect.stringContaining("serif") });
+    expect(menuFontFamilies("default")).toEqual(menuFontFamilies(undefined));
+  });
+
+  it("uses one family for the whole menu otherwise", () => {
+    for (const font of MENU_FONTS.filter((f) => f !== "default")) {
+      const { body, title } = menuFontFamilies(font);
+      expect(body).toBeTruthy();
+      expect(title).toBe(body);
+    }
   });
 });

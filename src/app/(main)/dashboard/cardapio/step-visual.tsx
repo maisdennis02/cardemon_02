@@ -6,7 +6,7 @@ import { useT } from "@/i18n/provider";
 import { format } from "@/i18n/config";
 import { capture } from "@/lib/posthog";
 import { SUPPORTED_COUNTRIES } from "@/lib/delivery-apps";
-import type { MenuTheme } from "@/lib/menu";
+import { MENU_FONTS, menuFontFamilies, type MenuTheme } from "@/lib/menu";
 import { pickLogoColors, swatchesFor } from "@/lib/menu-colors";
 import { BuiltMenuHeader } from "@/app/m/[slug]/built-menu";
 import { readLogoPixels } from "./logo-colors";
@@ -168,6 +168,35 @@ export function StepVisual({
                 {style === "centered" ? v.centered : v.band}
               </button>
             ))}
+          </div>
+        </div>
+      </section>
+
+      <section className="card flex flex-col gap-3 p-5">
+        <div className="label">
+          {v.font}
+          <div className="grid grid-cols-2 gap-3">
+            {MENU_FONTS.map((font) => {
+              const selected = (theme.font ?? "default") === font;
+              return (
+                <button
+                  key={font}
+                  type="button"
+                  aria-pressed={selected}
+                  onClick={() => onTheme({ ...theme, font })}
+                  className={`flex flex-col items-center gap-1 rounded-xl border-2 p-3 ${
+                    selected ? "border-[color:var(--color-brand)]" : "border-gray-200"
+                  }`}
+                >
+                  <span className="text-2xl font-bold" style={{ fontFamily: menuFontFamilies(font).title }}>
+                    Aa
+                  </span>
+                  <span className="text-xs font-semibold" style={{ fontFamily: menuFontFamilies(font).body }}>
+                    {v.fonts[font]}
+                  </span>
+                </button>
+              );
+            })}
           </div>
         </div>
       </section>

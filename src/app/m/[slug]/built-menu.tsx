@@ -1,5 +1,5 @@
 import "./built-menu.css";
-import { formatPrice, headerColors, type Menu, type MenuTheme } from "@/lib/menu";
+import { formatPrice, headerColors, menuFontFamilies, type Menu, type MenuTheme } from "@/lib/menu";
 import { MenuViewPing } from "./menu-actions";
 
 // Text menu built in the dashboard (spec §2). No hooks and no "use client":
@@ -25,11 +25,15 @@ export function BuiltMenu({
   preview?: boolean;
 }) {
   const { accent, title } = headerColors(theme.color);
+  const fonts = menuFontFamilies(theme.font);
   // Inside the dashboard, the page already has its own <main>.
   const Main = preview ? "div" : "main";
 
   return (
-    <div className={`flex flex-col bg-white text-gray-900 ${preview ? "min-h-0" : "min-h-dvh"}`}>
+    <div
+      className={`flex flex-col bg-white text-gray-900 ${preview ? "min-h-0" : "min-h-dvh"}`}
+      style={{ fontFamily: fonts.body }}
+    >
       {!preview && <MenuViewPing slug={slug} />}
       <div className="mx-auto flex w-full max-w-lg flex-1 flex-col">
         <BuiltMenuHeader name={name} theme={theme} />
@@ -109,8 +113,8 @@ export function BuiltMenuHeader({ name, theme }: { name: string; theme: MenuThem
         <img src={theme.logoUrl} alt={name} className="mx-auto mb-3 size-20 rounded-full object-cover" />
       )}
       <h1
-        className={`px-6 font-serif text-3xl font-bold leading-tight ${band && !theme.logoUrl ? "-mt-6" : ""}`}
-        style={{ color: title }}
+        className={`px-6 text-3xl font-bold leading-tight ${band && !theme.logoUrl ? "-mt-6" : ""}`}
+        style={{ color: title, fontFamily: menuFontFamilies(theme.font).title }}
       >
         {name}
       </h1>
