@@ -137,7 +137,16 @@ export default async function PublicMenuPage({
           theme={readMenuTheme(restaurant.menuTheme)}
           menu={visible}
           labels={{ cardapioDigital: t.menu.cardapioDigital, madeBy: t.menu.madeBy }}
-          ordering={restaurant.whatsappNumber ? { whatsappNumber: restaurant.whatsappNumber } : undefined}
+          // An example has no WhatsApp: its cart runs in demo mode and shows
+          // the message instead of sending it.
+          ordering={
+            restaurant.whatsappNumber
+              ? { whatsappNumber: restaurant.whatsappNumber }
+              : restaurant.example
+                ? { whatsappNumber: "", demo: true }
+                : undefined
+          }
+          exampleLabel={restaurant.example ? t.menu.exampleLabel : undefined}
           actions={
             <MenuActions
               slug={slug}

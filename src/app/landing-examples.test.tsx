@@ -70,9 +70,9 @@ describe("the Portuguese landing", () => {
     expect(current).toEqual(JSON.parse(readFileSync(FIXTURE, "utf8")));
   });
 
-  it("still shows its three customers and no example", async () => {
+  it("still shows its three customers, and links its example from the hero only", async () => {
     const { text, links, images } = visible(await renderLanding("pt-BR"));
-    expect(menuSlugs(links)).toEqual(["cavalo-marinho", "art-sabor-sushi", "barraca-da-sonia", "cavalo-marinho"]);
+    expect(menuSlugs(links)).toEqual(["seu-restaurante", "art-sabor-sushi", "barraca-da-sonia", "cavalo-marinho"]);
     expect(text).toContain("Restaurantes que já usam o menulala");
     expect(text).not.toContain(ptBR.menu.exampleLabel);
     expect(images.filter((i) => i.startsWith("/mockup/"))).toEqual([
@@ -84,9 +84,9 @@ describe("the Portuguese landing", () => {
 });
 
 describe.each([
-  ["en", "usa", ["maple-street-diner", "harbor-taproom"], "See it working"],
-  ["es", "latin_america", ["taqueria-la-esquina", "cafe-buen-dia"], "Míralo funcionando"],
-] as const)("the %s landing", (locale, region, examples, heading) => {
+  ["en", "usa", ["maple-street-diner", "harbor-taproom"], "See it working", "your-restaurant"],
+  ["es", "latin_america", ["taqueria-la-esquina", "cafe-buen-dia"], "Míralo funcionando", "tu-restaurante"],
+] as const)("the %s landing", (locale, region, examples, heading, textExample) => {
   it("links only to menus that exist", async () => {
     const slugs = menuSlugs(visible(await renderLanding(locale)).links);
     expect(slugs.length).toBeGreaterThan(0);
@@ -95,8 +95,8 @@ describe.each([
 
   it("links to the two examples of its language, from the hero and from the section", async () => {
     const slugs = menuSlugs(visible(await renderLanding(locale)).links);
-    // Hero demo link first, then the three cards in order.
-    expect(slugs).toEqual([examples[0], examples[0], examples[1], "cavalo-marinho"]);
+    // Hero demo link (the text-menu example) first, then the three cards in order.
+    expect(slugs).toEqual([textExample, examples[0], examples[1], "cavalo-marinho"]);
     // And to no example written in another language.
     const others = EXAMPLE_MENUS.filter((m) => m.locale !== locale).map((m) => m.slug);
     for (const slug of slugs) expect(others).not.toContain(slug);

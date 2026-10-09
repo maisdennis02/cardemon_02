@@ -27,16 +27,23 @@ const DICTS = { en, "pt-BR": ptBR, es } as const;
 const md5 = (path: string) => createHash("md5").update(readFileSync(path)).digest("hex");
 
 describe("the example registry", () => {
-  it("has two menus in English and two in Spanish, none in Portuguese", () => {
+  it("has a text-menu example per language, plus two photo menus in English and two in Spanish", () => {
     expect(EXAMPLE_MENUS.map((m) => m.slug)).toEqual([
+      "seu-restaurante",
+      "tu-restaurante",
+      "your-restaurant",
       "maple-street-diner",
       "harbor-taproom",
       "taqueria-la-esquina",
       "cafe-buen-dia",
     ]);
-    expect(EXAMPLE_MENUS.filter((m) => m.locale === "en")).toHaveLength(2);
-    expect(EXAMPLE_MENUS.filter((m) => m.locale === "es")).toHaveLength(2);
-    expect(EXAMPLE_MENUS.filter((m) => m.locale === "pt-BR")).toHaveLength(0);
+    const photos = EXAMPLE_MENUS.filter((m) => !m.built);
+    expect(photos.filter((m) => m.locale === "en")).toHaveLength(2);
+    expect(photos.filter((m) => m.locale === "es")).toHaveLength(2);
+    expect(photos.filter((m) => m.locale === "pt-BR")).toHaveLength(0);
+    for (const locale of ["pt-BR", "es", "en"]) {
+      expect(EXAMPLE_MENUS.filter((m) => m.built && m.locale === locale)).toHaveLength(1);
+    }
   });
 
   it.each(EXAMPLE_MENUS.map((m) => [m.slug, m] as const))("%s resolves, with a valid slug", (slug, menu) => {
@@ -55,8 +62,10 @@ describe("the example registry", () => {
   });
 });
 
+const PHOTO_EXAMPLES = EXAMPLE_MENUS.filter((m) => !m.built);
+
 describe("example images", () => {
-  it.each(EXAMPLE_MENUS.map((m) => [m.slug, m] as const))(
+  it.each(PHOTO_EXAMPLES.map((m) => [m.slug, m] as const))(
     "%s has three 720×1418 WebP pages and its HTML source",
     async (slug, menu) => {
       expect(menu.images).toEqual([1, 2, 3].map((n) => `/demo-menus/${slug}/0${n}.webp`));
@@ -72,7 +81,7 @@ describe("example images", () => {
   );
 
   it("no two example pages are the same image", () => {
-    const hashes = EXAMPLE_MENUS.flatMap((m) => m.images.map((i) => md5(join(PUBLIC_DIR, i))));
+    const hashes = PHOTO_EXAMPLES.flatMap((m) => m.images.map((i) => md5(join(PUBLIC_DIR, i))));
     expect(new Set(hashes).size).toBe(12);
   });
 });
@@ -112,11 +121,15 @@ describe("hero phone mockups", () => {
     ]);
   });
 
-  it.each(["en", "es"] as const)("the %s hero shows the menu its demo link opens", (locale) => {
-    const demo = findExampleMenu(DICTS[locale].landing.heroDemoSlug);
-    expect(demo, DICTS[locale].landing.heroDemoSlug).toBeDefined();
-    expect(demo!.locale).toBe(locale);
-    expect(files(locale).map(md5)).toEqual(demo!.images.map((i) => md5(join(PUBLIC_DIR, i))));
+  // The hero shows the text-menu example its demo link opens (checked in
+  // example-built-menus.test.ts); these photo phones moved to the "just send
+  // the photo" section and still show a photo example of the page's language.
+  it.each(["en", "es"] as const)("the %s photo phone shows a photo example of its language", (locale) => {
+    const shown = files(locale).map(md5);
+    const match = PHOTO_EXAMPLES.find(
+      (m) => m.locale === locale && m.images.map((i) => md5(join(PUBLIC_DIR, i))).join() === shown.join(),
+    );
+    expect(match, locale).toBeDefined();
   });
 });
 
@@ -187,12 +200,12 @@ describe("menus the landing may link to", () => {
     }
   });
 
-  it("the hero link is an example in English and Spanish, the real customer in Portuguese", () => {
-    expect(en.landing.heroDemoSlug).toBe("maple-street-diner");
-    expect(es.landing.heroDemoSlug).toBe("taqueria-la-esquina");
-    expect(ptBR.landing.heroDemoSlug).toBe("cavalo-marinho");
+  it("the hero link opens the text-menu example of its language, and says it is one", () => {
+    expect(en.landing.heroDemoSlug).toBe("your-restaurant");
+    expect(es.landing.heroDemoSlug).toBe("tu-restaurante");
+    expect(ptBR.landing.heroDemoSlug).toBe("seu-restaurante");
     expect(en.landing.heroDemoLink).toMatch(/example/i);
     expect(es.landing.heroDemoLink).toMatch(/ejemplo/i);
-    expect(ptBR.landing.heroDemoLink).toBe("Ver um cardápio de verdade →");
+    expect(ptBR.landing.heroDemoLink).toMatch(/exemplo/i);
   });
 });

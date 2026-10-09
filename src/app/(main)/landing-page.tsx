@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { BrandedQrCode } from "./dashboard/branded-qr";
+import { BrandedQrCode, QrFontStyle } from "./dashboard/branded-qr";
 import { Logo } from "@/components/logo";
 import {
   ArrowRightIcon,
@@ -80,15 +80,16 @@ export function LandingPage({
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: jsonLdScript(productLd) }}
       />
+      <QrFontStyle />
       <SiteHeader signedIn={signedIn} t={t} homeHref={homeHref} pricingHref={pricingHref} />
       <main className="flex flex-col">
         <Hero signedIn={signedIn} locale={locale} t={t} deliveryStrip={deliveryStrip} />
         <Features t={t} />
-        <OrderSection locale={locale} t={t} />
+        <OrderSection locale={locale} t={t} signedIn={signedIn} />
         <BuildSection locale={locale} t={t} />
         <LookSection t={t} />
-        <PhotoSection t={t} heroImages={heroImages} heroApps={heroApps} />
         <InsightsSection t={t} />
+        <PhotoSection t={t} heroImages={heroImages} heroApps={heroApps} />
         <Examples t={t} showcase={LANDING_SHOWCASE[locale]} />
         <AntiCanva t={t} priceLabel={priceLabel} />
         <Audience t={t} />
@@ -214,7 +215,7 @@ function Hero({
               <ArrowRightIcon size={16} />
             </Link>
             {!signedIn && (
-              <Link href="/login" className="btn btn-secondary w-full sm:w-auto">
+              <Link href="/login" className="btn btn-secondary hidden w-full sm:inline-flex sm:w-auto">
                 {t.landing.iHaveAccount}
               </Link>
             )}
@@ -321,7 +322,6 @@ function Features({ t }: { t: Dictionary }) {
 function AntiCanva({ t, priceLabel }: { t: Dictionary; priceLabel: string }) {
   const items = [
     { title: t.landing.antiCanva1Title, body: t.landing.antiCanva1Body },
-    { title: t.landing.antiCanva2Title, body: t.landing.antiCanva2Body },
     { title: t.landing.antiCanva3Title, body: t.landing.antiCanva3Body },
   ];
 
@@ -339,7 +339,7 @@ function AntiCanva({ t, priceLabel }: { t: Dictionary; priceLabel: string }) {
           </h2>
           <p className="mt-4 text-white/70">{t.landing.antiCanvaLead}</p>
         </div>
-        <ul className="grid gap-5 md:grid-cols-3 md:gap-6">
+        <ul className="grid gap-5 md:grid-cols-2 md:gap-6">
           {items.map((item, i) => (
             <li
               key={i}
@@ -451,6 +451,7 @@ function Examples({ t, showcase }: { t: Dictionary; showcase: LandingShowcase })
               >
                 <div className="rounded-2xl border-2 border-dashed border-[color:var(--color-brand-100)] bg-white p-3">
                   <BrandedQrCode
+                    embedFont={false}
                     value={`${siteUrl()}/m/${it.slug}`}
                     title={format(t.dashboard.qr.menuQrTitle, { name: it.restaurant })}
                     scanLabel={t.dashboard.qr.scanLabel}
@@ -501,16 +502,18 @@ function Faq({ t }: { t: Dictionary }) {
   const items = [
     { q: t.landing.faq7Q, a: t.landing.faq7A },
     { q: t.landing.faq8Q, a: t.landing.faq8A },
+    { q: t.landing.faq9Q, a: t.landing.faq9A },
+    { q: t.landing.faq11Q, a: t.landing.faq11A },
+    { q: t.landing.faq10Q, a: t.landing.faq10A },
     { q: t.landing.faq1Q, a: t.landing.faq1A },
-    { q: t.landing.faq2Q, a: t.landing.faq2A },
     { q: t.landing.faq3Q, a: t.landing.faq3A },
     {
       q: t.landing.faq4Q,
       a: format(t.landing.faq4A, { freeItems: FREE_ITEM_LIMIT, free: FREE_IMAGE_LIMIT, pro: PRO_IMAGE_LIMIT }),
     },
+    { q: t.landing.faq2Q, a: t.landing.faq2A },
     { q: t.landing.faq5Q, a: t.landing.faq5A },
     { q: t.landing.faq6Q, a: t.landing.faq6A },
-    { q: t.landing.faq9Q, a: t.landing.faq9A },
   ];
 
   const faqLd = {

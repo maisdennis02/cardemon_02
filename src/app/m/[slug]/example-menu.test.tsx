@@ -57,14 +57,25 @@ describe.each(EXAMPLE_MENUS.map((m) => [m.slug, m] as const))("/m/%s", (slug, me
     expect(robotsIndex(meta)).toBe(false);
     expect(meta.title).toBe(`${menu.name} — ${label}`);
     expect(meta.description).toContain(menu.name);
-    expect(meta.description).toMatch(/not a real restaurant|No es un restaurante real/);
+    expect(meta.description).toMatch(/not a real restaurant|No es un restaurante real|Não é um restaurante de verdade/);
     expect(meta.alternates?.canonical).toBe(`/m/${slug}`);
     expect(db.calls).toBe(0);
   });
 
-  it("renders its three pages in its own language, labelled, with no structured data", async () => {
+  it("renders in its own language, labelled, with no structured data", async () => {
     const html = await renderMenu(slug);
     expect(html).toContain(`<html lang="${menu.locale}"`);
+    if (menu.built) {
+      // The landing's text-menu example: items with "+", an Example badge, a
+      // cart in demo mode — and still nothing that reaches a business.
+      for (const item of menu.built.menu.sections.flatMap((s) => s.items)) expect(html).toContain(item.name);
+      expect(html).toContain(label);
+      expect(html).not.toContain("application/ld+json");
+      expect(html).not.toContain("wa.me");
+      expect(html).not.toContain("social-buttons");
+      expect(db.calls).toBe(0);
+      return;
+    }
     for (const image of menu.images) expect(html).toContain(`src="${image}"`);
     // Labelled twice: the badge over the first page and the last slide.
     expect(html.split(label).length - 1).toBe(2);

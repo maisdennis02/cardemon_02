@@ -362,3 +362,14 @@ describe("menu fonts", () => {
     }
   });
 });
+
+describe("prices in each country's own format", () => {
+  const nb = (s: string) => s.replace(/ /g, " ");
+  it("writes Mexican pesos the Mexican way", () => {
+    expect(nb(formatPrice(8500, "MX"))).toBe("$85.00");
+  });
+  it("keeps reais and dollars as before", () => {
+    expect(nb(formatPrice(2590, "BR"))).toBe("R$ 25,90");
+    expect(nb(formatPrice(1250, "US"))).toBe("$12.50");
+  });
+});

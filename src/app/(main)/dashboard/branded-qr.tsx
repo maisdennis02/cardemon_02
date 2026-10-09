@@ -20,6 +20,9 @@ type BrandedQrProps = {
   scanLabel: string;
   scanHint: string;
   width?: number;
+  // The SVG carries its own font so a downloaded PNG/SVG renders right. A page
+  // showing several codes loads it once with <QrFontStyle /> and turns this off.
+  embedFont?: boolean;
 };
 
 // Layout (viewBox 320×360):
@@ -28,7 +31,7 @@ type BrandedQrProps = {
 //          marginSize=4 gives the ISO-recommended 4 modules of quiet zone
 //          baked inside the QR; the 10px frame padding adds a little more.
 export const BrandedQrCode = forwardRef<SVGSVGElement, BrandedQrProps>(
-  function BrandedQrCode({ value, title, scanLabel, width }, ref) {
+  function BrandedQrCode({ value, title, scanLabel, width, embedFont = true }, ref) {
     return (
       <svg
         ref={ref}
@@ -40,9 +43,11 @@ export const BrandedQrCode = forwardRef<SVGSVGElement, BrandedQrProps>(
         aria-label={title}
       >
         <title>{title}</title>
-        <defs>
-          <style dangerouslySetInnerHTML={{ __html: EMBEDDED_FONT_CSS }} />
-        </defs>
+        {embedFont && (
+          <defs>
+            <style dangerouslySetInnerHTML={{ __html: EMBEDDED_FONT_CSS }} />
+          </defs>
+        )}
 
         <rect x="0" y="0" width="320" height="360" fill="#ffffff" />
 
@@ -132,3 +137,8 @@ export const BrandedQrCode = forwardRef<SVGSVGElement, BrandedQrProps>(
     );
   },
 );
+
+// The QR font, once, for a page that renders several codes with embedFont off.
+export function QrFontStyle() {
+  return <style dangerouslySetInnerHTML={{ __html: EMBEDDED_FONT_CSS }} />;
+}

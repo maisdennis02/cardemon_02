@@ -16,6 +16,7 @@ export function OrderSheet({
   restaurantName,
   country,
   whatsappNumber,
+  demo,
   lines,
   totalText,
   details,
@@ -31,6 +32,7 @@ export function OrderSheet({
   restaurantName: string;
   country: string | null;
   whatsappNumber: string;
+  demo: boolean;
   lines: { item: MenuItem; qty: number }[];
   totalText: string;
   details: OrderDetails;
@@ -46,6 +48,8 @@ export function OrderSheet({
   const o = t.menu.order;
   const lang = speechLang(useLocale());
   const [sent, setSent] = useState(false);
+  // Demo mode keeps the message to show it in place of opening WhatsApp.
+  const [demoText, setDemoText] = useState<string | null>(null);
   const dialog = useRef<HTMLDialogElement>(null);
 
   // A native modal dialog: focus moves in, Escape closes, the menu behind is
@@ -74,8 +78,12 @@ export function OrderSheet({
       details,
       labels: orderLabels(o),
     });
-    pingMenuEvent(slug, "click_order");
     setSent(true);
+    if (demo) {
+      setDemoText(text);
+      return;
+    }
+    pingMenuEvent(slug, "click_order");
     window.location.href = whatsappOrderUrl(whatsappNumber, text);
   }
 
@@ -101,7 +109,16 @@ export function OrderSheet({
 
         {sent ? (
           <div className="flex flex-1 flex-col items-center justify-center gap-6 text-center">
-            <p className="text-lg">{o.sent}</p>
+            {demoText ? (
+              <>
+                <p className="text-base">{o.demoSent}</p>
+                <div className="w-full rounded-xl bg-[#efe7dd] p-3 text-left">
+                  <p className="whitespace-pre-wrap rounded-lg bg-white p-3 text-[13px] leading-snug shadow-sm">{demoText}</p>
+                </div>
+              </>
+            ) : (
+              <p className="text-lg">{o.sent}</p>
+            )}
             <button
               type="button"
               className="w-full rounded-full px-5 py-4 font-bold text-white"

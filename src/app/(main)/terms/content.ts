@@ -19,7 +19,7 @@ export const TERMS_CONTENT: Record<Locale, LegalContent> = {
       {
         heading: "O serviço",
         paragraphs: [
-          "O menulala permite criar uma página pública de cardápio a partir de imagens que você envia, com QR code, link exclusivo (menulala.com/m/seu-restaurante) e estatísticas de visualização. O plano gratuito tem limite de imagens; o plano Pro amplia esse limite conforme descrito na página de preços.",
+          "O menulala permite criar uma página pública de cardápio — montando os itens e preços no painel ou a partir de imagens que você envia — com QR code, link exclusivo (menulala.com/m/seu-restaurante) e estatísticas de visualização. Se você cadastrar um número de WhatsApp, seus clientes podem montar um pedido no cardápio e enviá-lo a esse número: a mensagem é aberta no WhatsApp do próprio cliente e enviada por ele. O menulala não processa pagamentos, não intermedeia a venda e não responde pela confirmação, preparo ou entrega do pedido. O plano gratuito tem limites de itens e de imagens; o plano Pro amplia esses limites conforme descrito na página de preços.",
         ],
       },
       {
@@ -78,7 +78,7 @@ export const TERMS_CONTENT: Record<Locale, LegalContent> = {
       {
         heading: "The service",
         paragraphs: [
-          "menulala lets you publish a public menu page from images you upload, with a QR code, a dedicated link (menulala.com/m/your-restaurant), and view statistics. The free plan has an image limit; the Pro plan raises it as described on the pricing page.",
+          "menulala lets you publish a public menu page — by entering items and prices in your dashboard or from images you upload — with a QR code, a dedicated link (menulala.com/m/your-restaurant), and view statistics. If you add a WhatsApp number, your customers can build an order on the menu and send it to that number: the message opens in the customer's own WhatsApp and is sent by them. menulala does not process payments, is not a party to the sale, and is not responsible for confirming, preparing or delivering the order. The free plan has item and image limits; the Pro plan raises them as described on the pricing page.",
         ],
       },
       {
@@ -137,7 +137,7 @@ export const TERMS_CONTENT: Record<Locale, LegalContent> = {
       {
         heading: "El servicio",
         paragraphs: [
-          "menulala te permite publicar una página pública de menú a partir de imágenes que subes, con código QR, un enlace exclusivo (menulala.com/m/tu-restaurante) y estadísticas de vistas. El plan gratuito tiene un límite de imágenes; el plan Pro lo amplía según se describe en la página de precios.",
+          "menulala te permite publicar una página pública de menú — cargando los platillos y precios en el panel o a partir de imágenes que subes — con código QR, un enlace exclusivo (menulala.com/m/tu-restaurante) y estadísticas de vistas. Si registras un número de WhatsApp, tus clientes pueden armar un pedido en el menú y enviarlo a ese número: el mensaje se abre en el WhatsApp del propio cliente y lo envía él. menulala no procesa pagos, no interviene en la venta y no responde por la confirmación, preparación o entrega del pedido. El plan gratuito tiene límites de platillos y de imágenes; el plan Pro los amplía según se describe en la página de precios.",
         ],
       },
       {

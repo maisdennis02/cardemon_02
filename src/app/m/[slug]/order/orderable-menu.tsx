@@ -17,6 +17,7 @@ export function OrderableMenu({
   restaurantName,
   country,
   whatsappNumber,
+  demo = false,
   menu,
   accent,
   titleColor,
@@ -25,6 +26,8 @@ export function OrderableMenu({
   restaurantName: string;
   country: string | null;
   whatsappNumber: string;
+  // Example menus: the order is shown, never sent.
+  demo?: boolean;
   menu: Menu; // already cut by visibleMenu
   accent: string;
   titleColor: string;
@@ -133,6 +136,7 @@ export function OrderableMenu({
           restaurantName={restaurantName}
           country={country}
           whatsappNumber={whatsappNumber}
+          demo={demo}
           lines={lines}
           totalText={totalText}
           details={details}

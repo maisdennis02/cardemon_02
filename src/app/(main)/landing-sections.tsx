@@ -1,6 +1,7 @@
 import { HeroPhonePreview } from "./hero-phone-preview";
 import { BrandedQrCode } from "./dashboard/branded-qr";
-import { CheckIcon } from "@/components/icons";
+import Link from "next/link";
+import { ArrowRightIcon, CheckIcon } from "@/components/icons";
 import type { Dictionary } from "@/i18n/dictionaries/en";
 import { format, type Locale } from "@/i18n/config";
 import { formatPrice, headerColors, menuFontFamilies, type MenuFont } from "@/lib/menu";
@@ -71,7 +72,7 @@ export function TextMenuPhone({ locale, t }: { locale: Locale; t: Dictionary }) 
         ))}
       </div>
       <div
-        className="absolute inset-x-3 bottom-4 flex items-center justify-between rounded-full px-4 py-3 text-[12px] font-bold text-white shadow-lg"
+        className="absolute inset-x-3 bottom-4 flex items-center justify-between gap-2 whitespace-nowrap rounded-full px-4 py-3 text-[11px] font-bold text-white shadow-lg"
         style={{ background: ACCENT }}
       >
         <span>{t.menu.order.viewOrder}</span>
@@ -80,6 +81,15 @@ export function TextMenuPhone({ locale, t }: { locale: Locale; t: Dictionary }) 
         </span>
       </div>
     </div>
+  );
+}
+
+function ColumnTitle({ text, label }: { text: string; label: string }) {
+  return (
+    <p className="mb-3 flex items-center gap-2 text-xs font-bold uppercase tracking-[0.16em] text-gray-500">
+      {text}
+      <span className="rounded-full bg-gray-100 px-2 py-0.5 text-[10px] tracking-wider text-gray-600">{label}</span>
+    </p>
   );
 }
 
@@ -102,7 +112,7 @@ function WhatsAppText({ text }: { text: string }) {
   );
 }
 
-export function OrderSection({ locale, t }: { locale: Locale; t: Dictionary }) {
+export function OrderSection({ locale, t, signedIn }: { locale: Locale; t: Dictionary; signedIn: boolean }) {
   const lines = demoOrderLines(locale);
   const { count, total } = totalText(locale);
   const country = LANDING_DEMO[locale].country;
@@ -131,14 +141,14 @@ export function OrderSection({ locale, t }: { locale: Locale; t: Dictionary }) {
 
         <div className="grid items-start gap-8 md:grid-cols-2">
           <div className="lp-reveal min-w-0">
-            <p className="mb-3 text-xs font-bold uppercase tracking-[0.16em] text-gray-500">{t.landing.orderCartTitle}</p>
+            <ColumnTitle text={t.landing.orderCartTitle} label={t.landing.demoLabel} />
             <div className="card">
               <p className="mb-3 text-lg font-bold">{t.menu.order.sheetTitle}</p>
               <ul className="divide-y divide-gray-100">
                 {lines.map(({ item, qty }) => (
                   <li key={item.id} className="flex items-center gap-3 py-2.5">
-                    <span className="flex-1 font-medium">{item.name}</span>
-                    <span className="flex items-center gap-2 text-sm font-bold tabular-nums">
+                    <span className="min-w-0 flex-1 font-medium">{item.name}</span>
+                    <span aria-hidden className="flex items-center gap-2 text-sm font-bold tabular-nums">
                       <span className="flex size-7 items-center justify-center rounded-full border-2" style={{ borderColor: ACCENT, color: ACCENT }}>
                         −
                       </span>
@@ -147,7 +157,7 @@ export function OrderSection({ locale, t }: { locale: Locale; t: Dictionary }) {
                         +
                       </span>
                     </span>
-                    <span className="w-20 text-right font-bold tabular-nums">
+                    <span className="min-w-[5.5rem] whitespace-nowrap text-right font-bold tabular-nums">
                       {formatPrice((item.priceCents ?? 0) * qty, country)}
                     </span>
                   </li>
@@ -166,7 +176,7 @@ export function OrderSection({ locale, t }: { locale: Locale; t: Dictionary }) {
           </div>
 
           <div className="lp-reveal min-w-0">
-            <p className="mb-3 text-xs font-bold uppercase tracking-[0.16em] text-gray-500">{t.landing.orderChatTitle}</p>
+            <ColumnTitle text={t.landing.orderChatTitle} label={t.landing.demoLabel} />
             <div className="overflow-hidden rounded-2xl border border-gray-200 shadow-sm">
               <div className="flex items-center gap-3 bg-[#075e54] px-4 py-3 text-white">
                 <span className="flex size-8 items-center justify-center rounded-full bg-white/20 text-sm font-bold">
@@ -183,6 +193,12 @@ export function OrderSection({ locale, t }: { locale: Locale; t: Dictionary }) {
               </div>
             </div>
           </div>
+        </div>
+        <div className="lp-reveal mt-10 flex justify-center">
+          <Link href={signedIn ? "/dashboard" : "/signup"} className="btn btn-primary lp-cta">
+            {t.landing.orderCta}
+            <ArrowRightIcon size={16} />
+          </Link>
         </div>
       </div>
     </section>
@@ -270,8 +286,16 @@ export function LookSection({ t }: { t: Dictionary }) {
             const fonts = menuFontFamilies(look.font);
             return (
               <li key={look.font} className="lp-reveal overflow-hidden rounded-2xl border border-gray-200 bg-white pb-5 text-center shadow-sm">
-                {look.band ? <div className="h-10" style={{ background: accent }} /> : <div className="h-5" />}
-                <p className="mt-3 px-2 text-lg font-bold leading-tight" style={{ color: title, fontFamily: fonts.title }}>
+                {look.band ? <div className="h-10" style={{ background: accent }} /> : <div className="h-4" />}
+                {/* Stands in for the owner's logo. */}
+                <span
+                  aria-hidden
+                  className={`mx-auto flex size-9 items-center justify-center rounded-full border-2 border-white text-sm font-bold text-white shadow ${look.band ? "-mt-5" : ""}`}
+                  style={{ background: accent }}
+                >
+                  {t.landing.demoRestaurant.charAt(0)}
+                </span>
+                <p className="mt-2 px-2 text-lg font-bold leading-tight" style={{ color: title, fontFamily: fonts.title }}>
                   {t.landing.demoRestaurant}
                 </p>
                 {!look.band && <div className="mx-auto mt-2 h-0.5 w-10" style={{ background: accent }} />}
@@ -308,7 +332,10 @@ export function PhotoSection({
         </div>
         <div className="lp-phone-wrap relative min-w-0">
           <div aria-hidden className="lp-phone-halo" />
-          <HeroPhonePreview alt={t.landing.phonePreviewAlt} images={heroImages} apps={heroApps} />
+          {/* The secondary path: a smaller phone on small screens. */}
+          <div className="-mb-36 origin-top scale-[0.7] sm:mb-0 sm:scale-100">
+            <HeroPhonePreview alt={t.landing.phonePreviewAlt} images={heroImages} apps={heroApps} />
+          </div>
         </div>
       </div>
     </section>
@@ -333,9 +360,12 @@ export function InsightsSection({ t }: { t: Dictionary }) {
         </div>
         <div className="lp-reveal flex min-w-0 flex-col items-center gap-6 sm:flex-row">
           <div className="card w-full flex-1">
-            <span className="mb-3 inline-block rounded-full bg-gray-100 px-2 py-0.5 text-[10px] font-bold uppercase tracking-wider text-gray-600">
-              {t.landing.demoLabel}
-            </span>
+            <p className="mb-3 flex items-center gap-2 text-sm font-semibold text-[color:var(--color-navy)]">
+              {t.landing.insightsCaption}
+              <span className="rounded-full bg-gray-100 px-2 py-0.5 text-[10px] font-bold uppercase tracking-wider text-gray-600">
+                {t.landing.demoLabel}
+              </span>
+            </p>
             <ul className="flex flex-col gap-3">
               {stats.map((s) => (
                 <li key={s.label} className="flex items-baseline justify-between gap-3">
@@ -347,6 +377,7 @@ export function InsightsSection({ t }: { t: Dictionary }) {
           </div>
           <div className="rounded-2xl border-2 border-dashed border-[color:var(--color-brand-100)] bg-white p-3">
             <BrandedQrCode
+                    embedFont={false}
               value={`${siteUrl()}/m/${t.landing.heroDemoSlug}`}
               title={t.landing.demoRestaurant}
               scanLabel={t.dashboard.qr.scanLabel}

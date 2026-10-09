@@ -16,6 +16,7 @@ export function BuiltMenu({
   actions,
   preview = false,
   ordering,
+  exampleLabel,
 }: {
   slug: string;
   name: string;
@@ -27,7 +28,9 @@ export function BuiltMenu({
   preview?: boolean;
   // Diners can order to this WhatsApp number (spec 2026-10-10). Unset: the
   // page is exactly the static list it was before.
-  ordering?: { whatsappNumber: string };
+  ordering?: { whatsappNumber: string; demo?: boolean };
+  // Set on an example menu: a visible "Example" badge.
+  exampleLabel?: string;
 }) {
   const { accent, title } = headerColors(theme.color);
   const fonts = menuFontFamilies(theme.font);
@@ -41,6 +44,11 @@ export function BuiltMenu({
     >
       {!preview && <MenuViewPing slug={slug} />}
       <div className="mx-auto flex w-full max-w-lg flex-1 flex-col">
+        {exampleLabel && (
+          <p className="bg-amber-100 px-4 py-1.5 text-center text-xs font-bold uppercase tracking-wider text-amber-900">
+            {exampleLabel}
+          </p>
+        )}
         <BuiltMenuHeader name={name} theme={theme} />
 
         <div className="built-menu-actions px-6 pt-5">{actions}</div>
@@ -51,6 +59,7 @@ export function BuiltMenu({
             restaurantName={name}
             country={country}
             whatsappNumber={ordering.whatsappNumber}
+            demo={ordering.demo ?? false}
             menu={menu}
             accent={accent}
             titleColor={title}

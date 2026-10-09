@@ -45,9 +45,9 @@ function exampleAsMenu(example: ExampleMenu): MenuData {
     pedidosyaUrl: null,
     didifoodUrl: null,
     images: example.images.map((url) => ({ url })),
-    menuMode: "photos",
-    menuTheme: null,
-    menuPublished: null,
+    menuMode: example.built ? "built" : "photos",
+    menuTheme: example.built?.theme ?? null,
+    menuPublished: example.built?.menu ?? null,
     owner: null,
     example: true,
   };

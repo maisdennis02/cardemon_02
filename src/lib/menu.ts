@@ -183,8 +183,25 @@ export function currencyForCountry(country: string | null | undefined): string {
   return (country && COUNTRY_CURRENCY[country.toUpperCase()]) || "USD";
 }
 
+// Number format of each country's own market: a Mexican menu writes "$85.00",
+// not the "85,00 MXN" the generic Spanish locale produces. Countries not
+// listed fall back to the page's language.
+const PRICE_LOCALE: Record<string, string> = {
+  BR: "pt-BR",
+  PT: "pt-PT",
+  ES: "es-ES",
+  MX: "es-MX",
+  AR: "es-AR",
+  UY: "es-UY",
+  CO: "es-CO",
+  CL: "es-CL",
+  PE: "es-PE",
+  US: "en-US",
+};
+
 export function formatPrice(cents: number, country: string | null | undefined): string {
-  return new Intl.NumberFormat(localeForCountry(country), {
+  const locale = (country && PRICE_LOCALE[country.toUpperCase()]) || localeForCountry(country);
+  return new Intl.NumberFormat(locale, {
     style: "currency",
     currency: currencyForCountry(country),
   }).format(cents / 100);
