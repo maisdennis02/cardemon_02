@@ -123,6 +123,7 @@ export default async function PublicMenuPage({
           theme={readMenuTheme(restaurant.menuTheme)}
           menu={visible}
           labels={{ cardapioDigital: t.menu.cardapioDigital, madeBy: t.menu.madeBy }}
+          ordering={restaurant.whatsappNumber ? { whatsappNumber: restaurant.whatsappNumber } : undefined}
           actions={
             <MenuActions
               slug={slug}

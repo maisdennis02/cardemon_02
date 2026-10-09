@@ -17,6 +17,7 @@ const ALLOWED_KINDS: ReadonlySet<string> = new Set([
   "view",
   "click_whatsapp",
   "click_instagram",
+  "click_order",
   ...DELIVERY_APP_IDS.map((id) => `click_${id}`),
 ]);
 

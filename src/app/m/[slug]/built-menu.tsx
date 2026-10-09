@@ -1,6 +1,7 @@
 import "./built-menu.css";
 import { formatPrice, headerColors, menuFontFamilies, type Menu, type MenuTheme } from "@/lib/menu";
 import { MenuViewPing } from "./menu-actions";
+import { OrderableMenu } from "./order/orderable-menu";
 
 // Text menu built in the dashboard (spec §2). No hooks and no "use client":
 // the public page renders it on the server, and the builder renders it as a
@@ -14,6 +15,7 @@ export function BuiltMenu({
   labels,
   actions,
   preview = false,
+  ordering,
 }: {
   slug: string;
   name: string;
@@ -23,6 +25,9 @@ export function BuiltMenu({
   labels: { cardapioDigital: string; madeBy: string };
   actions: React.ReactNode;
   preview?: boolean;
+  // Diners can order to this WhatsApp number (spec 2026-10-10). Unset: the
+  // page is exactly the static list it was before.
+  ordering?: { whatsappNumber: string };
 }) {
   const { accent, title } = headerColors(theme.color);
   const fonts = menuFontFamilies(theme.font);
@@ -40,35 +45,47 @@ export function BuiltMenu({
 
         <div className="built-menu-actions px-6 pt-5">{actions}</div>
 
-        <Main className="flex-1 px-6 pb-10 pt-4">
-          {menu.sections.map((section) => (
-            <section key={section.id} className="mt-6 first:mt-2">
-              {section.title && (
-                <h2
-                  className="mb-1 border-b pb-1 text-xs font-bold uppercase tracking-widest"
-                  style={{ color: title, borderColor: accent }}
-                >
-                  {section.title}
-                </h2>
-              )}
-              <ul>
-                {section.items.map((item) => (
-                  <li key={item.id} className="border-b border-gray-100 py-2.5 last:border-b-0">
-                    <div className="flex items-baseline gap-3">
-                      <span className="flex-1 font-medium">{item.name}</span>
-                      {item.priceCents !== null && (
-                        <span className="whitespace-nowrap font-bold tabular-nums">
-                          {formatPrice(item.priceCents, country)}
-                        </span>
-                      )}
-                    </div>
-                    {item.description && <p className="mt-0.5 text-sm text-gray-500">{item.description}</p>}
-                  </li>
-                ))}
-              </ul>
-            </section>
-          ))}
-        </Main>
+        {ordering ? (
+          <OrderableMenu
+            slug={slug}
+            restaurantName={name}
+            country={country}
+            whatsappNumber={ordering.whatsappNumber}
+            menu={menu}
+            accent={accent}
+            titleColor={title}
+          />
+        ) : (
+          <Main className="flex-1 px-6 pb-10 pt-4">
+            {menu.sections.map((section) => (
+              <section key={section.id} className="mt-6 first:mt-2">
+                {section.title && (
+                  <h2
+                    className="mb-1 border-b pb-1 text-xs font-bold uppercase tracking-widest"
+                    style={{ color: title, borderColor: accent }}
+                  >
+                    {section.title}
+                  </h2>
+                )}
+                <ul>
+                  {section.items.map((item) => (
+                    <li key={item.id} className="border-b border-gray-100 py-2.5 last:border-b-0">
+                      <div className="flex items-baseline gap-3">
+                        <span className="flex-1 font-medium">{item.name}</span>
+                        {item.priceCents !== null && (
+                          <span className="whitespace-nowrap font-bold tabular-nums">
+                            {formatPrice(item.priceCents, country)}
+                          </span>
+                        )}
+                      </div>
+                      {item.description && <p className="mt-0.5 text-sm text-gray-500">{item.description}</p>}
+                    </li>
+                  ))}
+                </ul>
+              </section>
+            ))}
+          </Main>
+        )}
 
         <footer className="px-6 pb-8 text-center text-xs text-gray-400">
           <p>

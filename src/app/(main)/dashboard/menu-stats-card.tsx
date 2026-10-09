@@ -108,6 +108,18 @@ function buildClickRows(
       ),
     });
   }
+  if (r.whatsappNumber) {
+    rows.push({
+      key: "click_order",
+      label: t.dashboard.stats.clickOrder,
+      value: clicks["click_order"] ?? 0,
+      icon: (
+        <span className="inline-flex h-7 w-7 items-center justify-center rounded-full bg-[color:var(--color-brand)] text-sm text-white">
+          🛒
+        </span>
+      ),
+    });
+  }
   if (r.instagramUrl) {
     rows.push({
       key: "click_instagram",
