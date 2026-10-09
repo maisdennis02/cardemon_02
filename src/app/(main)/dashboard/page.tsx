@@ -132,7 +132,11 @@ export default async function DashboardPage({
                 <ImageManager restaurant={restaurant} imageLimit={imageLimit} isPro={userIsPro} />
               </MenuStartChoice>
             ) : mode === "built" ? (
-              <BuiltMenuCard restaurantId={restaurant.id} itemCount={content.publishedItemCount}>
+              <BuiltMenuCard
+                restaurantId={restaurant.id}
+                itemCount={content.publishedItemCount}
+                whatsappNumber={restaurant.whatsappNumber}
+              >
                 <ImageManager
                   restaurant={restaurant}
                   imageLimit={imageLimit}

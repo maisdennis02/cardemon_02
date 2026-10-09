@@ -13,10 +13,12 @@ import { chooseMenuPhotos } from "./menu-actions";
 export function BuiltMenuCard({
   restaurantId,
   itemCount,
+  whatsappNumber,
   children,
 }: {
   restaurantId: string;
   itemCount: number;
+  whatsappNumber: string | null;
   children: React.ReactNode;
 }) {
   const t = useT();
@@ -42,6 +44,17 @@ export function BuiltMenuCard({
           <div>
             <h2 className="text-lg font-bold text-[color:var(--color-navy)]">{c.cardTitle}</h2>
             <p className="mt-1 text-sm text-gray-600">{format(c.cardItems, { n: itemCount })}</p>
+            {/* Orders go wherever this number points; a typo sends them to a
+                stranger, so the owner sees it spelled out. */}
+            <p className="mt-1 text-sm text-gray-600">
+              {whatsappNumber ? (
+                format(c.ordersTo, { number: `+${whatsappNumber}` })
+              ) : (
+                <Link href="/dashboard?edit=1" className="font-semibold text-[color:var(--color-brand)] underline">
+                  {c.ordersNeedWhatsapp}
+                </Link>
+              )}
+            </p>
           </div>
           <Link href="/dashboard/cardapio" className="btn btn-primary btn-sm">
             {c.edit}

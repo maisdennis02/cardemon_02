@@ -222,6 +222,8 @@ const ptBR: Dictionary = {
   dashboard: {
     openMenu: "Abrir meu cardápio",
     menuChoice: {
+      ordersTo: "Pedidos feitos pelo cardápio chegam no WhatsApp {number}.",
+      ordersNeedWhatsapp: "Cadastre um WhatsApp para receber pedidos pelo cardápio",
       startTitle: "Como você quer criar seu cardápio?",
       startLead: "Sem foto do cardápio à mão? Monte digitando os itens e preços — leva poucos minutos.",
       build: "Montar meu cardápio",

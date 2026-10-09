@@ -222,6 +222,8 @@ const es: Dictionary = {
   dashboard: {
     openMenu: "Abrir mi menú",
     menuChoice: {
+      ordersTo: "Los pedidos hechos desde el menú llegan al WhatsApp {number}.",
+      ordersNeedWhatsapp: "Registra un WhatsApp para recibir pedidos desde el menú",
       startTitle: "¿Cómo quieres crear tu menú?",
       startLead: "¿No tienes una foto del menú a mano? Ármalo escribiendo los ítems y precios — toma pocos minutos.",
       build: "Armar mi menú",

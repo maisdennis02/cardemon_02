@@ -212,6 +212,8 @@ export const en = {
   dashboard: {
     openMenu: "Open my menu",
     menuChoice: {
+      ordersTo: "Orders placed from the menu arrive on WhatsApp {number}.",
+      ordersNeedWhatsapp: "Add a WhatsApp number to receive orders from your menu",
       startTitle: "How do you want to create your menu?",
       startLead: "No photo of your menu at hand? Build it by typing the items and prices — it takes a few minutes.",
       build: "Build my menu",
