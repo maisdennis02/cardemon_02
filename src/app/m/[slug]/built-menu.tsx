@@ -2,8 +2,9 @@ import "./built-menu.css";
 import { formatPrice, headerColors, type Menu, type MenuTheme } from "@/lib/menu";
 import { MenuViewPing } from "./menu-actions";
 
-// Text menu built in the dashboard (spec §2). A server component: the only
-// client pieces are the action buttons the page passes in and the view ping.
+// Text menu built in the dashboard (spec §2). No hooks and no "use client":
+// the public page renders it on the server, and the builder renders it as a
+// live preview (`preview`), which skips the view ping and the full-screen height.
 export function BuiltMenu({
   slug,
   name,
@@ -12,6 +13,7 @@ export function BuiltMenu({
   menu,
   labels,
   actions,
+  preview = false,
 }: {
   slug: string;
   name: string;
@@ -20,43 +22,21 @@ export function BuiltMenu({
   menu: Menu; // already cut by visibleMenu
   labels: { cardapioDigital: string; madeBy: string };
   actions: React.ReactNode;
+  preview?: boolean;
 }) {
   const { accent, title } = headerColors(theme.color);
-  const band = theme.headerStyle === "band";
+  // Inside the dashboard, the page already has its own <main>.
+  const Main = preview ? "div" : "main";
 
   return (
-    <div className="flex min-h-dvh flex-col bg-white text-gray-900">
-      <MenuViewPing slug={slug} />
+    <div className={`flex flex-col bg-white text-gray-900 ${preview ? "min-h-0" : "min-h-dvh"}`}>
+      {!preview && <MenuViewPing slug={slug} />}
       <div className="mx-auto flex w-full max-w-lg flex-1 flex-col">
-        <header className={band ? "text-center" : "px-6 pt-8 text-center"}>
-          {band && (
-            <div className="relative mb-12 h-24" style={{ background: accent }}>
-              {theme.logoUrl && (
-                /* eslint-disable-next-line @next/next/no-img-element */
-                <img
-                  src={theme.logoUrl}
-                  alt={name}
-                  className="absolute bottom-0 left-1/2 size-20 -translate-x-1/2 translate-y-1/2 rounded-full border-4 border-white bg-white object-cover"
-                />
-              )}
-            </div>
-          )}
-          {!band && theme.logoUrl && (
-            /* eslint-disable-next-line @next/next/no-img-element */
-            <img src={theme.logoUrl} alt={name} className="mx-auto mb-3 size-20 rounded-full object-cover" />
-          )}
-          <h1
-            className={`px-6 font-serif text-3xl font-bold leading-tight ${band && !theme.logoUrl ? "-mt-6" : ""}`}
-            style={{ color: title }}
-          >
-            {name}
-          </h1>
-          {!band && <div className="mx-auto mt-4 h-0.5 w-16" style={{ background: accent }} />}
-        </header>
+        <BuiltMenuHeader name={name} theme={theme} />
 
         <div className="built-menu-actions px-6 pt-5">{actions}</div>
 
-        <main className="flex-1 px-6 pb-10 pt-4">
+        <Main className="flex-1 px-6 pb-10 pt-4">
           {menu.sections.map((section) => (
             <section key={section.id} className="mt-6 first:mt-2">
               {section.title && (
@@ -84,7 +64,7 @@ export function BuiltMenu({
               </ul>
             </section>
           ))}
-        </main>
+        </Main>
 
         <footer className="px-6 pb-8 text-center text-xs text-gray-400">
           <p>
@@ -92,12 +72,49 @@ export function BuiltMenu({
           </p>
           <p className="mt-1">
             {labels.madeBy}{" "}
-            <a href="https://menulala.com/" target="_blank" rel="noopener noreferrer" className="font-bold underline">
-              menulala.com
-            </a>
+            {preview ? (
+              <span className="font-bold">menulala.com</span>
+            ) : (
+              <a href="https://menulala.com/" target="_blank" rel="noopener noreferrer" className="font-bold underline">
+                menulala.com
+              </a>
+            )}
           </p>
         </footer>
       </div>
     </div>
+  );
+}
+
+// Also the live preview in the builder's visual step.
+export function BuiltMenuHeader({ name, theme }: { name: string; theme: MenuTheme }) {
+  const { accent, title } = headerColors(theme.color);
+  const band = theme.headerStyle === "band";
+  return (
+    <header className={band ? "text-center" : "px-6 pt-8 text-center"}>
+      {band && (
+        <div className="relative mb-12 h-24" style={{ background: accent }}>
+          {theme.logoUrl && (
+            /* eslint-disable-next-line @next/next/no-img-element */
+            <img
+              src={theme.logoUrl}
+              alt={name}
+              className="absolute bottom-0 left-1/2 size-20 -translate-x-1/2 translate-y-1/2 rounded-full border-4 border-white bg-white object-cover"
+            />
+          )}
+        </div>
+      )}
+      {!band && theme.logoUrl && (
+        /* eslint-disable-next-line @next/next/no-img-element */
+        <img src={theme.logoUrl} alt={name} className="mx-auto mb-3 size-20 rounded-full object-cover" />
+      )}
+      <h1
+        className={`px-6 font-serif text-3xl font-bold leading-tight ${band && !theme.logoUrl ? "-mt-6" : ""}`}
+        style={{ color: title }}
+      >
+        {name}
+      </h1>
+      {!band && <div className="mx-auto mt-4 h-0.5 w-16" style={{ background: accent }} />}
+    </header>
   );
 }
