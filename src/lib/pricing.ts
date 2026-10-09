@@ -4,6 +4,9 @@
 export const FREE_IMAGE_LIMIT = 2;
 export const PRO_IMAGE_LIMIT = 20;
 
+// Text menus (src/lib/menu.ts): items shown on the public page on the free plan.
+export const FREE_ITEM_LIMIT = 20;
+
 // Locale-aware pricing. Brazil shows BRL, everywhere else shows USD.
 // Stripe Prices are currency-bound, so each pair lives behind its own env var.
 export type Currency = "USD" | "BRL";
