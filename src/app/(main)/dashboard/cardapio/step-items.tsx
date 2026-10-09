@@ -20,6 +20,8 @@ import {
   renameSection,
   updateItem,
 } from "@/lib/menu-edit";
+import { MicButton } from "@/components/voice/mic-button";
+import { speechLang } from "@/lib/speech";
 import { ItemEditor } from "./item-editor";
 import { PasteList } from "./paste-list";
 
@@ -49,6 +51,8 @@ export function StepItems({
   const [focusSectionId, setFocusSectionId] = useState<string | null>(null);
 
   const total = countItems(menu);
+  // Items are dictated in the menu's language, which the country sets.
+  const lang = speechLang(localeForCountry(country));
   const { menu: shown, hidden } = visibleMenu(menu, isPro);
   const visibleIds = new Set(shown.sections.flatMap((s) => s.items.map((i) => i.id)));
   const used = new Set(menu.sections.map((s) => s.title?.toLowerCase()));
@@ -92,11 +96,12 @@ export function StepItems({
         </p>
       )}
 
-      {pasting && <PasteList menu={menu} setMenu={setMenu} onClose={() => setPasting(false)} />}
+      {pasting && <PasteList menu={menu} setMenu={setMenu} onClose={() => setPasting(false)} lang={lang} />}
 
       {menu.sections.length === 0 && (
         <section className="card p-5">
           <AddItemField
+            lang={lang}
             onAdd={(item) => {
               const next = addItem(menu, null, item);
               setMenu(next);
@@ -114,6 +119,7 @@ export function StepItems({
           first={index === 0}
           last={index === menu.sections.length - 1}
           focusAdd={focusSectionId === section.id}
+          lang={lang}
           country={country}
           visibleIds={visibleIds}
           editingId={editingId}
@@ -163,12 +169,18 @@ export function StepItems({
           >
             <input
               autoFocus
-              className="input"
+              className="input min-w-0"
               maxLength={60}
               placeholder={it.newSectionName}
               aria-label={it.newSectionName}
               value={newSection}
               onChange={(e) => setNewSection(e.target.value)}
+            />
+            <MicButton
+              value={newSection}
+              onChange={(v) => setNewSection(v.slice(0, 60))}
+              lang={lang}
+              label={t.menu.order.mic}
             />
             <button type="submit" className="btn btn-primary btn-sm">
               {it.add}
@@ -185,6 +197,7 @@ function SectionBlock({
   first,
   last,
   focusAdd,
+  lang,
   country,
   visibleIds,
   editingId,
@@ -203,6 +216,7 @@ function SectionBlock({
   first: boolean;
   last: boolean;
   focusAdd: boolean;
+  lang: string;
   country: string;
   visibleIds: Set<string>;
   editingId: string | null;
@@ -260,6 +274,7 @@ function SectionBlock({
                     onMoveTo={(sectionId) => onItemMoveTo(item.id, sectionId)}
                     onRemove={() => onItemRemove(item.id)}
                     onDone={() => setEditingId(null)}
+                    lang={lang}
                   />
                 </li>
               );
@@ -290,7 +305,7 @@ function SectionBlock({
         </ul>
       )}
 
-      <AddItemField onAdd={onAdd} autoFocus={focusAdd} />
+      <AddItemField onAdd={onAdd} autoFocus={focusAdd} lang={lang} />
     </section>
   );
 }
@@ -300,9 +315,11 @@ function SectionBlock({
 function AddItemField({
   onAdd,
   autoFocus = false,
+  lang,
 }: {
   onAdd: (item: { name: string; priceCents: number | null }) => void;
   autoFocus?: boolean;
+  lang: string;
 }) {
   const t = useT();
   const it = t.dashboard.builder.items;
@@ -322,7 +339,7 @@ function AddItemField({
     >
       <div className="flex gap-2">
         <input
-          className="input"
+          className="input min-w-0"
           enterKeyHint="done"
           autoFocus={autoFocus}
           autoComplete="off"
@@ -331,6 +348,7 @@ function AddItemField({
           value={line}
           onChange={(e) => setLine(e.target.value)}
         />
+        <MicButton value={line} onChange={setLine} lang={lang} label={t.menu.order.mic} />
         <button type="submit" className="btn btn-primary btn-sm" disabled={!line.trim()}>
           {it.add}
         </button>

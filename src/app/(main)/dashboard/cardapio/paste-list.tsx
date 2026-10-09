@@ -7,6 +7,7 @@ import { capture } from "@/lib/posthog";
 import type { Menu } from "@/lib/menu";
 import { parsePastedList } from "@/lib/menu-parse";
 import { appendSections, newId } from "@/lib/menu-edit";
+import { MicButton } from "@/components/voice/mic-button";
 
 // "Colar lista": a whole menu from a note or a chat, shown as sections and
 // items before anything is added.
@@ -14,7 +15,9 @@ export function PasteList({
   menu,
   setMenu,
   onClose,
+  lang,
 }: {
+  lang: string;
   menu: Menu;
   setMenu: (next: Menu) => void;
   onClose: () => void;
@@ -45,16 +48,29 @@ export function PasteList({
       {dropped > 0 && (
         <p className="rounded-lg bg-amber-50 px-3 py-2 text-sm text-amber-800">{format(it.pasteDropped, { n: dropped })}</p>
       )}
-      <textarea
-        autoFocus
-        className="input font-mono"
-        rows={8}
-        value={text}
-        onChange={(e) => {
-          setText(e.target.value);
-          setDropped(0);
-        }}
-      />
+      <div className="flex items-start gap-2">
+        <textarea
+          autoFocus
+          className="input min-w-0 font-mono"
+          rows={8}
+          value={text}
+          onChange={(e) => {
+            setText(e.target.value);
+            setDropped(0);
+          }}
+        />
+        {/* Each dictation goes on a line of its own: one item per line. */}
+        <MicButton
+          value={text}
+          onChange={(v) => {
+            setText(v);
+            setDropped(0);
+          }}
+          separator={"\n"}
+          lang={lang}
+          label={t.menu.order.mic}
+        />
+      </div>
       {count > 0 && (
         <div className="rounded-lg border border-gray-200 p-3 text-sm">
           <p className="mb-2 text-xs font-semibold uppercase tracking-wide text-gray-500">{it.pastePreview}</p>

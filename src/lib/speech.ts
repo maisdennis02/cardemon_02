@@ -10,11 +10,11 @@ export function speechLang(locale: Locale): string {
 }
 
 // Dictation adds to what the field already holds; it never replaces typing.
-export function appendTranscript(base: string, transcript: string): string {
+export function appendTranscript(base: string, transcript: string, separator = " "): string {
   const heard = transcript.trim();
   if (!heard) return base;
   const kept = base.trimEnd();
-  return kept ? `${kept} ${heard}` : heard;
+  return kept ? `${kept}${separator}${heard}` : heard;
 }
 
 // Errors after which the mic can't work on this page (permission refused, no

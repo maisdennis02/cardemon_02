@@ -43,3 +43,10 @@ describe("joinResults", () => {
     expect(joinResults(["Rua A", " 123", "  ap 4 "])).toBe("Rua A 123 ap 4");
   });
 });
+
+describe("appendTranscript with a separator", () => {
+  it("puts dictation on a new line when asked", () => {
+    expect(appendTranscript("Coca 7", "Suco 8", "\n")).toBe("Coca 7\nSuco 8");
+    expect(appendTranscript("", "Suco 8", "\n")).toBe("Suco 8");
+  });
+});

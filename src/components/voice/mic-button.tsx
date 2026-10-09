@@ -13,16 +13,19 @@ export function MicButton({
   onChange,
   lang,
   label,
+  separator = " ",
 }: {
   value: string;
   onChange: (value: string) => void;
   lang: string;
   label: string;
+  // Between what the field held and what is heard: "\n" for one-per-line lists.
+  separator?: string;
 }) {
   const base = useRef(value);
   const { supported, listening, failed, start, stop } = useSpeechInput({
     lang,
-    onText: (heard) => onChange(appendTranscript(base.current, heard)),
+    onText: (heard) => onChange(appendTranscript(base.current, heard, separator)),
   });
   if (!supported) return null;
 

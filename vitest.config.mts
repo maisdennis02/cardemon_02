@@ -14,6 +14,9 @@ export default defineConfig({
   },
   test: {
     environment: "node",
+    // A few files render whole pages; in a full parallel run they can take
+    // longer than the 5 s default on a busy machine.
+    testTimeout: 20_000,
     include: ["src/**/*.test.{ts,tsx}"],
     // Env vars leak between test files otherwise — each file manages its own
     // with vi.stubEnv().

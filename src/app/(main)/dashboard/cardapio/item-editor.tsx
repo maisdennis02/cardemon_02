@@ -4,6 +4,7 @@ import { useState } from "react";
 import { useT } from "@/i18n/provider";
 import type { MenuItem, MenuSection } from "@/lib/menu";
 import { parseItemLine } from "@/lib/menu-parse";
+import { MicButton } from "@/components/voice/mic-button";
 import { IconButton } from "./step-items";
 
 type Patch = { name?: string; description?: string; priceCents?: number | null };
@@ -31,7 +32,9 @@ export function ItemEditor({
   onMoveTo,
   onRemove,
   onDone,
+  lang,
 }: {
+  lang: string;
   item: MenuItem;
   sectionId: string;
   sections: MenuSection[];
@@ -49,46 +52,58 @@ export function ItemEditor({
   const [name, setName] = useState(item.name);
   const [price, setPrice] = useState(priceText(item.priceCents));
   const parsedPrice = parsePrice(price);
+  const mic = t.menu.order.mic;
+  const changeName = (value: string) => {
+    setName(value);
+    // The schema needs a name: an emptied field keeps the last one.
+    if (value.trim()) onChange({ name: value });
+  };
+  const changePrice = (value: string) => {
+    setPrice(value);
+    const next = parsePrice(value);
+    if (next !== "invalid") onChange({ priceCents: next });
+  };
 
   return (
     <div className="flex flex-col gap-3 rounded-xl bg-gray-50 p-3">
       <label className="label">
         {e.name}
-        <input
-          autoFocus
-          className="input"
-          maxLength={80}
-          value={name}
-          onChange={(ev) => {
-            setName(ev.target.value);
-            // The schema needs a name: an emptied field keeps the last one.
-            if (ev.target.value.trim()) onChange({ name: ev.target.value });
-          }}
-        />
+        <span className="flex items-center gap-2">
+          <input autoFocus className="input min-w-0" maxLength={80} value={name} onChange={(ev) => changeName(ev.target.value)} />
+          <MicButton value={name} onChange={(v) => changeName(v.slice(0, 80))} lang={lang} label={mic} />
+        </span>
       </label>
       <label className="label">
         {e.description}
-        <textarea
-          className="input"
-          rows={2}
-          maxLength={200}
-          value={item.description ?? ""}
-          onChange={(ev) => onChange({ description: ev.target.value })}
-        />
+        <span className="flex items-start gap-2">
+          <textarea
+            className="input min-w-0"
+            rows={2}
+            maxLength={200}
+            value={item.description ?? ""}
+            onChange={(ev) => onChange({ description: ev.target.value })}
+          />
+          <MicButton
+            value={item.description ?? ""}
+            onChange={(v) => onChange({ description: v.slice(0, 200) })}
+            lang={lang}
+            label={mic}
+          />
+        </span>
       </label>
       <label className="label">
         {e.price}
         <span className="label-hint">{e.priceHint}</span>
-        <input
-          className="input tabular-nums"
-          inputMode="decimal"
-          value={price}
-          onChange={(ev) => {
-            setPrice(ev.target.value);
-            const next = parsePrice(ev.target.value);
-            if (next !== "invalid") onChange({ priceCents: next });
-          }}
-        />
+        <span className="flex items-center gap-2">
+          <input
+            className="input min-w-0 tabular-nums"
+            inputMode="decimal"
+            value={price}
+            onChange={(ev) => changePrice(ev.target.value)}
+          />
+          {/* A dictated price replaces the field: "25 e 90" is a whole price. */}
+          <MicButton value="" onChange={changePrice} lang={lang} label={mic} />
+        </span>
         {parsedPrice === "invalid" && <span className="text-xs font-normal text-red-600">{e.invalidPrice}</span>}
       </label>
       {sections.length > 1 && (
