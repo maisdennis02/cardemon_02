@@ -106,6 +106,13 @@ model Restaurant {
   grubhubUrl      String?
   pedidosyaUrl    String?
   didifoodUrl     String?
+  // Text menu built in the dashboard — see
+  // docs/superpowers/specs/2026-10-09-construtor-de-cardapio-design.md.
+  // menuMode is "photos" | "built"; the JSON shapes live in src/lib/menu.ts.
+  menuMode        String      @default("photos")
+  menuTheme       Json?
+  menuDraft       Json?
+  menuPublished   Json?
   createdAt       DateTime    @default(now())
   updatedAt       DateTime    @updatedAt
 
