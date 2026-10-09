@@ -52,7 +52,7 @@ export function cartTotals(lines: { item: MenuItem; qty: number }[]): {
   cents: number;
   hasUnpriced: boolean;
 } {
-  return lines.reduce(
+  return lines.reduce<{ count: number; cents: number; hasUnpriced: boolean }>(
     (t, { item, qty }) => ({
       count: t.count + qty,
       cents: t.cents + (item.priceCents ?? 0) * qty,
