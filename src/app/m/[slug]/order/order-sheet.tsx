@@ -83,6 +83,7 @@ export function OrderSheet({
         pickupTable: o.msgPickupTable,
         notes: o.msgNotes,
         footer: o.msgFooter,
+        confirm: o.msgConfirm,
       },
     });
     pingMenuEvent(slug, "click_order");

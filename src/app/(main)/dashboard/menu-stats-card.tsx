@@ -115,7 +115,7 @@ function buildClickRows(
       value: clicks["click_order"] ?? 0,
       icon: (
         <span className="inline-flex h-7 w-7 items-center justify-center rounded-full bg-[color:var(--color-brand)] text-sm text-white">
-          🛒
+          🛎️
         </span>
       ),
     });

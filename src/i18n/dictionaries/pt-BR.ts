@@ -555,6 +555,7 @@ const ptBR: Dictionary = {
       msgPickupTable: "Retirada — mesa {table}",
       msgNotes: "Obs.",
       msgFooter: "Pedido feito pelo cardápio {url}",
+      msgConfirm: "Podem confirmar meu pedido? 🙏",
     },
     preparing: "Este cardápio está sendo preparado.",
     pageAlt: "Página {n} do cardápio",

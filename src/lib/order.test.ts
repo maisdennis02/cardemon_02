@@ -13,6 +13,7 @@ const labels: OrderLabels = {
   pickupTable: "Retirada — mesa {table}",
   notes: "Obs.",
   footer: "Pedido feito pelo cardápio {url}",
+  confirm: "Podem confirmar meu pedido? 🙏",
 };
 
 const burger: MenuItem = { id: "a", name: "X-Burguer", priceCents: 2590 };
@@ -52,7 +53,7 @@ describe("buildOrderMessage", () => {
     expect(text).toBe(
       nb(
         [
-          "*Pedido — Lanchonete Teste*",
+          "🛎️ *Pedido — Lanchonete Teste*",
           "",
           "2x X-Burguer — R$ 51,80",
           "1x Coca — R$ 7,90",
@@ -62,6 +63,8 @@ describe("buildOrderMessage", () => {
           "Nome: Ana",
           "Entrega: Rua das Flores, 123",
           "Obs.: sem cebola",
+          "",
+          "Podem confirmar meu pedido? 🙏",
           "",
           "Pedido feito pelo cardápio menulala.com/m/lanchonete-teste",
         ].join("\n"),

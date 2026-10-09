@@ -556,6 +556,7 @@ const es: Dictionary = {
       msgPickupTable: "Retiro — mesa {table}",
       msgNotes: "Comentario",
       msgFooter: "Pedido hecho desde el menú {url}",
+      msgConfirm: "¿Pueden confirmar mi pedido? 🙏",
     },
     preparing: "Este menú se está preparando.",
     pageAlt: "Página {n} del menú",

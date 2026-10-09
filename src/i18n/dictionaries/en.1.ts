@@ -541,6 +541,7 @@ export const en = {
       msgPickupTable: "Pickup — table {table}",
       msgNotes: "Notes",
       msgFooter: "Ordered from the menu {url}",
+      msgConfirm: "Could you confirm my order? 🙏",
     },
     preparing: "This menu is being prepared.",
     pageAlt: "Menu page {n}",

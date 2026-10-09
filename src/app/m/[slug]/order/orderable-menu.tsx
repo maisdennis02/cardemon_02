@@ -76,10 +76,19 @@ export function OrderableMenu({
                       onClick={() => save(addToCart(cart, item.id, Date.now()))}
                       className="block w-full py-2.5 text-left active:bg-gray-50"
                     >
-                      <span className="flex items-baseline gap-3">
+                      <span className="flex items-center gap-3">
                         <span className="flex-1 font-medium">{item.name}</span>
                         <span className="whitespace-nowrap font-bold tabular-nums">
                           {item.priceCents === null ? "" : formatPrice(item.priceCents, country)}
+                        </span>
+                        {/* The "+" every ordering app uses, so diners see the
+                            item can be added; once added it shows the count. */}
+                        <span
+                          aria-hidden
+                          className="flex size-8 shrink-0 items-center justify-center rounded-full text-lg font-bold text-white"
+                          style={{ background: accent }}
+                        >
+                          {qty > 0 ? <span className="text-sm tabular-nums">{qty}</span> : "+"}
                         </span>
                       </span>
                       {item.description && <span className="mt-0.5 block text-sm text-gray-500">{item.description}</span>}
