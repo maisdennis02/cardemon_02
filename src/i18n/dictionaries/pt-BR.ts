@@ -220,6 +220,7 @@ const ptBR: Dictionary = {
     },
   },
   dashboard: {
+    openMenu: "Abrir meu cardápio",
     menuChoice: {
       startTitle: "Como você quer criar seu cardápio?",
       startLead: "Sem foto do cardápio à mão? Monte digitando os itens e preços — leva poucos minutos.",

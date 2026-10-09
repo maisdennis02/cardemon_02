@@ -99,6 +99,19 @@ export default async function DashboardPage({
           <OnboardingForm />
         ) : (
           <div className="flex flex-col gap-6">
+            {/* The one thing an owner does most from a phone: look at the menu
+                diners see. The header's link is hidden on small screens. */}
+            {hasMenu && (
+              <Link
+                href={`/m/${restaurant.slug}`}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="btn btn-primary w-full py-4 text-base"
+              >
+                {t.dashboard.openMenu}
+                <ExternalIcon size={18} />
+              </Link>
+            )}
             {/* A menu nobody has opened yet — including its owner — is the one
                 moment worth interrupting for; it outranks the delivery nudge. */}
             {hasMenu && stats.totalViews === 0 && !initialEdit && (

@@ -210,6 +210,7 @@ export const en = {
     },
   },
   dashboard: {
+    openMenu: "Open my menu",
     menuChoice: {
       startTitle: "How do you want to create your menu?",
       startLead: "No photo of your menu at hand? Build it by typing the items and prices — it takes a few minutes.",

@@ -220,6 +220,7 @@ const es: Dictionary = {
     },
   },
   dashboard: {
+    openMenu: "Abrir mi menú",
     menuChoice: {
       startTitle: "¿Cómo quieres crear tu menú?",
       startLead: "¿No tienes una foto del menú a mano? Ármalo escribiendo los ítems y precios — toma pocos minutos.",
