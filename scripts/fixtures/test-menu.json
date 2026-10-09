@@ -1,0 +1,143 @@
+{
+  "v": 1,
+  "sections": [
+    {
+      "id": "s1",
+      "title": "Lanches",
+      "items": [
+        {
+          "id": "i1",
+          "name": "X-Burguer",
+          "priceCents": 2090
+        },
+        {
+          "id": "i2",
+          "name": "X-Salada",
+          "priceCents": 2190
+        },
+        {
+          "id": "i3",
+          "name": "X-Bacon",
+          "priceCents": 2290
+        },
+        {
+          "id": "i4",
+          "name": "X-Egg",
+          "priceCents": 2390
+        },
+        {
+          "id": "i5",
+          "name": "X-Tudo",
+          "priceCents": 2490,
+          "description": "Hambúrguer, presunto, queijo, ovo, bacon, alface e tomate"
+        },
+        {
+          "id": "i6",
+          "name": "Misto Quente",
+          "priceCents": 2590
+        },
+        {
+          "id": "i7",
+          "name": "Bauru",
+          "priceCents": 2690
+        },
+        {
+          "id": "i8",
+          "name": "Hot Dog",
+          "priceCents": 2790
+        },
+        {
+          "id": "i9",
+          "name": "Cachorro Duplo",
+          "priceCents": 2890
+        },
+        {
+          "id": "i10",
+          "name": "Beirute",
+          "priceCents": 2990
+        },
+        {
+          "id": "i11",
+          "name": "Americano",
+          "priceCents": 3090
+        },
+        {
+          "id": "i12",
+          "name": "Frango Grelhado",
+          "priceCents": 3190
+        },
+        {
+          "id": "i13",
+          "name": "Vegetariano",
+          "priceCents": null
+        },
+        {
+          "id": "i14",
+          "name": "Batata Frita",
+          "priceCents": 3390
+        },
+        {
+          "id": "i15",
+          "name": "Onion Rings",
+          "priceCents": 3490
+        }
+      ]
+    },
+    {
+      "id": "s2",
+      "title": "Bebidas",
+      "items": [
+        {
+          "id": "i16",
+          "name": "Coca-Cola lata",
+          "priceCents": 760
+        },
+        {
+          "id": "i17",
+          "name": "Guaraná lata",
+          "priceCents": 770
+        },
+        {
+          "id": "i18",
+          "name": "Suco de laranja",
+          "priceCents": 780
+        },
+        {
+          "id": "i19",
+          "name": "Suco de limão",
+          "priceCents": 790
+        },
+        {
+          "id": "i20",
+          "name": "Água 500ml",
+          "priceCents": 400
+        },
+        {
+          "id": "i21",
+          "name": "Água com gás",
+          "priceCents": 810
+        },
+        {
+          "id": "i22",
+          "name": "Cerveja long neck",
+          "priceCents": 820
+        },
+        {
+          "id": "i23",
+          "name": "Chá gelado",
+          "priceCents": 830
+        },
+        {
+          "id": "i24",
+          "name": "Café expresso",
+          "priceCents": 840
+        },
+        {
+          "id": "i25",
+          "name": "Milkshake",
+          "priceCents": 850
+        }
+      ]
+    }
+  ]
+}
