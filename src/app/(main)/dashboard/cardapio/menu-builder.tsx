@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import { useCallback, useEffect, useRef, useState } from "react";
 import { useT } from "@/i18n/provider";
 import type { Locale } from "@/i18n/config";
@@ -42,6 +43,7 @@ export function MenuBuilder({
 }) {
   const t = useT();
   const b = t.dashboard.builder;
+  const router = useRouter();
 
   const [step, setStep] = useState<BuilderStep>(hasPublished ? "items" : "visual");
   const [menu, setMenuState] = useState(initial.menu);
@@ -49,6 +51,9 @@ export function MenuBuilder({
   const [country, setCountry] = useState(defaultCountry);
   // An unsaved country (none stored yet) counts as a pending visual change.
   const [visualDirty, setVisualDirty] = useState(!hasCountry);
+  // Whether the owner changed the look by hand (the untouched default country
+  // is saved too, but leaving without it is nothing to warn about).
+  const [visualEdited, setVisualEdited] = useState(false);
   const [visualSaving, setVisualSaving] = useState(false);
   const [visualError, setVisualError] = useState<string | null>(null);
   const [status, setStatus] = useState<AutosaveStatus>("idle");
@@ -64,7 +69,9 @@ export function MenuBuilder({
       onStatus: setStatus,
     });
     saver.current = s;
-    return () => s.dispose();
+    // Leaving the builder inside the app (the Painel link, the Back button) is
+    // not an unload: save what is pending instead of dropping it.
+    return () => void s.flush();
   }, [restaurant.id]);
 
   // Edits arrive as the result of a pure operation on the current menu; an
@@ -82,7 +89,7 @@ export function MenuBuilder({
   }, [step]);
 
   // Leaving with edits that never reached the server: let the browser ask.
-  const unsaved = status === "pending" || status === "saving" || status === "error";
+  const unsaved = status === "pending" || status === "saving" || status === "error" || visualEdited;
   useEffect(() => {
     if (!unsaved) return;
     const warn = (e: BeforeUnloadEvent) => e.preventDefault();
@@ -93,28 +100,36 @@ export function MenuBuilder({
   function changeTheme(next: MenuTheme) {
     setTheme(next);
     setVisualDirty(true);
+    setVisualEdited(true);
   }
 
   function changeCountry(next: string) {
     setCountry(next);
     setVisualDirty(true);
+    setVisualEdited(true);
+  }
+
+  // Saves the country and look when they changed. False when that failed.
+  async function saveVisual(): Promise<boolean> {
+    if (!visualDirty) return true;
+    setVisualSaving(true);
+    setVisualError(null);
+    const res = await saveMenuVisual({ restaurantId: restaurant.id, country, theme }).catch(() => ({
+      error: b.visual.saveFailed,
+    }));
+    setVisualSaving(false);
+    if (res.error) {
+      setVisualError(res.error);
+      return false;
+    }
+    setVisualDirty(false);
+    setVisualEdited(false);
+    return true;
   }
 
   async function goTo(next: BuilderStep) {
     if (next === step) return;
-    if (step === "visual" && visualDirty) {
-      setVisualSaving(true);
-      setVisualError(null);
-      const res = await saveMenuVisual({ restaurantId: restaurant.id, country, theme }).catch(() => ({
-        error: b.visual.saveFailed,
-      }));
-      setVisualSaving(false);
-      if (res.error) {
-        setVisualError(res.error);
-        return;
-      }
-      setVisualDirty(false);
-    }
+    if (step === "visual" && !(await saveVisual())) return;
     setStep(next);
     window.scrollTo({ top: 0 });
   }
@@ -126,7 +141,16 @@ export function MenuBuilder({
     <div className="flex min-h-screen flex-col bg-gray-50/60">
       <header className="sticky top-0 z-20 border-b border-gray-200 bg-white">
         <div className="mx-auto flex max-w-lg items-center justify-between gap-3 px-4 py-3">
-          <Link href="/dashboard" className="text-sm font-semibold text-[color:var(--color-navy)]">
+          <Link
+            href="/dashboard"
+            className="text-sm font-semibold text-[color:var(--color-navy)]"
+            onClick={async (e) => {
+              e.preventDefault();
+              if (!(await saveVisual())) return;
+              await saver.current?.flush();
+              router.push("/dashboard");
+            }}
+          >
             {b.backToDashboard}
           </Link>
           <span

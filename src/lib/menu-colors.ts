@@ -59,3 +59,11 @@ export function pickLogoColors(rgba: Uint8ClampedArray, max = 3): string[] {
   }
   return picked.map(([r, g, b]) => `#${hex(r)}${hex(g)}${hex(b)}`);
 }
+
+// The swatches offered on the visual step. The logo's colors are only known
+// right after an upload; without them (no logo, or a later visit) the
+// palettes are always shown, so the color can still be changed.
+export function swatchesFor(logoColors: string[], expanded: boolean): string[] {
+  if (logoColors.length === 0) return [...MENU_PALETTES];
+  return expanded ? [...logoColors, ...MENU_PALETTES.filter((c) => !logoColors.includes(c))] : logoColors;
+}

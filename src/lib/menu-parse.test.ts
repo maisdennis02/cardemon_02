@@ -20,6 +20,12 @@ describe("parseItemLine", () => {
     ["Picanha 1.250", "Picanha 1.250", null],
     ["Pastel - 9,00", "Pastel", 900],
     ["25,90", "25,90", null],
+    // Dictation: iOS ends a dictated phrase with a period by default.
+    ["Coca 7 reais.", "Coca", 700],
+    ["X-Burguer 25,90.", "X-Burguer", 2590],
+    // "e 5 centavos" is five cents, not fifty; a bare "e 5" is ambiguous.
+    ["Suco 8 reais e 5 centavos", "Suco", 805],
+    ["Suco 8 e 5", "Suco 8 e 5", null],
   ])("%s", (input, name, priceCents) => {
     expect(parseItemLine(input)).toEqual({ name, priceCents });
   });

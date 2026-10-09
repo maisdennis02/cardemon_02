@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 import { headerColors } from "@/lib/menu";
-import { MENU_PALETTES, pickLogoColors } from "@/lib/menu-colors";
+import { MENU_PALETTES, pickLogoColors, swatchesFor } from "@/lib/menu-colors";
 
 function pixels(...runs: [number, [number, number, number, number]][]): Uint8ClampedArray {
   const out: number[] = [];
@@ -34,5 +34,16 @@ describe("MENU_PALETTES", () => {
   it("has 8 colors dark enough for titles", () => {
     expect(MENU_PALETTES).toHaveLength(8);
     for (const c of MENU_PALETTES) expect(headerColors(c).title).toBe(c);
+  });
+});
+
+describe("swatchesFor", () => {
+  it("offers the palettes when the logo's colors are unknown, e.g. after a reload", () => {
+    expect(swatchesFor([], false)).toEqual(MENU_PALETTES);
+  });
+
+  it("shows the logo's colors, then the palettes when expanded", () => {
+    expect(swatchesFor(["#ff0000"], false)).toEqual(["#ff0000"]);
+    expect(swatchesFor(["#ff0000"], true)).toEqual(["#ff0000", ...MENU_PALETTES]);
   });
 });

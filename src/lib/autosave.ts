@@ -64,6 +64,14 @@ export function createAutosaver<T>(opts: {
       timer = null;
       latest = null;
     },
+    // Leaving the builder: save what is pending now instead of waiting for
+    // the pause, after any write already in flight.
+    async flush(): Promise<void> {
+      if (timer) clearTimeout(timer);
+      timer = null;
+      await inFlight?.catch(() => {});
+      if (latest) await run();
+    },
     dispose() {
       stopped = true;
       if (timer) clearTimeout(timer);

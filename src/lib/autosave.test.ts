@@ -85,4 +85,33 @@ describe("createAutosaver", () => {
     await vi.advanceTimersByTimeAsync(10_000);
     expect(save).not.toHaveBeenCalled();
   });
+
+  it("flush saves the pending value right away", async () => {
+    const save = vi.fn(async () => {});
+    const { saver } = setup(save);
+    saver.push("a");
+    await saver.flush();
+    expect(save).toHaveBeenCalledWith("a");
+    expect(vi.getTimerCount()).toBe(0);
+  });
+
+  it("flush with nothing pending saves nothing", async () => {
+    const save = vi.fn(async () => {});
+    const { saver } = setup(save);
+    await saver.flush();
+    expect(save).not.toHaveBeenCalled();
+  });
+
+  it("flush waits for the save in flight, then saves the newer value", async () => {
+    let finish!: () => void;
+    const save = vi.fn((v: string) => (v === "a" ? new Promise<void>((r) => (finish = r)) : Promise.resolve()));
+    const { saver } = setup(save);
+    saver.push("a");
+    await vi.advanceTimersByTimeAsync(2000);
+    saver.push("b");
+    const done = saver.flush();
+    finish();
+    await done;
+    expect(save).toHaveBeenLastCalledWith("b");
+  });
 });

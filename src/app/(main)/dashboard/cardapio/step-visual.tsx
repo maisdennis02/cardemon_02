@@ -7,7 +7,7 @@ import { format } from "@/i18n/config";
 import { capture } from "@/lib/posthog";
 import { SUPPORTED_COUNTRIES } from "@/lib/delivery-apps";
 import type { MenuTheme } from "@/lib/menu";
-import { MENU_PALETTES, pickLogoColors } from "@/lib/menu-colors";
+import { pickLogoColors, swatchesFor } from "@/lib/menu-colors";
 import { BuiltMenuHeader } from "@/app/m/[slug]/built-menu";
 import { readLogoPixels } from "./logo-colors";
 import type { BuilderRestaurant } from "./menu-builder";
@@ -34,7 +34,8 @@ export function StepVisual({
   const v = t.dashboard.builder.visual;
   const inputRef = useRef<HTMLInputElement>(null);
   const [logoColors, setLogoColors] = useState<string[]>([]);
-  const [showPalettes, setShowPalettes] = useState(!theme.logoUrl);
+  // Only meaningful while the logo's colors are known (right after an upload).
+  const [showPalettes, setShowPalettes] = useState(false);
   const [uploading, setUploading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
@@ -54,7 +55,7 @@ export function StepVisual({
         clientPayload: JSON.stringify({ restaurantId: restaurant.id }),
       });
       setLogoColors(colors);
-      setShowPalettes(colors.length === 0);
+      setShowPalettes(false);
       onTheme({ ...theme, logoUrl: blob.url });
       capture("logo_uploaded");
     } catch {
@@ -70,10 +71,9 @@ export function StepVisual({
     delete rest.logoUrl;
     onTheme(rest);
     setLogoColors([]);
-    setShowPalettes(true);
   }
 
-  const swatches = [...logoColors, ...(showPalettes ? MENU_PALETTES.filter((c) => !logoColors.includes(c)) : [])];
+  const swatches = swatchesFor(logoColors, showPalettes);
 
   return (
     <div className="flex flex-col gap-5">
