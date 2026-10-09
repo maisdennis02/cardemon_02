@@ -1,8 +1,9 @@
-import { describe, expect, it } from "vitest";
+import { describe, expect, it, vi } from "vitest";
 import { jsonLdScript } from "@/lib/json-ld";
 import {
   DEFAULT_MENU_THEME,
   MenuDataError,
+  PublishMenuInputSchema,
   MenuSchema,
   countItems,
   currencyForCountry,
@@ -100,6 +101,13 @@ describe("reading stored menus", () => {
 
   it("throws on a corrupt published menu", () => {
     expect(() => readPublishedMenu({ v: 1, sections: "nope" })).toThrow(MenuDataError);
+  });
+
+  it("logs which menu was corrupt before throwing", () => {
+    const log = vi.spyOn(console, "error").mockImplementation(() => {});
+    expect(() => readPublishedMenu({ v: 1, sections: "nope" }, "barraca-da-sonia")).toThrow(MenuDataError);
+    expect(log).toHaveBeenCalledWith(expect.stringContaining("barraca-da-sonia"), expect.anything());
+    log.mockRestore();
   });
 
   it("counts a corrupt published menu as zero items without throwing", () => {
@@ -218,5 +226,25 @@ describe("menuJsonLd", () => {
   it("cannot break out of the script tag through an item name", () => {
     const evil = withFirstItem({ name: "</script><script>alert(1)</script>" }) as Menu;
     expect(jsonLdScript(menuJsonLd(evil, "BR"))).not.toContain("</script");
+  });
+});
+
+describe("PublishMenuInputSchema", () => {
+  const ok = (raw: unknown) => PublishMenuInputSchema.safeParse(raw).success;
+
+  it("accepts a cuid restaurant id with any menu payload", () => {
+    expect(ok({ restaurantId: "cmg1abcde0000xyz123456789", menu: {} })).toBe(true);
+  });
+
+  it("rejects a missing input", () => {
+    expect(ok(undefined)).toBe(false);
+  });
+
+  it("rejects a restaurant id that is not a string", () => {
+    expect(ok({ restaurantId: { not: "" }, menu: {} })).toBe(false);
+  });
+
+  it("rejects a restaurant id that is not a cuid", () => {
+    expect(ok({ restaurantId: "nope nope", menu: {} })).toBe(false);
   });
 });

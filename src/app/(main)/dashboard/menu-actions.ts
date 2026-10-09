@@ -2,7 +2,7 @@
 
 import { revalidatePath } from "next/cache";
 import { prisma } from "@/lib/prisma";
-import { MenuSchema } from "@/lib/menu";
+import { MenuSchema, PublishMenuInputSchema } from "@/lib/menu";
 import { dashT, requireOwnedRestaurant, requireUserId } from "./guards";
 
 // Takes the menu on the owner's screen rather than re-reading the saved draft,
@@ -13,8 +13,13 @@ export async function publishMenu(input: {
   menu: unknown;
 }): Promise<{ error?: string }> {
   const userId = await requireUserId();
-  const restaurant = await requireOwnedRestaurant(userId, input.restaurantId);
-  const parsed = MenuSchema.safeParse(input.menu);
+  const envelope = PublishMenuInputSchema.safeParse(input);
+  if (!envelope.success) {
+    const t = await dashT();
+    return { error: t.errors.invalidInput };
+  }
+  const restaurant = await requireOwnedRestaurant(userId, envelope.data.restaurantId);
+  const parsed = MenuSchema.safeParse(envelope.data.menu);
   if (!parsed.success) {
     const t = await dashT();
     return { error: t.errors.invalidMenu };

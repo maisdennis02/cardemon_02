@@ -73,7 +73,7 @@ export default async function PublicMenuPage({
 
   // Throws on a corrupt menu on purpose: the failed regeneration keeps the last
   // good copy in the ISR cache instead of replacing it with an empty page.
-  const published = readPublishedMenu(restaurant.menuPublished);
+  const published = readPublishedMenu(restaurant.menuPublished, slug);
   const mode = effectiveMode({
     menuMode: restaurant.menuMode,
     imageCount: restaurant.images.length,

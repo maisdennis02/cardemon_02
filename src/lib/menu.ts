@@ -55,16 +55,28 @@ export const MenuThemeSchema: z.ZodType<MenuTheme> = z.object({
   headerStyle: z.enum(["centered", "band"]),
 });
 
+// Server actions receive whatever the client sends: check the envelope before
+// any id reaches a Prisma filter. The menu itself is validated by MenuSchema.
+export const PublishMenuInputSchema = z.object({
+  restaurantId: z.string().cuid(),
+  menu: z.unknown(),
+});
+
 export const DEFAULT_MENU_THEME: MenuTheme = { color: "#1f2937", headerStyle: "centered" };
 
 export class MenuDataError extends Error {}
 
 // For the public page: a corrupt menu must throw, so a failed ISR regeneration
 // keeps serving the last good copy instead of caching an empty one.
-export function readPublishedMenu(raw: unknown): Menu | null {
+// `where` (the slug) goes into the log line, so a stuck regeneration can be
+// traced to the restaurant whose data is broken.
+export function readPublishedMenu(raw: unknown, where = "?"): Menu | null {
   if (raw == null) return null;
   const parsed = MenuSchema.safeParse(raw);
-  if (!parsed.success) throw new MenuDataError(`invalid published menu: ${parsed.error.message}`);
+  if (!parsed.success) {
+    console.error(`[menu] invalid published menu for ${where}`, parsed.error.message);
+    throw new MenuDataError(`invalid published menu for ${where}`);
+  }
   return parsed.data;
 }
 
