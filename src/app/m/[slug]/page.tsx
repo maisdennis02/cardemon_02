@@ -1,9 +1,20 @@
 import { notFound } from "next/navigation";
 import { MenuSlideshow } from "./slideshow";
+import { BuiltMenu } from "./built-menu";
+import { MenuActions } from "./menu-actions";
 import { getDictionary } from "@/i18n";
 import { format, localeForCountry } from "@/i18n/config";
 import { absoluteUrl } from "@/lib/site";
 import { jsonLdScript } from "@/lib/json-ld";
+import { isPro } from "@/lib/pricing";
+import {
+  countItems,
+  effectiveMode,
+  menuJsonLd,
+  readMenuTheme,
+  readPublishedMenu,
+  visibleMenu,
+} from "@/lib/menu";
 import { getRestaurant } from "./data";
 
 export const revalidate = 60;
@@ -60,13 +71,24 @@ export default async function PublicMenuPage({
 
   if (!restaurant) notFound();
 
+  // Throws on a corrupt menu on purpose: the failed regeneration keeps the last
+  // good copy in the ISR cache instead of replacing it with an empty page.
+  const published = readPublishedMenu(restaurant.menuPublished);
+  const mode = effectiveMode({
+    menuMode: restaurant.menuMode,
+    imageCount: restaurant.images.length,
+    publishedItemCount: countItems(published),
+  });
+  const visible =
+    mode === "built" && published ? visibleMenu(published, isPro(restaurant.owner)).menu : null;
+
   const url = absoluteUrl(`/m/${slug}`);
   const restaurantLd = {
     "@context": "https://schema.org",
     "@type": "Restaurant",
     name: restaurant.name,
     url,
-    hasMenu: url,
+    hasMenu: visible ? menuJsonLd(visible, restaurant.country) : url,
     ...(restaurant.description && { description: restaurant.description }),
     ...(restaurant.images[0]?.url && { image: restaurant.images[0].url }),
     ...(restaurant.country && {
@@ -76,29 +98,52 @@ export default async function PublicMenuPage({
     ...(restaurant.instagramUrl && { sameAs: [restaurant.instagramUrl] }),
   };
 
+  const deliveryUrls = {
+    ifoodUrl: restaurant.ifoodUrl,
+    ubereatsUrl: restaurant.ubereatsUrl,
+    doordashUrl: restaurant.doordashUrl,
+    rappiUrl: restaurant.rappiUrl,
+    grubhubUrl: restaurant.grubhubUrl,
+    pedidosyaUrl: restaurant.pedidosyaUrl,
+    didifoodUrl: restaurant.didifoodUrl,
+  };
+  const t = await getDictionary(localeForCountry(restaurant.country));
+
   return (
     <>
       <script
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: jsonLdScript(restaurantLd) }}
       />
-      <MenuSlideshow
-        slug={slug}
-        name={restaurant.name}
-        whatsappNumber={restaurant.whatsappNumber}
-        instagramUrl={restaurant.instagramUrl}
-        country={restaurant.country}
-        deliveryUrls={{
-          ifoodUrl: restaurant.ifoodUrl,
-          ubereatsUrl: restaurant.ubereatsUrl,
-          doordashUrl: restaurant.doordashUrl,
-          rappiUrl: restaurant.rappiUrl,
-          grubhubUrl: restaurant.grubhubUrl,
-          pedidosyaUrl: restaurant.pedidosyaUrl,
-          didifoodUrl: restaurant.didifoodUrl,
-        }}
-        images={restaurant.images.map((i) => i.url)}
-      />
+      {visible ? (
+        <BuiltMenu
+          slug={slug}
+          name={restaurant.name}
+          country={restaurant.country}
+          theme={readMenuTheme(restaurant.menuTheme)}
+          menu={visible}
+          labels={{ cardapioDigital: t.menu.cardapioDigital, madeBy: t.menu.madeBy }}
+          actions={
+            <MenuActions
+              slug={slug}
+              whatsappNumber={restaurant.whatsappNumber}
+              instagramUrl={restaurant.instagramUrl}
+              country={restaurant.country}
+              deliveryUrls={deliveryUrls}
+            />
+          }
+        />
+      ) : (
+        <MenuSlideshow
+          slug={slug}
+          name={restaurant.name}
+          whatsappNumber={restaurant.whatsappNumber}
+          instagramUrl={restaurant.instagramUrl}
+          country={restaurant.country}
+          deliveryUrls={deliveryUrls}
+          images={restaurant.images.map((i) => i.url)}
+        />
+      )}
     </>
   );
 }

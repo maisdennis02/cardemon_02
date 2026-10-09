@@ -64,66 +64,6 @@
   font-family: var(--font-encode-sans), system-ui, sans-serif;
 }
 
-/* Floating social buttons (WhatsApp, Instagram, delivery apps) */
-.social-buttons {
-  position: fixed;
-  top: 12px;
-  left: 12px;
-  right: 12px;
-  z-index: 20;
-  display: flex;
-  flex-wrap: wrap;
-  gap: 8px;
-}
-
-.social-link {
-  text-decoration: none;
-}
-
-.social-button {
-  display: inline-flex;
-  align-items: center;
-  gap: 6px;
-  padding: 8px 14px;
-  border: none;
-  border-radius: 999px;
-  font-family: var(--font-encode-sans), system-ui, sans-serif;
-  font-size: 12px;
-  font-weight: bold;
-  color: #ffffff;
-  box-shadow: 2px 2px 6px rgba(0, 0, 0, 0.2);
-  cursor: pointer;
-  opacity: 0.8;
-  transition: opacity 150ms ease;
-}
-
-.social-button:hover,
-.social-button:focus-visible {
-  opacity: 1;
-}
-
-.wh-button {
-  background: #4bcc5b;
-}
-
-.ig-button {
-  background: linear-gradient(45deg, #f09433, #e6683c, #dc2743, #cc2366, #bc1888);
-}
-
-.delivery-button {
-  background: var(--brand-color);
-  color: var(--text-color);
-  min-height: 32px;
-}
-
-/* Force brand logos to white so they read on the colored button background
-   (matches each app's "logo on dark/colored bg" brand guideline). */
-.delivery-logo {
-  height: 14px;
-  width: auto;
-  filter: brightness(0) invert(1);
-}
-
 /* Chevron swipe hint on first slide */
 .chevron-hint {
   position: absolute;

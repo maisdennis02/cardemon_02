@@ -1,0 +1,7 @@
+/* The action buttons float over the photo slideshow; on a text menu they sit in
+   the flow under the header instead, so they never cover the restaurant name
+   or the first items. */
+.built-menu-actions .social-buttons {
+  position: static;
+  justify-content: center;
+}
