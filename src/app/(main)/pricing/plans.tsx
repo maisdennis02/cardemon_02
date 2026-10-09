@@ -7,6 +7,7 @@ import { useT } from "@/i18n/provider";
 import { format } from "@/i18n/config";
 import {
   FREE_IMAGE_LIMIT,
+  FREE_ITEM_LIMIT,
   PRO_IMAGE_LIMIT,
   pricesFor,
   type Currency,
@@ -38,7 +39,8 @@ export function PricingPlans({
           name={p.free.name}
           priceLine={p.free.priceLine}
           features={[
-            format(p.free.featurePages, { limit: FREE_IMAGE_LIMIT }),
+            format(p.free.featurePages, { items: FREE_ITEM_LIMIT, limit: FREE_IMAGE_LIMIT }),
+            p.free.featureOrders,
             p.free.featureQr,
             p.free.featureDelivery,
           ]}
@@ -75,6 +77,7 @@ export function PricingPlans({
           }
           features={[
             format(p.pro.featurePages, { limit: PRO_IMAGE_LIMIT }),
+            p.pro.featureOrders,
             p.pro.featureQr,
             p.pro.featureDelivery,
             p.pro.featurePriority,

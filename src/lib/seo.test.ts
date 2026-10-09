@@ -7,7 +7,7 @@ import es from "@/i18n/dictionaries/es";
 import ptBR from "@/i18n/dictionaries/pt-BR";
 import { jsonLdScript } from "@/lib/json-ld";
 import {
-  FREE_IMAGE_LIMIT,
+  FREE_IMAGE_LIMIT, FREE_ITEM_LIMIT,
   PRO_IMAGE_LIMIT,
   currencyForLocale,
   pricesFor,
@@ -36,6 +36,7 @@ const roundTrip = (value: unknown) => JSON.parse(jsonLdScript(value));
 function pricingDescription(locale: Locale): string {
   const prices = pricesFor(currencyForLocale(locale));
   return format(DICTS[locale].metadata.pricingDescription, {
+    items: FREE_ITEM_LIMIT,
     free: FREE_IMAGE_LIMIT,
     pro: PRO_IMAGE_LIMIT,
     price: `${prices.symbol}${prices.monthly}`,

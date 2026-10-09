@@ -3,7 +3,7 @@
 import { useEffect, useRef, useState, type Dispatch, type SetStateAction } from "react";
 import { useLocale, useT } from "@/i18n/provider";
 import { formatPrice, type MenuItem } from "@/lib/menu";
-import { buildOrderMessage, orderErrors, whatsappOrderUrl, type OrderDetails } from "@/lib/order";
+import { buildOrderMessage, orderErrors, orderLabels, whatsappOrderUrl, type OrderDetails } from "@/lib/order";
 import { speechLang } from "@/lib/speech";
 import { MicButton } from "@/components/voice/mic-button";
 import { pingMenuEvent } from "../menu-actions";
@@ -72,19 +72,7 @@ export function OrderSheet({
       country,
       lines,
       details,
-      labels: {
-        title: o.msgTitle,
-        total: o.msgTotal,
-        toArrange: o.toArrange,
-        plusToArrange: o.plusToArrange,
-        name: o.msgName,
-        delivery: o.msgDelivery,
-        pickup: o.msgPickup,
-        pickupTable: o.msgPickupTable,
-        notes: o.msgNotes,
-        footer: o.msgFooter,
-        confirm: o.msgConfirm,
-      },
+      labels: orderLabels(o),
     });
     pingMenuEvent(slug, "click_order");
     setSent(true);

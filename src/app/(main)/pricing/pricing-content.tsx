@@ -5,6 +5,7 @@ import type { Dictionary } from "@/i18n/dictionaries/en";
 import { format, withPrefix, type Locale, type PathPrefix } from "@/i18n/config";
 import {
   FREE_IMAGE_LIMIT,
+  FREE_ITEM_LIMIT,
   PRO_IMAGE_LIMIT,
   currencyForLocale,
   pricesFor,
@@ -26,6 +27,7 @@ export function pricingMetadata(locale: Locale, t: Dictionary): Metadata {
     locale,
     title: t.metadata.pricingTitle,
     description: format(t.metadata.pricingDescription, {
+      items: FREE_ITEM_LIMIT,
       free: FREE_IMAGE_LIMIT,
       pro: PRO_IMAGE_LIMIT,
       price: `${prices.symbol}${prices.monthly}`,

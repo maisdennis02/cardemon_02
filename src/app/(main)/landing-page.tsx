@@ -1,6 +1,5 @@
 import Link from "next/link";
 import { BrandedQrCode } from "./dashboard/branded-qr";
-import { HeroPhonePreview } from "./hero-phone-preview";
 import { Logo } from "@/components/logo";
 import {
   ArrowRightIcon,
@@ -20,8 +19,10 @@ import {
   topAppsForCountry,
   type SerializableApp,
 } from "@/lib/hero-mockup";
+import { TextMenuPhone, OrderSection, BuildSection, LookSection, PhotoSection, InsightsSection } from "./landing-sections";
 import {
   FREE_IMAGE_LIMIT,
+  FREE_ITEM_LIMIT,
   PRO_IMAGE_LIMIT,
   currencyForLocale,
   pricesFor,
@@ -81,18 +82,16 @@ export function LandingPage({
       />
       <SiteHeader signedIn={signedIn} t={t} homeHref={homeHref} pricingHref={pricingHref} />
       <main className="flex flex-col">
-        <Hero
-          signedIn={signedIn}
-          t={t}
-          heroImages={heroImages}
-          heroApps={heroApps}
-          deliveryStrip={deliveryStrip}
-        />
-        <PainSolution t={t} />
-        <AntiCanva t={t} priceLabel={priceLabel} />
+        <Hero signedIn={signedIn} locale={locale} t={t} deliveryStrip={deliveryStrip} />
         <Features t={t} />
-        <Audience t={t} />
+        <OrderSection locale={locale} t={t} />
+        <BuildSection locale={locale} t={t} />
+        <LookSection t={t} />
+        <PhotoSection t={t} heroImages={heroImages} heroApps={heroApps} />
+        <InsightsSection t={t} />
         <Examples t={t} showcase={LANDING_SHOWCASE[locale]} />
+        <AntiCanva t={t} priceLabel={priceLabel} />
+        <Audience t={t} />
         <Faq t={t} />
         <BottomCta signedIn={signedIn} t={t} priceLabel={priceLabel} pricingHref={pricingHref} />
       </main>
@@ -152,15 +151,13 @@ function SiteHeader({
 
 function Hero({
   signedIn,
+  locale,
   t,
-  heroImages,
-  heroApps,
   deliveryStrip,
 }: {
   signedIn: boolean;
+  locale: Locale;
   t: Dictionary;
-  heroImages: string[];
-  heroApps: SerializableApp[];
   deliveryStrip: SerializableApp[];
 }) {
   return (
@@ -184,7 +181,7 @@ function Hero({
             </span>
             {t.landing.badge}
           </span>
-          <h1 className="text-balance text-4xl font-bold leading-[1.05] tracking-tight text-[color:var(--color-navy)] sm:text-6xl lg:text-7xl">
+          <h1 className="text-balance text-4xl font-bold leading-[1.05] tracking-tight text-[color:var(--color-navy)] sm:text-5xl">
             {t.landing.heroTitleLine1}
             <br />
             <span className="relative inline-block text-[color:var(--color-brand)]">
@@ -266,11 +263,7 @@ function Hero({
           <div aria-hidden className="lp-phone-ring" />
           <div className="lp-phone-float">
             <div className="lp-phone-tilt">
-              <HeroPhonePreview
-                alt={t.landing.phonePreviewAlt}
-                images={heroImages}
-                apps={heroApps}
-              />
+              <TextMenuPhone locale={locale} t={t} />
             </div>
           </div>
         </div>
@@ -325,65 +318,11 @@ function Features({ t }: { t: Dictionary }) {
   );
 }
 
-function PainSolution({ t }: { t: Dictionary }) {
-  const pairs = [
-    { pain: t.landing.pain1, solution: t.landing.solution1 },
-    { pain: t.landing.pain3, solution: t.landing.solution3 },
-    { pain: t.landing.pain4, solution: t.landing.solution4 },
-    { pain: t.landing.pain5, solution: t.landing.solution5 },
-    { pain: t.landing.pain6, solution: t.landing.solution6 },
-  ];
-
-  return (
-    <section className="border-t border-gray-200/70 bg-white">
-      <div className="mx-auto max-w-6xl px-6 py-16 sm:py-24">
-        <div className="lp-reveal mx-auto mb-12 max-w-2xl text-center">
-          <h2 className="text-3xl font-bold tracking-tight text-[color:var(--color-navy)] sm:text-4xl">
-            {t.landing.painHeading}
-          </h2>
-          <p className="mt-4 text-gray-600">{t.landing.painLead}</p>
-        </div>
-        <ul className="flex flex-col gap-4">
-          {pairs.map((p, i) => (
-            <li
-              key={i}
-              className="lp-reveal grid gap-5 rounded-2xl border border-gray-200/80 bg-[color:var(--color-cream)] p-5 shadow-sm transition duration-300 hover:border-[color:var(--color-brand-100)] hover:shadow-md sm:p-6 md:grid-cols-[1fr_auto_1fr] md:gap-6"
-            >
-              <div className="flex items-start gap-3">
-                <span className="mt-0.5 flex h-8 w-8 flex-none items-center justify-center rounded-full bg-[color:var(--color-brand-50)] text-[color:var(--color-brand-700)]">
-                  <XIcon size={16} />
-                </span>
-                <p className="text-base leading-relaxed text-gray-700">
-                  {p.pain}
-                </p>
-              </div>
-              <div aria-hidden className="hidden items-center md:flex">
-                <span className="flex h-9 w-9 items-center justify-center rounded-full bg-white text-[color:var(--color-brand)] shadow-sm ring-1 ring-[color:var(--color-brand-100)]">
-                  <ArrowRightIcon size={16} />
-                </span>
-              </div>
-              <div className="flex items-start gap-3">
-                <span className="mt-0.5 flex h-8 w-8 flex-none items-center justify-center rounded-full bg-[#EDF1E0] text-[#5C6E27]">
-                  <CheckIcon size={16} />
-                </span>
-                <p className="text-base font-medium leading-relaxed text-[color:var(--color-navy)]">
-                  {p.solution}
-                </p>
-              </div>
-            </li>
-          ))}
-        </ul>
-      </div>
-    </section>
-  );
-}
-
 function AntiCanva({ t, priceLabel }: { t: Dictionary; priceLabel: string }) {
   const items = [
     { title: t.landing.antiCanva1Title, body: t.landing.antiCanva1Body },
     { title: t.landing.antiCanva2Title, body: t.landing.antiCanva2Body },
     { title: t.landing.antiCanva3Title, body: t.landing.antiCanva3Body },
-    { title: t.landing.antiCanva4Title, body: t.landing.antiCanva4Body },
   ];
 
   return (
@@ -400,7 +339,7 @@ function AntiCanva({ t, priceLabel }: { t: Dictionary; priceLabel: string }) {
           </h2>
           <p className="mt-4 text-white/70">{t.landing.antiCanvaLead}</p>
         </div>
-        <ul className="grid gap-5 md:grid-cols-2 md:gap-6">
+        <ul className="grid gap-5 md:grid-cols-3 md:gap-6">
           {items.map((item, i) => (
             <li
               key={i}
@@ -560,15 +499,18 @@ function Examples({ t, showcase }: { t: Dictionary; showcase: LandingShowcase })
 
 function Faq({ t }: { t: Dictionary }) {
   const items = [
+    { q: t.landing.faq7Q, a: t.landing.faq7A },
+    { q: t.landing.faq8Q, a: t.landing.faq8A },
     { q: t.landing.faq1Q, a: t.landing.faq1A },
     { q: t.landing.faq2Q, a: t.landing.faq2A },
     { q: t.landing.faq3Q, a: t.landing.faq3A },
     {
       q: t.landing.faq4Q,
-      a: format(t.landing.faq4A, { free: FREE_IMAGE_LIMIT, pro: PRO_IMAGE_LIMIT }),
+      a: format(t.landing.faq4A, { freeItems: FREE_ITEM_LIMIT, free: FREE_IMAGE_LIMIT, pro: PRO_IMAGE_LIMIT }),
     },
     { q: t.landing.faq5Q, a: t.landing.faq5A },
     { q: t.landing.faq6Q, a: t.landing.faq6A },
+    { q: t.landing.faq9Q, a: t.landing.faq9A },
   ];
 
   const faqLd = {
@@ -651,6 +593,7 @@ function BottomCta({
             </Link>
             <p className="text-sm text-white/80">
               {format(t.landing.pricingTeaserLine, {
+                freeItems: FREE_ITEM_LIMIT,
                 free: FREE_IMAGE_LIMIT,
                 price: priceLabel,
               })}{" "}

@@ -17,7 +17,7 @@ import en from "@/i18n/dictionaries/en";
 import es from "@/i18n/dictionaries/es";
 import ptBR from "@/i18n/dictionaries/pt-BR";
 import {
-  FREE_IMAGE_LIMIT,
+  FREE_IMAGE_LIMIT, FREE_ITEM_LIMIT,
   PRO_IMAGE_LIMIT,
   currencyForLocale,
   pricesFor,
@@ -109,6 +109,7 @@ function expectedCopy(path: string, locale: Locale): { title: unknown; descripti
       return {
         title: t.metadata.pricingTitle,
         description: format(t.metadata.pricingDescription, {
+          items: FREE_ITEM_LIMIT,
           free: FREE_IMAGE_LIMIT,
           pro: PRO_IMAGE_LIMIT,
           price: `${prices.symbol}${prices.monthly}`,

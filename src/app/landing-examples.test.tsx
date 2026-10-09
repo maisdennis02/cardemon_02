@@ -57,11 +57,11 @@ const menuSlugs = (links: string[]) =>
 
 describe("the Portuguese landing", () => {
   // The pt-BR landing is the page the ads send people to. Its copy, links and
-  // images are pinned to what shipped before the example menus were added
-  // (the fixture was generated from the commit before them).
+  // images are pinned (fixture last regenerated for the new landing of
+  // 2026-10-10: text menu, WhatsApp orders, voice).
   // After a DELIBERATE change to the Portuguese landing, regenerate with:
   //   UPDATE_LANDING_FIXTURE=1 npx vitest run src/app/landing-examples.test.tsx
-  it("reads exactly as it did before the example menus", async () => {
+  it("reads exactly as pinned", async () => {
     const current = visible(await renderLanding("pt-BR"));
     if (process.env.UPDATE_LANDING_FIXTURE) {
       writeFileSync(FIXTURE, `${JSON.stringify(current, null, 2)}\n`);

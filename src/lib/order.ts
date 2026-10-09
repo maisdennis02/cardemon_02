@@ -4,6 +4,7 @@
 // Design: docs/superpowers/specs/2026-10-10-pedido-whatsapp-design.md §3
 
 import { format } from "@/i18n/config";
+import type { Dictionary } from "@/i18n/dictionaries/en";
 import { formatPrice, type MenuItem } from "@/lib/menu";
 
 export type OrderDetails = {
@@ -27,6 +28,24 @@ export type OrderLabels = {
   footer: string; // "{url}"
   confirm: string;
 };
+
+// The message labels from a page's dictionary. One mapping, shared by the
+// order sheet and the landing's example, so the two can't drift apart.
+export function orderLabels(o: Dictionary["menu"]["order"]): OrderLabels {
+  return {
+    title: o.msgTitle,
+    total: o.msgTotal,
+    toArrange: o.toArrange,
+    plusToArrange: o.plusToArrange,
+    name: o.msgName,
+    delivery: o.msgDelivery,
+    pickup: o.msgPickup,
+    pickupTable: o.msgPickupTable,
+    notes: o.msgNotes,
+    footer: o.msgFooter,
+    confirm: o.msgConfirm,
+  };
+}
 
 export function orderErrors(d: OrderDetails): { name?: true; mode?: true; address?: true } {
   return {
