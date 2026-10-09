@@ -220,6 +220,21 @@ const ptBR: Dictionary = {
     },
   },
   dashboard: {
+    menuChoice: {
+      startTitle: "Como você quer criar seu cardápio?",
+      startLead: "Sem foto do cardápio à mão? Monte digitando os itens e preços — leva poucos minutos.",
+      build: "Montar meu cardápio",
+      buildHint: "Digite ou dite o nome e o preço de cada item.",
+      photos: "Tenho fotos do cardápio",
+      photosHint: "Envie as fotos ou a arte que você já tem.",
+      switchToBuilt: "Montar cardápio em vez disso",
+      cardTitle: "Seu cardápio",
+      cardItems: "{n} itens publicados",
+      edit: "Editar cardápio",
+      switchToPhotos: "Usar fotos em vez disso",
+      switching: "Trocando…",
+      switchNeedsUpload: "Envie a primeira foto abaixo. O cardápio passa a mostrar as fotos assim que ela chegar; seus itens continuam salvos.",
+    },
     builder: {
       title: "Montar cardápio",
       backToDashboard: "← Painel",

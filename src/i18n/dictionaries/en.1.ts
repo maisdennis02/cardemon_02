@@ -210,6 +210,21 @@ export const en = {
     },
   },
   dashboard: {
+    menuChoice: {
+      startTitle: "How do you want to create your menu?",
+      startLead: "No photo of your menu at hand? Build it by typing the items and prices — it takes a few minutes.",
+      build: "Build my menu",
+      buildHint: "Type or dictate each item's name and price.",
+      photos: "I have photos of my menu",
+      photosHint: "Upload the photos or artwork you already have.",
+      switchToBuilt: "Build a menu instead",
+      cardTitle: "Your menu",
+      cardItems: "{n} items published",
+      edit: "Edit menu",
+      switchToPhotos: "Use photos instead",
+      switching: "Switching…",
+      switchNeedsUpload: "Upload the first photo below. The menu switches to photos as soon as it arrives; your items stay saved.",
+    },
     builder: {
       title: "Build your menu",
       backToDashboard: "← Dashboard",

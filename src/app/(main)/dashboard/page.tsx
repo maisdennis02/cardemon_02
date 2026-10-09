@@ -16,9 +16,11 @@ import { DeleteAccountCard } from "./delete-account-card";
 import { getDictionary, getLocale } from "@/i18n";
 import type { Dictionary } from "@/i18n";
 import { imageLimitFor, isPro } from "@/lib/pricing";
-import { isPublished, publishedItemCount } from "@/lib/menu";
+import { effectiveMode, isPublished, publishedItemCount } from "@/lib/menu";
 import { DashboardTelemetry } from "./dashboard-telemetry";
 import { SignOutButton } from "./sign-out-button";
+import { BuildInsteadLink, MenuStartChoice } from "./menu-start-choice";
+import { BuiltMenuCard } from "./built-menu-card";
 
 export default async function DashboardPage({
   searchParams,
@@ -63,13 +65,13 @@ export default async function DashboardPage({
 
   // Photos or a published text menu both count. publishedItemCount never
   // throws, so a corrupt menu can't take the dashboard down.
-  const hasMenu =
-    !!restaurant &&
-    isPublished({
-      menuMode: restaurant.menuMode,
-      imageCount: restaurant.images.length,
-      publishedItemCount: publishedItemCount(restaurant.menuPublished),
-    });
+  const content = restaurant && {
+    menuMode: restaurant.menuMode,
+    imageCount: restaurant.images.length,
+    publishedItemCount: publishedItemCount(restaurant.menuPublished),
+  };
+  const hasMenu = !!content && isPublished(content);
+  const mode = content ? effectiveMode(content) : "photos";
 
   const userIsPro = isPro(user);
   const imageLimit = imageLimitFor(user);
@@ -82,6 +84,7 @@ export default async function DashboardPage({
       <DashboardTelemetry
         email={session.user.email ?? null}
         hasMenu={hasMenu}
+        menuMode={mode}
         isPro={userIsPro}
       />
       <DashboardHeader
@@ -109,11 +112,27 @@ export default async function DashboardPage({
             />
             <MenuQrCard slug={restaurant.slug} name={restaurant.name} />
             <MenuStatsCard stats={stats} restaurant={restaurant} t={t} />
-            <ImageManager
-              restaurant={restaurant}
-              imageLimit={imageLimit}
-              isPro={userIsPro}
-            />
+            {/* Which menu tools to show follows what the public page shows
+                (spec §3, "Entrada"). */}
+            {!hasMenu ? (
+              <MenuStartChoice>
+                <ImageManager restaurant={restaurant} imageLimit={imageLimit} isPro={userIsPro} />
+              </MenuStartChoice>
+            ) : mode === "built" ? (
+              <BuiltMenuCard restaurantId={restaurant.id} itemCount={content.publishedItemCount}>
+                <ImageManager
+                  restaurant={restaurant}
+                  imageLimit={imageLimit}
+                  isPro={userIsPro}
+                  switchToPhotosOnUpload
+                />
+              </BuiltMenuCard>
+            ) : (
+              <div className="flex flex-col gap-3">
+                <ImageManager restaurant={restaurant} imageLimit={imageLimit} isPro={userIsPro} />
+                <BuildInsteadLink />
+              </div>
+            )}
             {/* Google-only accounts have no password to change; they can
                 still set one through "Forgot password" if they want one. */}
             {!!user?.passwordHash && <ChangePasswordCard />}

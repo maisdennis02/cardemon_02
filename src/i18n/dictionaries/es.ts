@@ -220,6 +220,21 @@ const es: Dictionary = {
     },
   },
   dashboard: {
+    menuChoice: {
+      startTitle: "¿Cómo quieres crear tu menú?",
+      startLead: "¿No tienes una foto del menú a mano? Ármalo escribiendo los ítems y precios — toma pocos minutos.",
+      build: "Armar mi menú",
+      buildHint: "Escribe o dicta el nombre y el precio de cada ítem.",
+      photos: "Tengo fotos del menú",
+      photosHint: "Sube las fotos o el diseño que ya tienes.",
+      switchToBuilt: "Armar el menú en su lugar",
+      cardTitle: "Tu menú",
+      cardItems: "{n} ítems publicados",
+      edit: "Editar menú",
+      switchToPhotos: "Usar fotos en su lugar",
+      switching: "Cambiando…",
+      switchNeedsUpload: "Sube la primera foto abajo. El menú mostrará las fotos en cuanto llegue; tus ítems quedan guardados.",
+    },
     builder: {
       title: "Armar menú",
       backToDashboard: "← Panel",

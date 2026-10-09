@@ -30,10 +30,12 @@ const markAttributionDone = () => markDone(ATTRIBUTION_KEY);
 export function DashboardTelemetry({
   email,
   hasMenu,
+  menuMode,
   isPro,
 }: {
   email: string | null;
   hasMenu: boolean;
+  menuMode: "photos" | "built";
   isPro: boolean;
 }) {
   useEffect(() => {
@@ -72,7 +74,7 @@ export function DashboardTelemetry({
     if (hasMenu) {
       once("menu-published", () => {
         reportMenuPublishedConversion();
-        capture("menu_published");
+        capture("menu_published", { mode: menuMode });
       });
     }
 
@@ -105,7 +107,7 @@ export function DashboardTelemetry({
       "",
       window.location.pathname + (rest ? `?${rest}` : "") + window.location.hash,
     );
-  }, [email, hasMenu, isPro]);
+  }, [email, hasMenu, menuMode, isPro]);
 
   return null;
 }

@@ -49,10 +49,14 @@ export function ImageManager({
   restaurant,
   imageLimit,
   isPro,
+  switchToPhotosOnUpload = false,
 }: {
   restaurant: Restaurant;
   imageLimit: number;
   isPro: boolean;
+  // A text-menu owner chose photos with none uploaded: the first upload flips
+  // the public page to photos.
+  switchToPhotosOnUpload?: boolean;
 }) {
   const t = useT();
   // Local copy so drag-end can optimistically reorder before the server
@@ -131,6 +135,7 @@ export function ImageManager({
 
       <UploadDropzone
         restaurantId={restaurant.id}
+        switchToPhotos={switchToPhotosOnUpload}
         disabled={atLimit}
         slotsLeft={imageLimit - images.length}
         imageLimit={imageLimit}
@@ -163,12 +168,14 @@ export function ImageManager({
 
 function UploadDropzone({
   restaurantId,
+  switchToPhotos,
   disabled = false,
   slotsLeft,
   imageLimit,
   isPro,
 }: {
   restaurantId: string;
+  switchToPhotos: boolean;
   disabled?: boolean;
   slotsLeft: number;
   imageLimit: number;
@@ -220,7 +227,7 @@ function UploadDropzone({
         setProgress({ done: i + 1, total: files.length });
       }
 
-      const res = await recordMenuImages({ restaurantId, urls });
+      const res = await recordMenuImages({ restaurantId, urls, switchToPhotos });
       if (res.error) setError(res.error);
       else if (files.length < picked.length) {
         setError(
