@@ -344,6 +344,7 @@ export const en = {
       slugTaken: "That slug is already taken.",
       restaurantNotFound: "Restaurant not found.",
       invalidMenu: "Couldn't save the menu. Check the items and try again.",
+      logoInvalid: "The logo could not be saved. Please upload the image again.",
       imageNotFound: "Image not found.",
       invalidImageId: "Invalid image id.",
       reorderInvalid: "Invalid reorder request.",

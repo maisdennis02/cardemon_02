@@ -5,6 +5,7 @@
 
 import { z } from "zod";
 import { localeForCountry } from "@/i18n/config";
+import { SUPPORTED_COUNTRIES } from "@/lib/delivery-apps";
 import { FREE_ITEM_LIMIT } from "@/lib/pricing";
 
 export type MenuItem = { id: string; name: string; description?: string; priceCents: number | null };
@@ -65,6 +66,40 @@ export const PublishMenuInputSchema = z.object({
   restaurantId: z.string().cuid(),
   menu: z.unknown(),
 });
+
+export const SaveDraftInputSchema = PublishMenuInputSchema;
+
+export const MenuVisualInputSchema = z.object({
+  restaurantId: z.string().cuid(),
+  country: z.enum(SUPPORTED_COUNTRIES),
+  theme: MenuThemeSchema,
+});
+
+// A logo the server may store for this restaurant: our Blob host, under this
+// restaurant's own logos/ folder. Stops one owner pointing at another's file.
+export function isOwnLogoUrl(url: string, restaurantId: string): boolean {
+  if (!LOGO_URL_RE.test(url)) return false;
+  try {
+    return new URL(url).pathname.startsWith(`/logos/${restaurantId}/`);
+  } catch {
+    return false;
+  }
+}
+
+const MB = 1024 * 1024;
+
+// What /api/blob/upload may sign for a path the client chose. Uploads land in
+// the restaurant's own folder or nowhere.
+export function uploadRulesFor(pathname: string, restaurantId: string): { maxBytes: number; types: string[] } | null {
+  if (pathname.split("/").some((part) => part === ".." || part === ".")) return null;
+  if (pathname.startsWith(`logos/${restaurantId}/`)) {
+    return { maxBytes: 2 * MB, types: ["image/jpeg", "image/png", "image/webp"] };
+  }
+  if (pathname.startsWith(`menu-pages/${restaurantId}/`)) {
+    return { maxBytes: 10 * MB, types: ["image/jpeg", "image/png", "image/webp", "image/gif"] };
+  }
+  return null;
+}
 
 export const DEFAULT_MENU_THEME: MenuTheme = { color: "#1f2937", headerStyle: "centered" };
 

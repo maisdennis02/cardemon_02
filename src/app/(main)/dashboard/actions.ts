@@ -20,6 +20,7 @@ import {
   type DeliveryUrlColumn,
 } from "@/lib/delivery-apps";
 import { FREE_IMAGE_LIMIT, PRO_IMAGE_LIMIT, imageLimitFor, isPro } from "@/lib/pricing";
+import { readMenuTheme } from "@/lib/menu";
 import { dashT, requireOwnedRestaurant, requireUserId } from "./guards";
 
 async function requireOwnedImage(userId: string, imageId: string) {
@@ -89,6 +90,7 @@ const restaurantSchema = z
 const recordMenuImagesSchema = z.object({
   restaurantId: cuid,
   urls: z.array(blobUrl).min(1).max(50),
+  switchToPhotos: z.boolean().optional(),
 });
 
 const deleteMenuImageSchema = z.object({ id: cuid });
@@ -217,9 +219,12 @@ export async function updateRestaurant(_p: ActionState, formData: FormData): Pro
   return {};
 }
 
+// switchToPhotos: the owner of a text menu chose "Usar fotos em vez disso" with
+// no photos yet; their first upload is what flips the public page to photos.
 export async function recordMenuImages(input: {
   restaurantId: string;
   urls: string[];
+  switchToPhotos?: boolean;
 }): Promise<ActionState> {
   const userId = await requireUserId();
   const t = await dashT();
@@ -230,7 +235,7 @@ export async function recordMenuImages(input: {
     return { error: t.errors.invalidInput };
   }
 
-  const { restaurantId, urls } = parsed.data;
+  const { restaurantId, urls, switchToPhotos } = parsed.data;
   const restaurant = await requireOwnedRestaurant(userId, restaurantId);
 
   const [existingCount, user] = await Promise.all([
@@ -253,13 +258,21 @@ export async function recordMenuImages(input: {
     };
   }
 
-  await prisma.menuImage.createMany({
+  const createImages = prisma.menuImage.createMany({
     data: urls.map((url, i) => ({
       restaurantId,
       url,
       sortOrder: existingCount + i,
     })),
   });
+  if (switchToPhotos && existingCount === 0) {
+    await prisma.$transaction([
+      createImages,
+      prisma.restaurant.update({ where: { id: restaurantId }, data: { menuMode: "photos" } }),
+    ]);
+  } else {
+    await createImages;
+  }
   if (existingCount === 0 && urls.length > 0) {
     track("menu_first_upload").catch(() => {});
   }
@@ -333,16 +346,17 @@ export async function deleteAccount(): Promise<void> {
   const userId = await requireUserId();
   const restaurants = await prisma.restaurant.findMany({
     where: { ownerId: userId },
-    select: { slug: true, images: { select: { url: true } } },
+    select: { slug: true, menuTheme: true, images: { select: { url: true } } },
   });
 
   // Blobs before rows: once user.delete cascades, no record of the URLs
   // survives to retry from. A failed blob delete is logged with its URL so it
   // can be cleaned up by hand instead of orphaning silently.
   for (const r of restaurants) {
-    for (const img of r.images) {
-      await del(img.url).catch((err) =>
-        console.error("[deleteAccount] blob delete failed:", img.url, err),
+    const logoUrl = readMenuTheme(r.menuTheme).logoUrl;
+    for (const url of [...r.images.map((img) => img.url), ...(logoUrl ? [logoUrl] : [])]) {
+      await del(url).catch((err) =>
+        console.error("[deleteAccount] blob delete failed:", url, err),
       );
     }
   }

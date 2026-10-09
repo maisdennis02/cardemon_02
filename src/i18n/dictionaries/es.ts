@@ -357,6 +357,7 @@ const es: Dictionary = {
       slugTaken: "Ese slug ya está en uso.",
       restaurantNotFound: "Restaurante no encontrado.",
       invalidMenu: "No fue posible guardar el menú. Revisa los ítems e inténtalo de nuevo.",
+      logoInvalid: "No se pudo guardar el logo. Vuelve a subir la imagen.",
       imageNotFound: "Imagen no encontrada.",
       invalidImageId: "ID de imagen inválido.",
       reorderInvalid: "Solicitud de reordenación inválida.",

@@ -6,6 +6,9 @@ import {
   PublishMenuInputSchema,
   MenuSchema,
   MenuThemeSchema,
+  MenuVisualInputSchema,
+  isOwnLogoUrl,
+  uploadRulesFor,
   countItems,
   currencyForCountry,
   effectiveMode,
@@ -291,5 +294,42 @@ describe("stage A follow-ups", () => {
     const before = structuredClone(menu);
     visibleMenu(menu, false);
     expect(menu).toEqual(before);
+  });
+});
+
+describe("logo ownership and upload rules", () => {
+  const blob = "https://abc.public.blob.vercel-storage.com";
+
+  it("recognizes a logo of this restaurant only", () => {
+    expect(isOwnLogoUrl(`${blob}/logos/ckabc123/logo-x.png`, "ckabc123")).toBe(true);
+    expect(isOwnLogoUrl(`${blob}/logos/ckother9/logo-x.png`, "ckabc123")).toBe(false);
+    expect(isOwnLogoUrl(`${blob}/menu-pages/ckabc123/a.png`, "ckabc123")).toBe(false);
+    expect(isOwnLogoUrl("https://evil.com/logos/ckabc123/a.png", "ckabc123")).toBe(false);
+  });
+
+  it("caps logos at 2 MB and menu pages at 10 MB, inside the restaurant's folder", () => {
+    expect(uploadRulesFor("logos/abc/x.png", "abc")?.maxBytes).toBe(2 * 1024 * 1024);
+    expect(uploadRulesFor("logos/abc/x.png", "abc")?.types).not.toContain("image/gif");
+    expect(uploadRulesFor("menu-pages/abc/x.png", "abc")?.maxBytes).toBe(10 * 1024 * 1024);
+  });
+
+  it("refuses any other path", () => {
+    expect(uploadRulesFor("logos/other/x.png", "abc")).toBeNull();
+    expect(uploadRulesFor("../x", "abc")).toBeNull();
+    expect(uploadRulesFor("logos/abc/../other/x.png", "abc")).toBeNull();
+    expect(uploadRulesFor("x.png", "abc")).toBeNull();
+  });
+});
+
+describe("MenuVisualInputSchema", () => {
+  const input = (country: string) => ({
+    restaurantId: "ckabc1234567890abcdefghij",
+    country,
+    theme: { color: "#a1b2c3", headerStyle: "band" },
+  });
+
+  it("takes a supported country only", () => {
+    expect(MenuVisualInputSchema.safeParse(input("BR")).success).toBe(true);
+    expect(MenuVisualInputSchema.safeParse(input("XX")).success).toBe(false);
   });
 });

@@ -1,6 +1,7 @@
 import { handleUpload, type HandleUploadBody } from "@vercel/blob/client";
 import { auth } from "@/auth";
 import { prisma } from "@/lib/prisma";
+import { uploadRulesFor } from "@/lib/menu";
 
 export async function POST(request: Request): Promise<Response> {
   const body = (await request.json()) as HandleUploadBody;
@@ -9,7 +10,7 @@ export async function POST(request: Request): Promise<Response> {
     const jsonResponse = await handleUpload({
       body,
       request,
-      onBeforeGenerateToken: async (_pathname, clientPayload) => {
+      onBeforeGenerateToken: async (pathname, clientPayload) => {
         const session = await auth();
         if (!session?.user?.id) throw new Error("Not authenticated");
 
@@ -23,10 +24,15 @@ export async function POST(request: Request): Promise<Response> {
         });
         if (!owns) throw new Error("Restaurant not found");
 
+        // Menu pages and logos have different caps; anything outside the
+        // restaurant's own folders is refused.
+        const rules = uploadRulesFor(pathname, restaurantId);
+        if (!rules) throw new Error("Invalid upload path");
+
         return {
-          allowedContentTypes: ["image/jpeg", "image/png", "image/webp", "image/gif"],
+          allowedContentTypes: rules.types,
           addRandomSuffix: true,
-          maximumSizeInBytes: 10 * 1024 * 1024,
+          maximumSizeInBytes: rules.maxBytes,
           tokenPayload: JSON.stringify({ restaurantId, userId: session.user.id }),
         };
       },
