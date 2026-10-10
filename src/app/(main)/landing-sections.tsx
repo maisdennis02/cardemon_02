@@ -1,5 +1,6 @@
 import { HeroPhonePreview } from "./hero-phone-preview";
 import { DemoLogo } from "./demo-logo";
+import { menuBackgroundStyle } from "@/lib/menu-background";
 import { BrandedQrCode } from "./dashboard/branded-qr";
 import Link from "next/link";
 import { ArrowRightIcon, CheckIcon } from "@/components/icons";
@@ -36,7 +37,8 @@ export function TextMenuPhone({ locale, t }: { locale: Locale; t: Dictionary }) 
     <div
       role="img"
       aria-label={t.landing.phonePreviewAlt}
-      className="relative mx-auto h-[560px] w-[280px] overflow-hidden rounded-[2.6rem] border-[10px] border-[color:var(--color-navy)] bg-white text-left text-gray-900 shadow-2xl"
+      className="relative mx-auto h-[560px] w-[280px] overflow-hidden rounded-[2.6rem] border-[10px] border-[color:var(--color-navy)] text-left text-gray-900 shadow-2xl"
+      style={menuBackgroundStyle("doodles", ACCENT)}
     >
       <div className="relative h-20" style={{ background: ACCENT }}>
         <DemoLogo

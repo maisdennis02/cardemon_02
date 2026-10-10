@@ -79,4 +79,12 @@ describe("the hero phone", () => {
     const html = renderToStaticMarkup(<TextMenuPhone locale="pt-BR" t={ptBR} />);
     expect(html).toContain('data-demo-logo=""');
   });
+
+  it("lies on the doodles background", async () => {
+    const { TextMenuPhone } = await import("./(main)/landing-sections");
+    const { menuBackgroundStyle } = await import("@/lib/menu-background");
+    const html = renderToStaticMarkup(<TextMenuPhone locale="pt-BR" t={ptBR} />);
+    const tile = menuBackgroundStyle("doodles", "#c84630").backgroundImage!;
+    expect(html).toContain(tile.slice(12, 80));
+  });
 });

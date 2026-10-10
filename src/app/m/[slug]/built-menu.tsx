@@ -1,5 +1,6 @@
 import "./built-menu.css";
 import { formatPrice, headerColors, menuFontFamilies, type Menu, type MenuTheme } from "@/lib/menu";
+import { menuBackgroundStyle } from "@/lib/menu-background";
 import { MenuViewPing } from "./menu-actions";
 import { OrderableMenu } from "./order/orderable-menu";
 
@@ -39,8 +40,8 @@ export function BuiltMenu({
 
   return (
     <div
-      className={`flex flex-col bg-white text-gray-900 ${preview ? "min-h-0" : "min-h-dvh"} ${ordering ? "pb-24" : ""}`}
-      style={{ fontFamily: fonts.body }}
+      className={`flex flex-col text-gray-900 ${preview ? "min-h-0" : "min-h-dvh"} ${ordering ? "pb-24" : ""}`}
+      style={{ fontFamily: fonts.body, ...menuBackgroundStyle(theme.background, theme.color) }}
     >
       {!preview && <MenuViewPing slug={slug} />}
       <div className="mx-auto flex w-full max-w-lg flex-1 flex-col">

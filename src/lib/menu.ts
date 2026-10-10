@@ -13,7 +13,16 @@ export type MenuSection = { id: string; title: string | null; items: MenuItem[] 
 export type Menu = { v: 1; sections: MenuSection[] };
 export const MENU_FONTS = ["default", "modern", "elegant", "casual"] as const;
 export type MenuFont = (typeof MENU_FONTS)[number];
-export type MenuTheme = { logoUrl?: string; color: string; headerStyle: "centered" | "band"; font?: MenuFont };
+// Page backgrounds, like a chat wallpaper; "plain" is the original white page.
+export const MENU_BACKGROUNDS = ["plain", "paper", "linen", "gingham", "dots", "doodles"] as const;
+export type MenuBackground = (typeof MENU_BACKGROUNDS)[number];
+export type MenuTheme = {
+  logoUrl?: string;
+  color: string;
+  headerStyle: "centered" | "band";
+  font?: MenuFont;
+  background?: MenuBackground;
+};
 export type MenuMode = "photos" | "built";
 
 export const MENU_MAX_SECTIONS = 30;
@@ -61,6 +70,7 @@ export const MenuThemeSchema: z.ZodType<MenuTheme> = z.object({
   color: z.string().regex(/^#[0-9a-f]{6}$/i),
   headerStyle: z.enum(["centered", "band"]),
   font: z.enum(MENU_FONTS).optional(),
+  background: z.enum(MENU_BACKGROUNDS).optional(),
 });
 
 // Server actions receive whatever the client sends: check the envelope before

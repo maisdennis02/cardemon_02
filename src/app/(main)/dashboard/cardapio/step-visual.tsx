@@ -6,7 +6,8 @@ import { useT } from "@/i18n/provider";
 import { format } from "@/i18n/config";
 import { capture } from "@/lib/posthog";
 import { SUPPORTED_COUNTRIES } from "@/lib/delivery-apps";
-import { MENU_FONTS, menuFontFamilies, type MenuTheme } from "@/lib/menu";
+import { MENU_BACKGROUNDS, MENU_FONTS, menuFontFamilies, type MenuTheme } from "@/lib/menu";
+import { menuBackgroundStyle } from "@/lib/menu-background";
 import { pickLogoColors, swatchesFor } from "@/lib/menu-colors";
 import { BuiltMenuHeader } from "@/app/m/[slug]/built-menu";
 import { readLogoPixels } from "./logo-colors";
@@ -201,9 +202,41 @@ export function StepVisual({
         </div>
       </section>
 
+      <section className="card flex flex-col gap-3 p-5">
+        <div className="label">
+          {v.background}
+          <div className="grid grid-cols-3 gap-3">
+            {MENU_BACKGROUNDS.map((background) => {
+              const selected = (theme.background ?? "plain") === background;
+              return (
+                <button
+                  key={background}
+                  type="button"
+                  aria-pressed={selected}
+                  onClick={() => onTheme({ ...theme, background })}
+                  className={`flex flex-col items-center gap-2 rounded-xl border-2 p-2 text-xs font-semibold ${
+                    selected ? "border-[color:var(--color-brand)]" : "border-gray-200"
+                  }`}
+                >
+                  <span
+                    aria-hidden
+                    className="h-14 w-full rounded-lg border border-gray-100"
+                    style={menuBackgroundStyle(background, theme.color)}
+                  />
+                  {v.backgrounds[background]}
+                </button>
+              );
+            })}
+          </div>
+        </div>
+      </section>
+
       <section aria-label={v.headerPreview}>
         <p className="mb-2 text-xs font-semibold uppercase tracking-wide text-gray-500">{v.headerPreview}</p>
-        <div className="overflow-hidden rounded-2xl border border-gray-200 bg-white pb-6">
+        <div
+          className="overflow-hidden rounded-2xl border border-gray-200 pb-6"
+          style={menuBackgroundStyle(theme.background, theme.color)}
+        >
           <BuiltMenuHeader name={restaurant.name} theme={theme} />
         </div>
       </section>

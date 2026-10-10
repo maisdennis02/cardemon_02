@@ -43,7 +43,7 @@ const builtExample = (slug: string, name: string, locale: Locale): ExampleMenu =
   locale,
   country: LANDING_DEMO[locale].country,
   images: [],
-  built: { menu: LANDING_DEMO[locale].menu, theme: { color: "#c84630", headerStyle: "band" } },
+  built: { menu: LANDING_DEMO[locale].menu, theme: { color: "#c84630", headerStyle: "band", background: "doodles" } },
 });
 
 const pages = (slug: string) =>
