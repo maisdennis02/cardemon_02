@@ -1,4 +1,5 @@
 import { HeroPhonePreview } from "./hero-phone-preview";
+import { DemoLogo } from "./demo-logo";
 import { BrandedQrCode } from "./dashboard/branded-qr";
 import Link from "next/link";
 import { ArrowRightIcon, CheckIcon } from "@/components/icons";
@@ -37,11 +38,16 @@ export function TextMenuPhone({ locale, t }: { locale: Locale; t: Dictionary }) 
       aria-label={t.landing.phonePreviewAlt}
       className="relative mx-auto h-[560px] w-[280px] overflow-hidden rounded-[2.6rem] border-[10px] border-[color:var(--color-navy)] bg-white text-left text-gray-900 shadow-2xl"
     >
-      <div className="h-16" style={{ background: ACCENT }} />
+      <div className="relative h-20" style={{ background: ACCENT }}>
+        <DemoLogo
+          accent={ACCENT}
+          className="absolute bottom-0 left-1/2 size-16 -translate-x-1/2 translate-y-1/2 rounded-full border-4 border-white bg-white shadow-md"
+        />
+      </div>
       <span className="absolute right-4 top-4 rounded-full bg-white/90 px-2 py-0.5 text-[10px] font-bold uppercase tracking-wider text-gray-700">
         {t.landing.demoLabel}
       </span>
-      <p className="mt-3 px-5 text-center font-serif text-xl font-bold" style={{ color: ACCENT }}>
+      <p className="mt-10 px-5 text-center font-serif text-xl font-bold" style={{ color: ACCENT }}>
         {t.landing.demoRestaurant}
       </p>
       <div className="px-5 pt-2">

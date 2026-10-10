@@ -72,3 +72,11 @@ describe.each(["pt-BR", "es", "en"] as const)("the new landing (%s)", (locale) =
     expect(t.landing.faq4A).toContain("{freeItems}");
   });
 });
+
+describe("the hero phone", () => {
+  it("shows a logo on the band, the way a real text menu does", async () => {
+    const { TextMenuPhone } = await import("./(main)/landing-sections");
+    const html = renderToStaticMarkup(<TextMenuPhone locale="pt-BR" t={ptBR} />);
+    expect(html).toContain('data-demo-logo=""');
+  });
+});
