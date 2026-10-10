@@ -1,5 +1,5 @@
 import { prisma } from "@/lib/prisma";
-import { maskEmail } from "@/lib/admin";
+import { isTestEmail, maskEmail } from "@/lib/admin";
 import { acquisitionSource, asAcquisition, isAdClick } from "@/lib/acquisition";
 import { isPro } from "@/lib/pricing";
 import { effectiveMode, isPublished, publishedItemCount, type MenuMode } from "@/lib/menu";
@@ -50,6 +50,8 @@ export type FunnelAccount = {
   /** Orders a diner sent to the restaurant's WhatsApp from the menu. */
   orders: number;
   status: FunnelStatus;
+  /** The owner's own account (admin or FUNNEL_TEST_EMAILS): listed, never counted. */
+  test: boolean;
 };
 
 export type FunnelSource = {
@@ -77,6 +79,8 @@ export type Funnel = {
     paying: number;
     /** Active Pro accounts across the whole product, not just this window. */
     payingNow: number;
+    /** Test accounts in the window, left out of every count above. */
+    testAccounts: number;
   };
   sources: FunnelSource[];
   /** One row per UTC day: accounts created, and how far they have got since. */
@@ -90,6 +94,7 @@ export type FunnelUserRow = {
   createdAt: Date;
   acquisition: unknown;
   proExpiresAt: Date | null;
+  test: boolean;
   restaurant: {
     slug: string;
     menuMode: string;
@@ -130,6 +135,7 @@ function accountFor(user: FunnelUserRow): FunnelAccount {
     views: r?.views ?? 0,
     orders: r?.orders ?? 0,
     status,
+    test: user.test,
   };
 }
 
@@ -141,7 +147,10 @@ export function buildFunnel(
   payingNow: number,
   window: { days: number; from: Date; to: Date },
 ): Funnel {
-  const accounts = users.map(accountFor);
+  const listed = users.map(accountFor);
+  // The owner's own tests (a fake gclid, their demo restaurant) would read as
+  // ad conversions and real orders; they stay visible in the list only.
+  const accounts = listed.filter((a) => !a.test);
 
   const bySource = new Map<string, FunnelSource>();
   for (const a of accounts) {
@@ -185,10 +194,11 @@ export function buildFunnel(
       orders: accounts.reduce((n, a) => n + a.orders, 0),
       paying: accounts.filter((a) => a.status === "paying").length,
       payingNow,
+      testAccounts: listed.length - accounts.length,
     },
     sources: [...bySource.values()].sort((a, b) => b.signups - a.signups),
     daily: [...byDay.values()].sort((a, b) => a.date.localeCompare(b.date)),
-    accounts,
+    accounts: listed,
   };
 }
 
@@ -240,6 +250,7 @@ export async function loadFunnel(days: number): Promise<Funnel> {
       createdAt: u.createdAt,
       acquisition: u.acquisition,
       proExpiresAt: u.proExpiresAt,
+      test: isTestEmail(u.email),
       restaurant: r && {
         slug: r.slug,
         menuMode: r.menuMode,

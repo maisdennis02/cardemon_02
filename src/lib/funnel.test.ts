@@ -20,6 +20,7 @@ function user(
     createdAt: new Date("2026-10-03T12:00:00Z"),
     acquisition: null,
     proExpiresAt: null,
+    test: false,
     ...rest,
     restaurant:
       restaurant === null
@@ -71,5 +72,19 @@ describe("funnel totals", () => {
     expect(f.totals).toMatchObject({ signups: 4, onboarded: 3, published: 2, viewed: 1, ordered: 1, orders: 3 });
     expect(f.daily).toEqual([{ date: "2026-10-03", signups: 4, adSignups: 0, published: 2 }]);
     expect(f.sources[0]).toMatchObject({ signups: 4, published: 2, ordered: 1 });
+  });
+});
+
+describe("test accounts", () => {
+  it("lists them flagged but leaves them out of totals, sources and days", () => {
+    const f = run([
+      user({ test: true, acquisition: { gclid: "teste123" }, restaurant: { menuMode: "built", menuPublished: menu(5), views: 2, orders: 3 } }),
+      user({ restaurant: { images: 2 } }),
+    ]);
+    expect(f.accounts.map((a) => a.test)).toEqual([true, false]);
+    expect(f.totals).toMatchObject({ signups: 1, adSignups: 0, published: 1, ordered: 0, orders: 0, testAccounts: 1 });
+    expect(f.sources).toHaveLength(1);
+    expect(f.sources[0]).toMatchObject({ signups: 1, published: 1 });
+    expect(f.daily).toEqual([{ date: "2026-10-03", signups: 1, adSignups: 0, published: 1 }]);
   });
 });

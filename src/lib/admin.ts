@@ -8,11 +8,23 @@ import { auth } from "@/auth";
  * 404 rather than 403 on purpose: a signed-in owner poking at /api/admin/*
  * learns only that the path does not exist.
  */
-function adminEmails(): string[] {
-  return (process.env.ADMIN_EMAIL ?? "")
+function emailList(value: string | undefined): string[] {
+  return (value ?? "")
     .split(",")
     .map((e) => e.trim().toLowerCase())
     .filter(Boolean);
+}
+
+const adminEmails = () => emailList(process.env.ADMIN_EMAIL);
+
+/**
+ * The owner's own accounts, kept out of the funnel's counts: every admin, plus
+ * FUNNEL_TEST_EMAILS (comma-separated) for test signups on other addresses.
+ */
+export function isTestEmail(email: string | null): boolean {
+  if (!email) return false;
+  const e = email.toLowerCase();
+  return adminEmails().includes(e) || emailList(process.env.FUNNEL_TEST_EMAILS).includes(e);
 }
 
 /** Null when the caller is an admin; the response to return when they are not. */

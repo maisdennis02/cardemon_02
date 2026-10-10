@@ -39,6 +39,10 @@ What matters, in order:
   `paying` for the window, plus `payingNow` (Pro accounts across the whole
   product, not just this window). `published` counts photo menus **and** text
   menus (since 10/10/2026; before that it counted photos only).
+  **Test accounts are already out of every count** (since 10/10/2026): any
+  `ADMIN_EMAIL` address plus `FUNNEL_TEST_EMAILS`. `totals.testAccounts` says
+  how many were left out; they still appear in `accounts[]` with `test: true`
+  — never report them as leads.
 - `sources[]` — the attributed truth, one row per origin:
   `{source, signups, onboarded, published, viewed, ordered, paying}`. `source:
   "google-ads"` is the only row the budget is judged on.
