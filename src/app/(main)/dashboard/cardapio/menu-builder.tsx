@@ -134,6 +134,13 @@ export function MenuBuilder({
     window.scrollTo({ top: 0 });
   }
 
+  // Leaving the builder by a link: save the look and the pending items first.
+  async function leaveTo(href: string) {
+    if (!(await saveVisual())) return;
+    await saver.current?.flush();
+    router.push(href);
+  }
+
   const index = STEPS.indexOf(step);
   const tabs = hasPublished;
 
@@ -144,11 +151,9 @@ export function MenuBuilder({
           <Link
             href="/dashboard"
             className="text-sm font-semibold text-[color:var(--color-navy)]"
-            onClick={async (e) => {
+            onClick={(e) => {
               e.preventDefault();
-              if (!(await saveVisual())) return;
-              await saver.current?.flush();
-              router.push("/dashboard");
+              void leaveTo("/dashboard");
             }}
           >
             {b.backToDashboard}
@@ -211,6 +216,7 @@ export function MenuBuilder({
             isPro={isPro}
             country={country}
             sectionSuggestions={sectionSuggestions}
+            onLeaveToPhotos={() => void leaveTo("/dashboard/fotos")}
           />
         )}
         {step === "preview" && (

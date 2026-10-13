@@ -51,6 +51,7 @@ export function StepItems({
   isPro,
   country,
   sectionSuggestions,
+  onLeaveToPhotos,
 }: {
   restaurantId: string;
   menu: Menu;
@@ -58,6 +59,8 @@ export function StepItems({
   isPro: boolean;
   country: string;
   sectionSuggestions: Record<Locale, string[]>;
+  // Saves what is pending before navigating, like the builder's Painel link.
+  onLeaveToPhotos: () => void;
 }) {
   const t = useT();
   const it = t.dashboard.builder.items;
@@ -240,7 +243,11 @@ export function StepItems({
       <Link
         href="/dashboard/fotos"
         className="self-start text-sm text-gray-600 underline"
-        onClick={() => capture("menu_mode_chosen", { mode: "photos" })}
+        onClick={(e) => {
+          e.preventDefault();
+          capture("menu_mode_chosen", { mode: "photos" });
+          onLeaveToPhotos();
+        }}
       >
         {it.haveMenuPhotos} →
       </Link>
