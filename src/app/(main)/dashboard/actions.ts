@@ -206,11 +206,17 @@ export async function updateRestaurant(_p: ActionState, formData: FormData): Pro
     }
   }
 
+  // Dictated numbers ("11 91234-5678") are reduced to digits first; the field
+  // is optional, so only a non-empty one has to pass.
+  const rawWhatsapp = String(formData.get("whatsappNumber") ?? "").trim();
+  const whatsappNumber = rawWhatsapp ? normalizeWhatsapp(rawWhatsapp) : undefined;
+  if (whatsappNumber === null) return { error: t.errors.whatsappFormat };
+
   const parsed = restaurantSchema.safeParse({
     name: formData.get("name"),
     slug: slugify(String(formData.get("slug") ?? "")),
     description: formData.get("description") || undefined,
-    whatsappNumber: formData.get("whatsappNumber") || undefined,
+    whatsappNumber,
     instagramUrl: formData.get("instagramUrl") || undefined,
     country: formData.get("country") || undefined,
     ...deliveryInput,
@@ -245,9 +251,10 @@ export async function updateRestaurant(_p: ActionState, formData: FormData): Pro
     },
   });
   revalidatePath("/dashboard");
+  revalidatePath("/dashboard/ajustes");
   revalidatePath(`/m/${parsed.data.slug}`);
   if (existing.slug !== parsed.data.slug) revalidatePath(`/m/${existing.slug}`);
-  return {};
+  return { ok: true };
 }
 
 // switchToPhotos: the owner of a text menu chose "Usar fotos em vez disso" with

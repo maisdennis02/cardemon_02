@@ -374,6 +374,16 @@ export const en = {
       },
     },
     viewPublicMenu: "View public menu",
+    back: "← Home",
+    plan: {
+      title: "Plan",
+      proUntil: "Pro until {date}",
+      proRenews: "Pro · renews on {date}",
+      manage: "Manage",
+    },
+    account: {
+      title: "Account",
+    },
     managePlan: "Manage subscription",
     upgrade: "Upgrade",
     changePassword: {
@@ -433,6 +443,10 @@ export const en = {
       deliveryLead: "Link your delivery profiles — buttons appear on your public menu.",
       deliveryCountryPrompt: "Select your country above to add delivery links.",
       deliveryHint: "Optional. Paste your {appName} link.",
+      businessTitle: "Business details",
+      deliveryTitle: "Delivery apps",
+      slugWarning: "Changing the address stops any QR code you already printed from working.",
+      descriptionMic: "Hold to say the description",
     },
     menuLive: {
       title: "Your menu is live — now put it in front of people",

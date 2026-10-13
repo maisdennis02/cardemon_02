@@ -372,6 +372,16 @@ const es: Dictionary = {
       },
     },
     viewPublicMenu: "Ver menú público",
+    back: "← Inicio",
+    plan: {
+      title: "Plan",
+      proUntil: "Pro hasta el {date}",
+      proRenews: "Pro · se renueva el {date}",
+      manage: "Gestionar",
+    },
+    account: {
+      title: "Cuenta",
+    },
     managePlan: "Gestionar suscripción",
     upgrade: "Mejorar plan",
     changePassword: {
@@ -431,6 +441,10 @@ const es: Dictionary = {
       deliveryLead: "Vincula tus perfiles de delivery — los botones aparecen en tu menú público.",
       deliveryCountryPrompt: "Selecciona el país arriba para añadir enlaces de delivery.",
       deliveryHint: "Opcional. Pega el enlace de tu perfil en {appName}.",
+      businessTitle: "Datos del negocio",
+      deliveryTitle: "Apps de delivery",
+      slugWarning: "Cambiar la dirección hace que el código QR ya impreso deje de funcionar.",
+      descriptionMic: "Mantén presionado para decir la descripción",
     },
     menuLive: {
       title: "Tu menú está publicado — ahora muéstralo",
