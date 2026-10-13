@@ -53,9 +53,23 @@ export function RestaurantSettingsForm({ restaurant }: { restaurant: Restaurant 
 
   // What was submitted last: "Salvo ✓" only stands while the fields still
   // match it, so it disappears on the first change (typed or dictated).
-  const values = JSON.stringify([name, slug, whatsapp, instagram, description, country, links]);
+  const snapshot = (w: string) =>
+    JSON.stringify([name, slug, w, instagram, description, country, links]);
+  const values = snapshot(whatsapp);
   const [submitted, setSubmitted] = useState<string | null>(null);
   const showSaved = state.ok && !pending && submitted === values;
+
+  // After a save, show the number as stored (digits, with the calling code)
+  // rather than as typed or dictated — unless the owner already edited again.
+  const [seenState, setSeenState] = useState(state);
+  if (state !== seenState) {
+    setSeenState(state);
+    const stored = state.ok ? state.whatsappNumber : undefined;
+    if (stored !== undefined && submitted === values) {
+      setWhatsapp(stored ?? "");
+      setSubmitted(snapshot(stored ?? ""));
+    }
+  }
 
   const s = t.dashboard.settings;
   const apps = getAppsForCountry(country);
@@ -97,7 +111,7 @@ export function RestaurantSettingsForm({ restaurant }: { restaurant: Restaurant 
               required
               value={slug}
               onChange={(e) => setSlug(slugify(e.target.value))}
-              pattern="[a-z0-9-]+"
+              pattern="[a-z0-9\-]+"
               className="min-w-0 flex-1 border-0 bg-transparent px-2 py-2.5 font-mono text-sm focus:outline-none"
             />
           </div>

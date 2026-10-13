@@ -104,7 +104,9 @@ const reorderMenuImagesSchema = z.object({
   orderedIds: z.array(cuid).min(1).max(200),
 });
 
-export type ActionState = { error?: string; ok?: boolean };
+// whatsappNumber: the stored (normalized) number after a settings save, so the
+// form shows what diners' orders will actually be sent to.
+export type ActionState = { error?: string; ok?: boolean; whatsappNumber?: string | null };
 
 const URL_COLUMN_TO_APP_ID: Record<DeliveryUrlColumn, DeliveryAppId> = DELIVERY_APP_IDS.reduce(
   (acc, id) => {
@@ -184,15 +186,17 @@ export async function saveWhatsappNumber(_p: ActionState, formData: FormData): P
   const restaurant = await requireOwnedRestaurant(userId, restaurantId);
 
   // The home step asks for the number "com DDD"; the country supplies the
-  // calling code wa.me needs.
+  // calling code wa.me needs. Older restaurants without a stored country fall
+  // back to the one the UI language implies, as createRestaurant does.
   const whatsappNumber = normalizeWhatsapp(
     String(formData.get("whatsappNumber") ?? ""),
-    restaurant.country,
+    restaurant.country ?? COUNTRY_FOR_LOCALE[await getLocale()],
   );
   if (!whatsappNumber) return { error: t.errors.whatsappFormat };
 
   await prisma.restaurant.update({ where: { id: restaurant.id }, data: { whatsappNumber } });
   revalidatePath("/dashboard");
+  revalidatePath("/dashboard/ajustes");
   revalidatePath(`/m/${restaurant.slug}`);
   return { ok: true };
 }
@@ -261,7 +265,7 @@ export async function updateRestaurant(_p: ActionState, formData: FormData): Pro
   revalidatePath("/dashboard/ajustes");
   revalidatePath(`/m/${parsed.data.slug}`);
   if (existing.slug !== parsed.data.slug) revalidatePath(`/m/${existing.slug}`);
-  return { ok: true };
+  return { ok: true, whatsappNumber: parsed.data.whatsappNumber || null };
 }
 
 // switchToPhotos: the owner of a text menu chose "Usar fotos em vez disso" with
