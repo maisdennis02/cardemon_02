@@ -373,27 +373,12 @@ const es: Dictionary = {
       confirmButton: "Sí, eliminar todo",
     },
     onboarding: {
-      title: "Bienvenido — vamos a configurar tu restaurante.",
-      leadPrefix: "Elige un nombre y una URL pública. Los clientes visitarán",
-      leadSuffix: "para ver el menú.",
-      urlExample: "/m/nombre-de-tu-restaurante",
-      restaurantName: "Nombre del restaurante",
-      restaurantNamePlaceholder: "Nombre de tu restaurante",
-      urlSlug: "Slug de la URL",
-      slugHint: "Letras minúsculas, números y guiones.",
-      slugPlaceholder: "nombre-de-tu-restaurante",
-      whatsapp: "Número de WhatsApp",
-      whatsappPlaceholder: "525512345678",
-      whatsappHint:
-        "Opcional. Solo dígitos con código de país, ej.: 525512345678.",
-      instagram: "URL de Instagram",
-      instagramPlaceholder: "https://instagram.com/tuperfil",
-      instagramHint:
-        "Opcional. URL completa, ej.: https://instagram.com/tuperfil.",
-      description: "Descripción",
-      descriptionHint:
-        "Opcional. Aparece en los metadatos de la página del menú.",
-      submit: "Crear restaurante",
+      title: "¿Cómo se llama tu negocio?",
+      lead: "Es el nombre que aparece arriba de tu menú. Puedes cambiarlo después.",
+      nameLabel: "Nombre del negocio",
+      namePlaceholder: "Ej.: Fonda de Don José",
+      micLabel: "Mantén presionado para decir el nombre",
+      submit: "Empezar mi menú",
       submitting: "Creando…",
     },
     settings: {

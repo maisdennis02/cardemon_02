@@ -2,15 +2,11 @@ import { redirect } from "next/navigation";
 import { auth } from "@/auth";
 import { prisma } from "@/lib/prisma";
 import { getDictionary, getLocale } from "@/i18n";
-import { LOCALES, type Locale } from "@/i18n/config";
+import { COUNTRY_FOR_LOCALE, LOCALES, type Locale } from "@/i18n/config";
 import { isPro } from "@/lib/pricing";
 import { readMenuTheme } from "@/lib/menu";
 import { initialBuilderMenu } from "@/lib/menu-edit";
 import { MenuBuilder } from "./menu-builder";
-
-// When the restaurant has no country yet, guess one from the dashboard's
-// language; the owner confirms or changes it in the first step.
-const COUNTRY_FOR_LOCALE: Record<Locale, string> = { "pt-BR": "BR", es: "MX", en: "US" };
 
 export default async function MenuBuilderPage() {
   const session = await auth();

@@ -1,10 +1,12 @@
 import { describe, expect, it } from "vitest";
 import {
+  COUNTRY_FOR_LOCALE,
   DEFAULT_LOCALE,
   LOCALES,
   PREFIXED_LOCALES,
   UNPREFIXED_LOCALE,
   isPrefixedLocale,
+  localeForCountry,
   localePrefix,
   localizedPath,
   withPrefix,
@@ -51,5 +53,12 @@ describe("locale URLs", () => {
     expect(withPrefix("", "/pricing")).toBe("/pricing");
     expect(withPrefix("/pt-BR", "/")).toBe("/pt-BR");
     expect(withPrefix("/es", "/privacy")).toBe("/es/privacy");
+  });
+});
+
+describe("COUNTRY_FOR_LOCALE", () => {
+  it("maps each locale to a default country that maps back to it", () => {
+    expect(COUNTRY_FOR_LOCALE).toEqual({ "pt-BR": "BR", es: "MX", en: "US" });
+    for (const l of LOCALES) expect(localeForCountry(COUNTRY_FOR_LOCALE[l])).toBe(l);
   });
 });

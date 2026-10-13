@@ -144,12 +144,14 @@ describe("reserved slugs", () => {
     for (const menu of EXAMPLE_MENUS) expect(REAL_MENU_SLUGS as readonly string[]).not.toContain(menu.slug);
   });
 
-  // Both places an account can set a slug refuse a reserved one before they
-  // touch the database, and the view counter never looks one up.
+  // Updating the slug refuses a reserved one before touching the database
+  // (creation goes through pickSlug), and the view counter never looks one up.
   it("the dashboard actions and the view counter check the reservation", () => {
     const actions = readFileSync(join(ROOT, "src/app/(main)/dashboard/actions.ts"), "utf8");
-    expect(actions.match(/if \(isReservedSlug\(parsed\.data\.slug\)\) return \{ error: t\.errors\.slugTaken \};/g)).toHaveLength(2);
-    for (const fn of ["createRestaurant", "updateRestaurant"]) {
+    expect(actions.match(/if \(isReservedSlug\(parsed\.data\.slug\)\) return \{ error: t\.errors\.slugTaken \};/g)).toHaveLength(1);
+    // createRestaurant picks its slug with pickSlug, which skips reserved ones.
+    expect(actions).toContain("await pickSlug(");
+    for (const fn of ["updateRestaurant"]) {
       const body = actions.slice(actions.indexOf(`export async function ${fn}`));
       expect(body.indexOf("isReservedSlug("), fn).toBeGreaterThan(-1);
       expect(body.indexOf("isReservedSlug("), fn).toBeLessThan(body.indexOf("prisma.restaurant.find"));

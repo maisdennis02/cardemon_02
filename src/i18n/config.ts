@@ -84,6 +84,10 @@ const COUNTRY_LOCALE: Record<string, Locale> = {
   ES: "es",
 };
 
+// Default country guessed from the dashboard's language when a restaurant has
+// none yet (onboarding, builder's first step); the owner can change it.
+export const COUNTRY_FOR_LOCALE: Record<Locale, string> = { "pt-BR": "BR", es: "MX", en: "US" };
+
 export function localeForCountry(country: string | null | undefined): Locale {
   return (country && COUNTRY_LOCALE[country.toUpperCase()]) || DEFAULT_LOCALE;
 }

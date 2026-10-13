@@ -8,9 +8,11 @@ import { del } from "@vercel/blob";
 import { track } from "@vercel/analytics/server";
 import { signOut } from "@/auth";
 import { prisma } from "@/lib/prisma";
-import { slugify } from "@/lib/slug";
+import { Prisma } from "@/generated/prisma/client";
+import { pickSlug, slugify } from "@/lib/slug";
 import { isReservedSlug } from "@/lib/example-menus";
-import { format } from "@/i18n/config";
+import { COUNTRY_FOR_LOCALE, format } from "@/i18n/config";
+import { getLocale } from "@/i18n";
 import {
   DELIVERY_APP_IDS,
   DELIVERY_APPS,
@@ -132,40 +134,46 @@ function restaurantParseError(
   return t.errors.invalidInput;
 }
 
+const CreateRestaurantSchema = z.object({ name: z.string().trim().min(1).max(120) });
+
 export async function createRestaurant(_p: ActionState, formData: FormData): Promise<ActionState> {
   const userId = await requireUserId();
   const t = await dashT();
-  const parsed = restaurantSchema.safeParse({
-    name: formData.get("name"),
-    slug: slugify(String(formData.get("slug") ?? "")),
-    description: formData.get("description") || undefined,
-    whatsappNumber: formData.get("whatsappNumber") || undefined,
-    instagramUrl: formData.get("instagramUrl") || undefined,
-  });
-  if (!parsed.success) return { error: restaurantParseError(parsed.error, t) };
+  const parsed = CreateRestaurantSchema.safeParse({ name: formData.get("name") });
+  if (!parsed.success) return { error: t.errors.invalidInput };
 
-  // The example menus own their slugs: /m/<slug> answers from the registry
-  // before the database, so a restaurant created there would never be seen.
-  if (isReservedSlug(parsed.data.slug)) return { error: t.errors.slugTaken };
+  // Idempotent: a double submit (or a stale tab) just opens the builder.
+  const existing = await prisma.restaurant.findFirst({ where: { ownerId: userId } });
+  if (existing) redirect("/dashboard/cardapio");
 
-  const taken = await prisma.restaurant.findUnique({ where: { slug: parsed.data.slug } });
-  if (taken) return { error: t.errors.slugTaken };
+  const country = COUNTRY_FOR_LOCALE[await getLocale()];
+  const isTaken = async (s: string) =>
+    !!(await prisma.restaurant.findUnique({ where: { slug: s }, select: { id: true } }));
 
-  await prisma.restaurant.create({
-    data: {
-      ownerId: userId,
-      name: parsed.data.name,
-      slug: parsed.data.slug,
-      description: parsed.data.description,
-      whatsappNumber: parsed.data.whatsappNumber || null,
-      instagramUrl: parsed.data.instagramUrl || null,
-    },
-  });
+  // The address is picked from the name; a concurrent create can still win the
+  // slug between the check and the insert (P2002), so retry once.
+  let slug = "";
+  let created = false;
+  for (let attempt = 0; attempt < 2 && !created; attempt++) {
+    slug = await pickSlug(parsed.data.name, isTaken);
+    try {
+      await prisma.restaurant.create({
+        data: { ownerId: userId, name: parsed.data.name, slug, country },
+      });
+      created = true;
+    } catch (err) {
+      const isUniqueViolation =
+        err instanceof Prisma.PrismaClientKnownRequestError && err.code === "P2002";
+      if (!isUniqueViolation) throw err;
+    }
+  }
+  if (!created) return { error: t.errors.invalidInput };
+
   track("restaurant_created").catch(() => {});
   revalidatePath("/dashboard");
   // A scan before creation may have cached the 404 for this slug.
-  revalidatePath(`/m/${parsed.data.slug}`);
-  redirect("/dashboard");
+  revalidatePath(`/m/${slug}`);
+  redirect("/dashboard/cardapio");
 }
 
 export async function updateRestaurant(_p: ActionState, formData: FormData): Promise<ActionState> {
