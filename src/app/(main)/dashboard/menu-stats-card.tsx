@@ -3,6 +3,7 @@ import { prisma } from "@/lib/prisma";
 import { DELIVERY_APP_IDS, DELIVERY_APPS } from "@/lib/delivery-apps";
 import { WhatsAppIcon, InstagramIcon } from "@/components/icons";
 import type { Dictionary } from "@/i18n";
+import { format } from "@/i18n/config";
 
 export type MenuStats = {
   totalViews: number;
@@ -63,32 +64,43 @@ export function MenuStatsCard({
   const clickRows = buildClickRows(stats.clicks, restaurant, t);
   return (
     <section className="card">
-      <h2 className="text-lg font-semibold text-gray-900">{t.dashboard.stats.title}</h2>
-      <p className="mt-1 text-sm text-gray-600">{t.dashboard.stats.lead}</p>
-      <div className="mt-4 grid grid-cols-2 gap-4">
-        <Stat label={t.dashboard.stats.totalViews} value={nf.format(stats.totalViews)} />
-        <Stat label={t.dashboard.stats.last7Days} value={nf.format(stats.last7Days)} />
-      </div>
-      {clickRows.length > 0 && (
-        <div className="mt-6">
-          <h3 className="text-sm font-medium text-gray-900">
-            {t.dashboard.stats.buttonClicks}
-          </h3>
-          <ul className="mt-3 divide-y divide-gray-100 rounded-lg border border-gray-200 bg-white">
-            {clickRows.map(({ key, label, value, icon }) => (
-              <li key={key} className="flex items-center justify-between px-4 py-2.5 text-sm">
-                <span className="flex items-center gap-3 text-gray-700">
-                  {icon}
-                  {label}
-                </span>
-                <span className="font-semibold tabular-nums text-gray-900">
-                  {nf.format(value)}
-                </span>
-              </li>
-            ))}
-          </ul>
+      {/* The home shows one line; the full breakdown stays one tap away. */}
+      <p className="text-base font-semibold text-[color:var(--color-navy)]">
+        {format(t.dashboard.home.statsLine, {
+          views: nf.format(stats.last7Days),
+          orders: nf.format(stats.orders7Days),
+        })}
+      </p>
+      <details className="mt-3">
+        <summary className="cursor-pointer py-1 text-sm font-semibold text-[color:var(--color-brand)]">
+          {t.dashboard.stats.title}
+        </summary>
+        <p className="mt-1 text-sm text-gray-600">{t.dashboard.stats.lead}</p>
+        <div className="mt-4 grid grid-cols-2 gap-4">
+          <Stat label={t.dashboard.stats.totalViews} value={nf.format(stats.totalViews)} />
+          <Stat label={t.dashboard.stats.last7Days} value={nf.format(stats.last7Days)} />
         </div>
-      )}
+        {clickRows.length > 0 && (
+          <div className="mt-6">
+            <h3 className="text-sm font-medium text-gray-900">
+              {t.dashboard.stats.buttonClicks}
+            </h3>
+            <ul className="mt-3 divide-y divide-gray-100 rounded-lg border border-gray-200 bg-white">
+              {clickRows.map(({ key, label, value, icon }) => (
+                <li key={key} className="flex items-center justify-between px-4 py-2.5 text-sm">
+                  <span className="flex items-center gap-3 text-gray-700">
+                    {icon}
+                    {label}
+                  </span>
+                  <span className="font-semibold tabular-nums text-gray-900">
+                    {nf.format(value)}
+                  </span>
+                </li>
+              ))}
+            </ul>
+          </div>
+        )}
+      </details>
     </section>
   );
 }

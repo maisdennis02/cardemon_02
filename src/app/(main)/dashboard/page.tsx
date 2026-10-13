@@ -1,26 +1,18 @@
 import { redirect } from "next/navigation";
 import Link from "next/link";
-import { auth, signOut } from "@/auth";
+import { auth } from "@/auth";
 import { prisma } from "@/lib/prisma";
 import { Logo } from "@/components/logo";
-import { ExternalIcon } from "@/components/icons";
 import { OnboardingForm } from "./onboarding-form";
-import { ImageManager } from "./image-manager";
 import { MenuQrCard } from "./menu-qr-card";
 import { MenuStatsCard, loadMenuStats } from "./menu-stats-card";
-import { RestaurantSettingsForm } from "./restaurant-settings-form";
-import { DeliverySetupCallout } from "./delivery-setup-callout";
-import { MenuLiveCallout } from "./menu-live-callout";
-import { ChangePasswordCard } from "./change-password-card";
-import { DeleteAccountCard } from "./delete-account-card";
 import { getDictionary, getLocale } from "@/i18n";
 import type { Dictionary } from "@/i18n";
-import { imageLimitFor, isPro } from "@/lib/pricing";
+import { isPro } from "@/lib/pricing";
 import { effectiveMode, isPublished, publishedItemCount } from "@/lib/menu";
 import { DashboardTelemetry } from "./dashboard-telemetry";
-import { SignOutButton } from "./sign-out-button";
-import { BuildInsteadLink, MenuStartChoice } from "./menu-start-choice";
-import { BuiltMenuCard } from "./built-menu-card";
+import { MenuHomeCard } from "./menu-home-card";
+import { NextStepCard } from "./next-step-card";
 
 export default async function DashboardPage({
   searchParams,
@@ -29,6 +21,11 @@ export default async function DashboardPage({
 }) {
   const session = await auth();
   if (!session?.user?.id) redirect("/login");
+
+  // The old in-place edit mode moved to its own page. The browser keeps the
+  // fragment across the redirect, so ?edit=1#country lands on #country there.
+  const { edit } = await searchParams;
+  if (edit === "1") redirect("/dashboard/ajustes");
 
   const locale = await getLocale();
   const t = await getDictionary(locale);
@@ -40,7 +37,7 @@ export default async function DashboardPage({
     }),
     prisma.user.findUnique({
       where: { id: session.user.id },
-      select: { proExpiresAt: true, passwordHash: true },
+      select: { proExpiresAt: true },
     }),
   ]);
 
@@ -50,18 +47,17 @@ export default async function DashboardPage({
     ? await loadMenuStats(restaurant.id, sevenDaysAgo)
     : { totalViews: 0, last7Days: 0, orders7Days: 0, clicks: {} };
 
-  const { edit } = await searchParams;
-  const initialEdit = edit === "1";
-
-  const needsDeliverySetup =
+  const hasDeliveryLink =
     !!restaurant &&
-    !restaurant.ifoodUrl &&
-    !restaurant.ubereatsUrl &&
-    !restaurant.doordashUrl &&
-    !restaurant.rappiUrl &&
-    !restaurant.grubhubUrl &&
-    !restaurant.pedidosyaUrl &&
-    !restaurant.didifoodUrl;
+    !!(
+      restaurant.ifoodUrl ||
+      restaurant.ubereatsUrl ||
+      restaurant.doordashUrl ||
+      restaurant.rappiUrl ||
+      restaurant.grubhubUrl ||
+      restaurant.pedidosyaUrl ||
+      restaurant.didifoodUrl
+    );
 
   // Photos or a published text menu both count. publishedItemCount never
   // throws, so a corrupt menu can't take the dashboard down.
@@ -74,7 +70,6 @@ export default async function DashboardPage({
   const mode = content ? effectiveMode(content) : "photos";
 
   const userIsPro = isPro(user);
-  const imageLimit = imageLimitFor(user);
 
   return (
     <div className="flex min-h-screen flex-col bg-gray-50/60">
@@ -87,73 +82,37 @@ export default async function DashboardPage({
         menuMode={mode}
         isPro={userIsPro}
       />
-      <DashboardHeader
-        userEmail={session.user.email ?? null}
-        publicMenuSlug={restaurant?.slug ?? null}
-        isPro={userIsPro}
-        t={t}
-      />
+      <DashboardHeader isPro={userIsPro} t={t} />
 
-      <main className="mx-auto w-full max-w-4xl flex-1 px-6 py-8 sm:py-10">
+      <main className="mx-auto w-full max-w-4xl flex-1 px-4 py-6 sm:px-6 sm:py-10">
         {!restaurant ? (
           <OnboardingForm />
         ) : (
-          <div className="flex flex-col gap-6">
-            {/* The one thing an owner does most from a phone: look at the menu
-                diners see. The header's link is hidden on small screens. */}
-            {hasMenu && (
-              <Link
-                href={`/m/${restaurant.slug}`}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="btn btn-primary w-full py-4 text-base"
-              >
-                {t.dashboard.openMenu}
-                <ExternalIcon size={18} />
-              </Link>
-            )}
-            {/* A menu nobody has opened yet — including its owner — is the one
-                moment worth interrupting for; it outranks the delivery nudge. */}
-            {hasMenu && stats.totalViews === 0 && !initialEdit && (
-              <MenuLiveCallout slug={restaurant.slug} t={t} />
-            )}
-            {needsDeliverySetup && !initialEdit && <DeliverySetupCallout t={t} />}
-            <RestaurantSettingsForm
-              key={initialEdit ? "edit" : "view"}
-              restaurant={restaurant}
-              initialEdit={initialEdit}
+          // Spec §3: menu, one next step, QR, numbers. Everything else
+          // (details, delivery apps, photos, account) lives in Ajustes/Fotos.
+          <div className="flex flex-col gap-5 sm:gap-6">
+            <MenuHomeCard
+              name={restaurant.name}
+              slug={restaurant.slug}
+              hasMenu={hasMenu}
+              mode={mode}
+              itemCount={content ? content.publishedItemCount : 0}
+              imageCount={restaurant.images.length}
             />
-            <MenuQrCard slug={restaurant.slug} name={restaurant.name} />
+            <NextStepCard
+              state={{
+                hasMenu,
+                mode,
+                totalViews: stats.totalViews,
+                hasWhatsapp: !!restaurant.whatsappNumber,
+                hasDeliveryLink,
+              }}
+              restaurantId={restaurant.id}
+              slug={restaurant.slug}
+              t={t}
+            />
+            {hasMenu && <MenuQrCard slug={restaurant.slug} name={restaurant.name} />}
             <MenuStatsCard stats={stats} restaurant={restaurant} t={t} />
-            {/* Which menu tools to show follows what the public page shows
-                (spec §3, "Entrada"). */}
-            {!hasMenu ? (
-              <MenuStartChoice>
-                <ImageManager restaurant={restaurant} imageLimit={imageLimit} isPro={userIsPro} />
-              </MenuStartChoice>
-            ) : mode === "built" ? (
-              <BuiltMenuCard
-                restaurantId={restaurant.id}
-                itemCount={content.publishedItemCount}
-                whatsappNumber={restaurant.whatsappNumber}
-              >
-                <ImageManager
-                  restaurant={restaurant}
-                  imageLimit={imageLimit}
-                  isPro={userIsPro}
-                  switchToPhotosOnUpload
-                />
-              </BuiltMenuCard>
-            ) : (
-              <div className="flex flex-col gap-3">
-                <ImageManager restaurant={restaurant} imageLimit={imageLimit} isPro={userIsPro} />
-                <BuildInsteadLink />
-              </div>
-            )}
-            {/* Google-only accounts have no password to change; they can
-                still set one through "Forgot password" if they want one. */}
-            {!!user?.passwordHash && <ChangePasswordCard />}
-            <DeleteAccountCard />
           </div>
         )}
       </main>
@@ -161,52 +120,28 @@ export default async function DashboardPage({
   );
 }
 
-function DashboardHeader({
-  userEmail,
-  publicMenuSlug,
-  isPro,
-  t,
-}: {
-  userEmail: string | null;
-  publicMenuSlug: string | null;
-  isPro: boolean;
-  t: Dictionary;
-}) {
+function DashboardHeader({ isPro, t }: { isPro: boolean; t: Dictionary }) {
   return (
     <header className="sticky top-0 z-20 border-b border-gray-200 bg-white">
-      <div className="mx-auto flex max-w-4xl items-center justify-between px-6 py-3">
+      <div className="mx-auto flex max-w-4xl items-center justify-between gap-2 px-4 py-3 sm:px-6">
         <Logo />
-        <div className="flex items-center gap-2">
-          {publicMenuSlug && (
-            <Link
-              href={`/m/${publicMenuSlug}`}
-              target="_blank"
-              className="btn btn-secondary btn-sm hidden sm:inline-flex"
-            >
-              {t.dashboard.viewPublicMenu}
-              <ExternalIcon size={14} />
-            </Link>
-          )}
+        <div className="flex items-center gap-1 sm:gap-2">
+          <Link href="/dashboard/ajustes" className="btn btn-ghost btn-sm">
+            <span aria-hidden>⚙</span>
+            {t.dashboard.home.settings}
+          </Link>
           {isPro ? (
-            <form action="/api/stripe/portal" method="post">
-              <button className="btn btn-ghost btn-sm">{t.dashboard.managePlan}</button>
-            </form>
+            <Link
+              href="/dashboard/ajustes"
+              className="rounded-full bg-[color:var(--color-brand-50)] px-3 py-1.5 text-sm font-bold text-[color:var(--color-brand)]"
+            >
+              Pro
+            </Link>
           ) : (
             <Link href="/pricing" className="btn btn-ghost btn-sm">
               {t.dashboard.upgrade}
             </Link>
           )}
-          <form
-            action={async () => {
-              "use server";
-              await signOut({ redirectTo: "/" });
-            }}
-          >
-            <SignOutButton
-              label={t.common.signOut}
-              title={userEmail ?? t.common.signOut}
-            />
-          </form>
         </div>
       </div>
     </header>

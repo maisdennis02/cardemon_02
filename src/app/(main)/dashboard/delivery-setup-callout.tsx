@@ -20,7 +20,7 @@ export function DeliverySetupCallout({ t }: { t: Dictionary }) {
         <p className="text-sm leading-relaxed text-gray-600">{d.body}</p>
       </div>
       <Link
-        href="?edit=1#country"
+        href="/dashboard/ajustes#country"
         scroll
         className="btn btn-primary self-start sm:self-auto sm:flex-none"
       >
