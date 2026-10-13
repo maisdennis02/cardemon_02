@@ -324,6 +324,7 @@ export async function recordMenuImages(input: {
   track("menu_image_uploaded", { count: urls.length }).catch(() => {});
 
   revalidatePath("/dashboard");
+  revalidatePath("/dashboard/fotos");
   revalidatePath(`/m/${restaurant.slug}`);
   return {};
 }
@@ -350,6 +351,7 @@ export async function deleteMenuImage(formData: FormData) {
   );
 
   revalidatePath("/dashboard");
+  revalidatePath("/dashboard/fotos");
   revalidatePath(`/m/${image.restaurant.slug}`);
 }
 
@@ -379,6 +381,7 @@ export async function reorderMenuImages(formData: FormData) {
   );
 
   revalidatePath("/dashboard");
+  revalidatePath("/dashboard/fotos");
   revalidatePath(`/m/${restaurant.slug}`);
 }
 

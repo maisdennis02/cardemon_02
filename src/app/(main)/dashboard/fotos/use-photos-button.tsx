@@ -8,7 +8,7 @@ import { chooseMenuPhotos } from "../menu-actions";
 
 // Flips the public page from the text menu back to the uploaded photos, then
 // returns to the home. Only rendered when photos exist, so needsUpload is a
-// race (photos deleted meanwhile) and just surfaces as no-op.
+// race (photos deleted meanwhile): refresh so the list and button update.
 export function UsePhotosButton({ restaurantId }: { restaurantId: string }) {
   const t = useT();
   const c = t.dashboard.menuChoice;
@@ -22,7 +22,8 @@ export function UsePhotosButton({ restaurantId }: { restaurantId: string }) {
     startTransition(async () => {
       const res = await chooseMenuPhotos({ restaurantId });
       if (res.error) setError(res.error);
-      else if (!res.needsUpload) router.push("/dashboard");
+      else if (res.needsUpload) router.refresh();
+      else router.push("/dashboard");
     });
   }
 
