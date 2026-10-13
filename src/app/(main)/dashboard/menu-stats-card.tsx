@@ -7,6 +7,7 @@ import type { Dictionary } from "@/i18n";
 export type MenuStats = {
   totalViews: number;
   last7Days: number;
+  orders7Days: number;
   clicks: Record<string, number>;
 };
 
@@ -26,10 +27,13 @@ export async function loadMenuStats(
   restaurantId: string,
   sevenDaysAgo: Date,
 ): Promise<MenuStats> {
-  const [totalViews, last7Days, grouped] = await Promise.all([
+  const [totalViews, last7Days, orders7Days, grouped] = await Promise.all([
     prisma.menuView.count({ where: { restaurantId, kind: "view" } }),
     prisma.menuView.count({
       where: { restaurantId, kind: "view", viewedAt: { gte: sevenDaysAgo } },
+    }),
+    prisma.menuView.count({
+      where: { restaurantId, kind: "click_order", viewedAt: { gte: sevenDaysAgo } },
     }),
     prisma.menuView.groupBy({
       by: ["kind"],
@@ -43,7 +47,7 @@ export async function loadMenuStats(
     clicks[row.kind] = row._count._all;
   }
 
-  return { totalViews, last7Days, clicks };
+  return { totalViews, last7Days, orders7Days, clicks };
 }
 
 export function MenuStatsCard({

@@ -24,6 +24,7 @@ import {
 } from "@/lib/delivery-apps";
 import { FREE_IMAGE_LIMIT, PRO_IMAGE_LIMIT, imageLimitFor, isPro } from "@/lib/pricing";
 import { readMenuTheme } from "@/lib/menu";
+import { normalizeWhatsapp } from "@/lib/whatsapp";
 import { dashT, requireOwnedRestaurant, requireUserId } from "./guards";
 
 async function requireOwnedImage(userId: string, imageId: string) {
@@ -174,6 +175,21 @@ export async function createRestaurant(_p: ActionState, formData: FormData): Pro
   // A scan before creation may have cached the 404 for this slug.
   revalidatePath(`/m/${slug}`);
   redirect("/dashboard/cardapio");
+}
+
+export async function saveWhatsappNumber(_p: ActionState, formData: FormData): Promise<ActionState> {
+  const userId = await requireUserId();
+  const t = await dashT();
+  const restaurantId = String(formData.get("restaurantId") ?? "");
+  const restaurant = await requireOwnedRestaurant(userId, restaurantId);
+
+  const whatsappNumber = normalizeWhatsapp(String(formData.get("whatsappNumber") ?? ""));
+  if (!whatsappNumber) return { error: t.errors.whatsappFormat };
+
+  await prisma.restaurant.update({ where: { id: restaurant.id }, data: { whatsappNumber } });
+  revalidatePath("/dashboard");
+  revalidatePath(`/m/${restaurant.slug}`);
+  return { ok: true };
 }
 
 export async function updateRestaurant(_p: ActionState, formData: FormData): Promise<ActionState> {

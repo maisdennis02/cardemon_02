@@ -48,7 +48,7 @@ export default async function DashboardPage({
   sevenDaysAgo.setDate(sevenDaysAgo.getDate() - 7);
   const stats = restaurant
     ? await loadMenuStats(restaurant.id, sevenDaysAgo)
-    : { totalViews: 0, last7Days: 0, clicks: {} };
+    : { totalViews: 0, last7Days: 0, orders7Days: 0, clicks: {} };
 
   const { edit } = await searchParams;
   const initialEdit = edit === "1";
