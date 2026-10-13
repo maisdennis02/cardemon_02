@@ -61,7 +61,7 @@ deixa de ser comparável com os testes 1 e 2.
 
 `createRestaurant` passa a receber só `name`:
 
-- Schema próprio: `CreateRestaurantSchema = z.object({ name: z.string().trim().min(1).max(<mesmo máximo de hoje>) })`
+- Schema próprio: `CreateRestaurantSchema = z.object({ name: z.string().trim().min(1).max(120) })`
   (o `restaurantSchema` atual tem `superRefine` e não serve; o `trim` limpa o
   espaço final que o ditado deixa).
 - **Idempotente:** se o usuário já tem restaurante, só redireciona (duplo
