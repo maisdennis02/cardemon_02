@@ -15,6 +15,7 @@ export function MenuHomeCard({
   mode,
   itemCount,
   imageCount,
+  whatsappNumber,
 }: {
   name: string;
   slug: string;
@@ -22,6 +23,7 @@ export function MenuHomeCard({
   mode: "photos" | "built";
   itemCount: number;
   imageCount: number;
+  whatsappNumber: string | null;
 }) {
   const t = useT();
   const h = t.dashboard.home;
@@ -35,11 +37,24 @@ export function MenuHomeCard({
             <span aria-hidden>●</span>
             {h.live} ·{" "}
             {mode === "built"
-              ? format(h.itemsCount, { n: itemCount })
-              : format(h.photosCount, { n: imageCount })}
+              ? format(itemCount === 1 ? h.itemsCountOne : h.itemsCount, { n: itemCount })
+              : format(imageCount === 1 ? h.photosCountOne : h.photosCount, { n: imageCount })}
           </p>
         ) : (
           <p className="mt-1 text-sm text-gray-600">{h.draft}</p>
+        )}
+        {/* Where orders go, so a mistyped number is caught before a diner's
+            order is lost. Stored as digits with the calling code. */}
+        {hasMenu && mode === "built" && whatsappNumber && (
+          <p className="mt-1 text-sm text-gray-600">
+            {format(t.dashboard.menuChoice.ordersTo, { number: `+${whatsappNumber}` })}{" "}
+            <Link
+              href="/dashboard/ajustes"
+              className="font-semibold text-[color:var(--color-brand)] hover:text-[color:var(--color-brand-600)]"
+            >
+              {h.edit}
+            </Link>
+          </p>
         )}
       </div>
 

@@ -82,7 +82,7 @@ export default async function DashboardPage({
         menuMode={mode}
         isPro={userIsPro}
       />
-      <DashboardHeader isPro={userIsPro} t={t} />
+      <DashboardHeader isPro={userIsPro} hasRestaurant={!!restaurant} t={t} />
 
       <main className="mx-auto w-full max-w-4xl flex-1 px-4 py-6 sm:px-6 sm:py-10">
         {!restaurant ? (
@@ -98,6 +98,7 @@ export default async function DashboardPage({
               mode={mode}
               itemCount={content ? content.publishedItemCount : 0}
               imageCount={restaurant.images.length}
+              whatsappNumber={restaurant.whatsappNumber}
             />
             <NextStepCard
               state={{
@@ -120,29 +121,40 @@ export default async function DashboardPage({
   );
 }
 
-function DashboardHeader({ isPro, t }: { isPro: boolean; t: Dictionary }) {
+function DashboardHeader({
+  isPro,
+  hasRestaurant,
+  t,
+}: {
+  isPro: boolean;
+  hasRestaurant: boolean;
+  t: Dictionary;
+}) {
   return (
     <header className="sticky top-0 z-20 border-b border-gray-200 bg-white">
       <div className="mx-auto flex max-w-4xl items-center justify-between gap-2 px-4 py-3 sm:px-6">
         <Logo />
-        <div className="flex items-center gap-1 sm:gap-2">
-          <Link href="/dashboard/ajustes" className="btn btn-ghost btn-sm">
-            <span aria-hidden>⚙</span>
-            {t.dashboard.home.settings}
-          </Link>
-          {isPro ? (
-            <Link
-              href="/dashboard/ajustes"
-              className="rounded-full bg-[color:var(--color-brand-50)] px-3 py-1.5 text-sm font-bold text-[color:var(--color-brand)]"
-            >
-              Pro
+        {/* Onboarding: settings and plan mean nothing before a business exists. */}
+        {hasRestaurant && (
+          <div className="flex items-center gap-1 sm:gap-2">
+            <Link href="/dashboard/ajustes" className="btn btn-ghost btn-sm">
+              <span aria-hidden>⚙</span>
+              {t.dashboard.home.settings}
             </Link>
-          ) : (
-            <Link href="/pricing" className="btn btn-ghost btn-sm">
-              {t.dashboard.upgrade}
-            </Link>
-          )}
-        </div>
+            {isPro ? (
+              <Link
+                href="/dashboard/ajustes"
+                className="rounded-full bg-[color:var(--color-brand-50)] px-3 py-1.5 text-sm font-bold text-[color:var(--color-brand)]"
+              >
+                Pro
+              </Link>
+            ) : (
+              <Link href="/pricing" className="btn btn-ghost btn-sm">
+                {t.dashboard.upgrade}
+              </Link>
+            )}
+          </div>
+        )}
       </div>
     </header>
   );

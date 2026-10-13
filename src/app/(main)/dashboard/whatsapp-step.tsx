@@ -43,6 +43,7 @@ export function WhatsappStep({ restaurantId }: { restaurantId: string }) {
             value={number}
             onChange={(e) => setNumber(e.target.value)}
             aria-label={h.whatsappTitle}
+            placeholder={t.dashboard.settings.whatsappPlaceholder}
             className="input min-w-0 flex-1"
           />
           <MicButton
