@@ -8,6 +8,8 @@ import {
   MenuVisualInputSchema,
   PublishMenuInputSchema,
   SaveDraftInputSchema,
+  countItems,
+  dropEmptySections,
   isOwnLogoUrl,
   readMenuTheme,
 } from "@/lib/menu";
@@ -120,10 +122,15 @@ export async function publishMenu(input: {
     const t = await dashT();
     return { error: t.errors.invalidMenu };
   }
+  const menu = dropEmptySections(parsed.data);
+  if (countItems(menu) === 0) {
+    const t = await dashT();
+    return { error: t.errors.invalidMenu };
+  }
 
   await prisma.restaurant.update({
     where: { id: restaurant.id },
-    data: { menuDraft: parsed.data, menuPublished: parsed.data, menuMode: "built" },
+    data: { menuDraft: menu, menuPublished: menu, menuMode: "built" },
   });
 
   revalidatePath(`/m/${restaurant.slug}`);

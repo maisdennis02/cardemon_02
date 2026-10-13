@@ -147,6 +147,13 @@ export function countItems(menu: Menu | null): number {
   return menu ? menu.sections.reduce((n, s) => n + s.items.length, 0) : 0;
 }
 
+// Publishing drops sections with no items so the public menu never shows a
+// bare title. Returns the same object when nothing is empty.
+export function dropEmptySections(menu: Menu): Menu {
+  const sections = menu.sections.filter((s) => s.items.length > 0);
+  return sections.length === menu.sections.length ? menu : { ...menu, sections };
+}
+
 export function visibleMenu(menu: Menu, pro: boolean): { menu: Menu; hidden: number } {
   if (pro) return { menu, hidden: 0 };
   let left = FREE_ITEM_LIMIT;

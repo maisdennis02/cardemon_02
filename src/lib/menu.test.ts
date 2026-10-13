@@ -13,6 +13,7 @@ import {
   uploadRulesFor,
   countItems,
   currencyForCountry,
+  dropEmptySections,
   effectiveMode,
   formatPrice,
   headerColors,
@@ -371,5 +372,17 @@ describe("prices in each country's own format", () => {
   it("keeps reais and dollars as before", () => {
     expect(nb(formatPrice(2590, "BR"))).toBe("R$ 25,90");
     expect(nb(formatPrice(1250, "US"))).toBe("$12.50");
+  });
+});
+
+describe("dropEmptySections", () => {
+  it("removes sections with no items, keeping order", () => {
+    const out = dropEmptySections(menuWith([2, 0, 1]));
+    expect(out.sections.map((s) => s.id)).toEqual(["s1", "s3"]);
+  });
+
+  it("returns the same menu when nothing is empty", () => {
+    const menu = menuWith([2, 1]);
+    expect(dropEmptySections(menu)).toBe(menu);
   });
 });
