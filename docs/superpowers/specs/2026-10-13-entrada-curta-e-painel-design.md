@@ -1,6 +1,7 @@
 # Entrada curta (com voz) e painel enxuto — design
 
-Data: 2026-10-13 · Status: aguardando revisão do dono · Não vai ao ar antes de 15/10
+Data: 2026-10-13 · Status: revisado pelo Fable, aguardando revisão do dono ·
+Não vai ao ar antes de 15/10
 
 ## Por que
 
@@ -22,8 +23,12 @@ A abordagem "montar sem conta" foi descartada (o cadastro não é o atrito); o
 público errado da landing é tratado no marketing, fora deste documento.
 
 **Sucesso:** quem se cadastra chega ao construtor em **um toque**, publica, e
-no celular o painel mostra primeiro o que importa no dia a dia. Mensurável:
-contas com status `no_restaurant` perto de zero.
+no celular o painel mostra primeiro o que importa no dia a dia.
+
+**Como medir:** com um campo só, `no_restaurant` cai a ~0 por construção — não
+é mérito. O número que importa passa a ser **contas de anúncio que saem de
+`no_menu` para `live`/`viewed`** (`src/lib/funnel.ts`). A coluna "onboarded"
+deixa de ser comparável com os testes 1 e 2.
 
 ## Decisões tomadas (dono, 12–13/10)
 
@@ -31,8 +36,8 @@ contas com status `no_restaurant` perto de zero.
 |---|---|
 | 1 | Entrada pede **só o nome do negócio**, com microfone (segurar e falar) |
 | 2 | Endereço `/m/...` **gerado automaticamente** do nome; editável em Ajustes |
-| 3 | Depois da entrada, **direto no construtor** de cardápio em texto |
-| 4 | Construtor começa com **itens de exemplo apagáveis**; publicar fica bloqueado enquanto sobrar exemplo intocado |
+| 3 | Depois da entrada, **direto no construtor** de cardápio em texto, que **continua abrindo na etapa Visual** (ordem Visual → Itens → Prévia mantida) |
+| 4 | Itens de exemplo como **lista fantasma**: desenhados só na tela, nunca salvos nem publicáveis |
 | 5 | Painel = **Início enxuto + página Ajustes** (sem abas, sem checklist) |
 | 6 | Início mostra **um único** "Próximo passo" por vez |
 
@@ -40,8 +45,11 @@ contas com status `no_restaurant` perto de zero.
 
 - Construtor sem conta (rascunho no navegador) — descartado em 13/10.
 - Mudanças no cadastro (`/signup`), na landing e nos anúncios.
-- Mudanças no cardápio público (`/m/[slug]`) — nada aqui toca a rota ISR.
+- Reordenar as etapas do construtor.
+- Mudanças no cardápio público (`/m/[slug]`) — nada aqui toca a rota ISR nem
+  os schemas que `readPublishedMenu` usa.
 - Novos campos no banco. **Sem migração.**
+- Redesenho do `MenuQrCard` (é reaproveitado como está).
 
 ## 1. Entrada (`/dashboard` sem restaurante)
 
@@ -53,46 +61,63 @@ contas com status `no_restaurant` perto de zero.
 
 `createRestaurant` passa a receber só `name`:
 
-- O endereço sai de uma função pura nova `pickSlug(name, isTaken)` em
+- Schema próprio: `CreateRestaurantSchema = z.object({ name: z.string().trim().min(1).max(<mesmo máximo de hoje>) })`
+  (o `restaurantSchema` atual tem `superRefine` e não serve; o `trim` limpa o
+  espaço final que o ditado deixa).
+- **Idempotente:** se o usuário já tem restaurante, só redireciona (duplo
+  toque, voltar do navegador).
+- **País**: grava `country = COUNTRY_FOR_LOCALE[locale]` (o mesmo palpite que
+  `dashboard/cardapio/page.tsx` já faz). Assim um cardápio nunca fica com país
+  nulo (que renderiza em inglês com USD), mesmo que a etapa Visual mude depois.
+- **Endereço** sai de uma função pura nova `pickSlug(name, isTaken)` em
   `src/lib/slug.ts`:
-  1. `base = slugify(name)`; se vazio (nome só com emoji/símbolos) →
-     `base = "cardapio"`.
+  1. `base = slugify(name).slice(0, 52)`; se `base.length < 2` (vazio, emoji,
+     uma letra) → `base = "cardapio"`. O teto de 52 deixa espaço para os
+     sufixos sem passar dos 60 que `updateRestaurant` valida.
   2. Candidatos `base`, `base-2`, `base-3`, … até `base-50`; o primeiro que
      **não** é reservado (`isReservedSlug`) e **não** existe no banco vence.
-  3. Esgotados os 50 → `base-<6 caracteres aleatórios>`.
+  3. Esgotados os 50 → `base-<6 caracteres aleatórios [a-z0-9]>`.
   `isTaken` é injetado para a função ser testável sem banco; a action passa um
   callback que consulta `prisma.restaurant.findUnique`.
-- Corrida (dois cadastros simultâneos com o mesmo nome): a violação de unique
-  no `create` é capturada e o próximo candidato é tentado uma vez; se falhar de
-  novo, devolve o erro genérico.
+- **Corrida** (dois cadastros simultâneos com o mesmo nome): violação de unique
+  (P2002) no `create` → tenta o próximo candidato uma vez; se falhar de novo,
+  devolve o erro genérico.
+- Mantém `track("restaurant_created")`, `revalidatePath("/dashboard")` e
+  `revalidatePath(\`/m/${slug}\`)` (um 404 cacheado antes da criação).
 - Ao final: `redirect("/dashboard/cardapio")` (hoje é `/dashboard`).
-- `restaurantSchema` para criação valida só `name` (mesmos limites de hoje).
-- Novo evento PostHog `onboarding_submitted` (cliente, no submit), além do
-  `track("restaurant_created")` que já existe.
+- Sem evento PostHog novo: `restaurant_created` + `builder_step` já cobrem.
 
-## 2. Construtor: itens de exemplo e saída para fotos
+## 2. Construtor: exemplos fantasmas e saída para fotos
 
-**Exemplos.** Quando o restaurante não tem rascunho nem cardápio publicado,
-`initialBuilderMenu` devolve o cardápio de exemplo do locale (reaproveita os
-itens de `LANDING_DEMO[locale].menu`, sem nome de restaurante) com cada item
-marcado `sample: true`.
+O construtor continua abrindo na etapa **Visual** para quem nunca publicou
+(decisão 3); nada muda na ordem das etapas.
 
-- `MenuItem` ganha `sample?: true` (opcional; `MenuSchema` aceita no rascunho).
-- Item de exemplo aparece esmaecido com o selo "exemplo" e o botão apagar.
-- **Editar** qualquer campo de um item de exemplo remove o `sample` dele (vira
-  item real). Apagar remove o item.
-- Botão **Limpar exemplos** no topo do passo Itens, visível enquanto houver
-  algum `sample`.
-- **Publicar** com algum `sample` restante: bloqueado no cliente (botão
-  desabilitado + aviso "Edite ou apague os itens de exemplo") **e** no servidor
-  (`publishMenu` rejeita menu com `sample`). O cardápio publicado nunca contém
-  `sample`.
-- Seções de exemplo vazias depois de apagar os itens seguem as regras atuais
-  do construtor (seção vazia não aparece no cardápio público).
+**Exemplos fantasmas** — vivem só no `StepItems`:
+
+- Aparecem quando o cardápio **não tem nenhum item** (`countItems(menu) === 0`)
+  e o dono não os dispensou.
+- Conteúdo: os itens de `LANDING_DEMO[localeForCountry(country)].menu` — o
+  locale segue o país escolhido no construtor (mesma regra do ditado e das
+  sugestões de seção), não o idioma do painel.
+- Visual: esmaecidos, com selo "exemplo" e o texto "Toque para usar, ou comece
+  digitando". Botão **Esconder exemplos**.
+- **Tocar em um exemplo** copia aquele item (com a seção dele, se ainda não
+  existir) para o menu como item **real**, com id novo (`newId`), e abre a
+  edição dele. A partir daí ele é um item comum (autosave, contador, limite).
+- Ao primeiro item real (tocado ou digitado), a lista fantasma some.
+- **Esconder exemplos** guarda a dispensa em `localStorage` (por restaurante,
+  com try/catch); sem storage, a lista só some com o primeiro item.
+- Nunca entram no rascunho, no `MenuSchema`, no contador "N/20", no limite
+  grátis, na Prévia nem no `publishMenu`. Por construção, exemplo não publica.
+
+**Seções vazias no publicar.** `publishMenu` passa a descartar seções sem
+itens antes de gravar (hoje `visibleMenu` só faz isso no plano grátis, e o Pro
+veria títulos vazios). Se sobrar zero itens, mantém o erro atual.
 
 **Saída para fotos.** O construtor ganha um link discreto
-"Já tenho fotos do cardápio →" para `/dashboard/fotos` (abaixo).
-`MenuStartChoice` deixa de ser usado (a entrada vai direto ao construtor).
+"Já tenho fotos do cardápio →" para `/dashboard/fotos`, que dispara
+`capture("menu_mode_chosen", { mode: "photos" })` (o evento hoje vem do
+`MenuStartChoice`, que deixa de ser usado).
 
 ## 3. Início (`/dashboard` com restaurante)
 
@@ -101,8 +126,10 @@ De cima para baixo:
 1. **Cartão do cardápio** — nome do negócio; situação: "● No ar · N itens"
    (texto), "● No ar · N fotos" (fotos) ou "Rascunho — ainda não publicado";
    botões grandes **Abrir cardápio ↗** (só se publicado) e **Editar** (texto →
-   `/dashboard/cardapio`; fotos → `/dashboard/fotos`). Sem cardápio publicado,
-   o botão principal é **Continuar meu cardápio** → construtor.
+   `/dashboard/cardapio`; fotos → `/dashboard/fotos`).
+   Sem cardápio publicado: botão principal **Continuar meu cardápio** →
+   construtor, e um link secundário **"Tenho fotos do cardápio"** →
+   `/dashboard/fotos` (com o mesmo `menu_mode_chosen`).
 2. **Próximo passo** — um único card, escolhido por função pura
    `nextStep(state)` em `src/lib/next-step.ts`, na ordem:
    1. `finish_menu` — nada publicado → "Termine seu cardápio" (→ construtor)
@@ -110,14 +137,21 @@ De cima para baixo:
    3. `whatsapp` — modo texto e sem `whatsappNumber` → "Receba pedidos no
       WhatsApp", com o campo do número (com microfone) e Salvar ali mesmo
    4. `delivery` — nenhum link de app de entrega → "Adicione seus links do
-      iFood…" (→ Ajustes, âncora `#country`)
+      iFood…" (→ `/dashboard/ajustes#country`)
    5. `null` — tudo feito → nenhum card
-   (No modo fotos o passo `whatsapp` é pulado: o pedido pelo WhatsApp só existe
-   no cardápio em texto.)
-3. **Divulgar** — `MenuQrCard` (mantém `id="menu-qr"`), em versão compacta.
-   Só aparece com cardápio publicado.
-4. **Números** — uma linha "7 dias: X visitas · Y pedidos"; o detalhe do
-   `MenuStatsCard` atual fica num `<details>` fechado.
+   O passo `whatsapp` é pulado no modo fotos: o **pedido** pelo WhatsApp só
+   existe no cardápio em texto (o botão de contato existe nos dois, e não
+   depende disso).
+   O campo inline usa uma action nova
+   `saveWhatsappNumber(restaurantId, number)` — mesma regex de
+   `restaurantSchema`, `requireOwnedRestaurant`, `revalidatePath("/dashboard")`
+   e `revalidatePath(\`/m/${slug}\`)` (o botão de pedido depende do número).
+   `updateRestaurant` não serve: exige nome e endereço.
+3. **Divulgar** — `MenuQrCard` como está (mantém `id="menu-qr"`). Só aparece
+   com cardápio publicado.
+4. **Números** — uma linha "7 dias: X visitas · Y pedidos". `loadMenuStats`
+   ganha a contagem de `click_order` nos últimos 7 dias (hoje só as visitas
+   têm janela). O detalhe do `MenuStatsCard` atual fica num `<details>` fechado.
 
 **Cabeçalho**: logo, **⚙ Ajustes**, selo do plano ("Pro" → Ajustes, ou "Fazer
 upgrade" → `/pricing`). O botão Sair sai do cabeçalho e vai para Ajustes. O
@@ -130,36 +164,51 @@ troca de senha, excluir conta.
 
 Topo: "← Início". Blocos:
 
-1. **Dados do negócio** — `RestaurantSettingsForm` atual (nome, endereço,
-   WhatsApp, Instagram, descrição, país), sempre em modo edição; cada campo de
-   texto ganha `MicButton`.
-2. **Apps de entrega** — os campos de links (hoje dentro do mesmo formulário;
-   continuam no mesmo formulário, só com título próprio e `id="country"`).
-3. **Plano** — "Pro até DD/MM/AAAA" + Gerenciar (portal Stripe), ou Fazer
-   upgrade.
+1. **Dados do negócio** — nome, endereço, WhatsApp, Instagram, descrição; cada
+   campo de texto com `MicButton`.
+   - **O endereço não acompanha o nome** em Ajustes (`slugTouched` começa
+     `true`): renomear o negócio não pode trocar a URL de um QR já impresso.
+     Ao lado do campo: "Mudar o endereço faz o QR code já impresso parar de
+     funcionar."
+2. **Apps de entrega** — o select de **país** (mantém `id="country"`) seguido
+   dos links (mantém `id="delivery"`). O país mora aqui porque decide quais
+   apps aparecem.
+3. **Plano** — Pro: "Pro · renova em DD/MM/AAAA" ou, com
+   `billingCancelAtPeriodEnd`, "Pro até DD/MM/AAAA"; + Gerenciar (portal
+   Stripe). Grátis: Fazer upgrade.
 4. **Conta** — `ChangePasswordCard` (só com senha), Sair, `DeleteAccountCard`
    por último.
+
+Os blocos 1 e 2 continuam sendo **um** formulário (`updateRestaurant`), agora
+sempre aberto: sai o modo "visualizar" e o botão Cancelar. `updateRestaurant`
+passa a devolver `{ ok: true }` no sucesso e o formulário mostra "Salvo ✓".
 
 ## 5. Fotos (`/dashboard/fotos`, página nova)
 
 Hospeda o `ImageManager` de hoje, com "← Início". Para quem usa cardápio em
-foto, e para quem sai do construtor por "Já tenho fotos". O comportamento de
-`switchToPhotosOnUpload` continua: enviar fotos com um cardápio em texto no ar
-troca o modo, como hoje.
+foto, e para quem chega por "Tenho fotos do cardápio" (Início ou construtor).
+
+- `switchToPhotosOnUpload` continua: enviar fotos com cardápio em texto no ar
+  troca o modo, como hoje.
+- Quando `mode === "built"` **e** já há fotos enviadas, a página mostra o botão
+  **Usar as fotos em vez do texto** (`chooseMenuPhotos`, hoje no
+  `BuiltMenuCard`) — é o único jeito de voltar para as fotos sem reenviar.
 
 ## 6. Rotas, links e compatibilidade
 
-- `/dashboard?edit=1` → redireciona para `/dashboard/ajustes` (e-mails e links
-  antigos). `?edit=1#country` → `/dashboard/ajustes#country`.
-- Links internos que apontam para `?edit=1` (`built-menu-card.tsx`,
-  `delivery-setup-callout.tsx`) passam a apontar para `/dashboard/ajustes`.
-- `proxy.ts` já guarda `/dashboard/*`; as duas páginas novas herdam a guarda.
-- `/dashboard/ajustes` e `/dashboard/fotos` sem restaurante → `redirect("/dashboard")`
-  (cai na entrada).
+- `/dashboard?edit=1` → redireciona para `/dashboard/ajustes`. O fragmento
+  (`#country`) não chega ao servidor; o navegador o preserva num redirect sem
+  fragmento, então `?edit=1#country` cai em `/dashboard/ajustes#country`.
+- Links internos para `?edit=1` (`built-menu-card.tsx`,
+  `delivery-setup-callout.tsx`) passam a apontar direto para
+  `/dashboard/ajustes` (nenhum e-mail usa `edit=1`).
+- `proxy.ts` já guarda `/dashboard/*`; as páginas novas herdam a guarda.
+- `/dashboard/ajustes` e `/dashboard/fotos` sem restaurante →
+  `redirect("/dashboard")` (cai na entrada).
 - `DashboardTelemetry` continua montado **só** no `/dashboard` (Início): é a
   página de chegada de todo caminho (cadastro, volta do Google, volta do
-  Stripe). O construtor redireciona para `/dashboard` ao publicar (como hoje),
-  então `menu_published` continua disparando.
+  Stripe). O construtor segue redirecionando para `/dashboard` ao publicar,
+  então `menu_published` continua disparando com o marcador `once` atual.
 - i18n: todos os textos novos nos três dicionários (pt-BR, es, en), como
   strings (sem funções).
 
@@ -167,15 +216,17 @@ troca o modo, como hoje.
 
 - **vitest**:
   - `pickSlug`: acentos ("Lanchonete do Zé" → `lanchonete-do-ze`), colisão
-    (`-2`, `-3`), slug reservado (`seu-restaurante` → `seu-restaurante-2`),
-    nome vazio/emoji (`cardapio`), esgotamento (sufixo aleatório).
+    (`-2`, `-3`), reservado (`seu-restaurante` → `seu-restaurante-2`),
+    vazio/emoji/uma letra (`cardapio`), nome longo (≤ 60 com sufixo),
+    esgotamento (sufixo aleatório).
   - `nextStep`: as cinco situações, e o pulo de `whatsapp` no modo fotos.
-  - Exemplos: `initialBuilderMenu` sem rascunho → itens `sample`; editar um item
-    remove `sample`; `publishMenu`/validação rejeita menu com `sample`.
+  - `publishMenu`/função pura de limpeza: seções vazias descartadas.
+  - Exemplos fantasmas: tocar copia como item real com id novo; o menu
+    resultante passa no `MenuSchema` e não carrega nada além dos campos atuais.
 - **Manual (build de produção local, banco de dev)**: conta nova → nome por voz
-  → construtor com exemplos → apagar/editar → publicar → Início → Ajustes →
-  Fotos. Prints em largura de celular (375 px) do Início nas situações
-  `finish_menu`, `whatsapp` e `null`.
+  → Visual → Itens com exemplos → tocar/digitar → publicar → Início → Ajustes
+  (renomear sem trocar endereço; "Salvo ✓") → Fotos. Prints em largura de
+  celular (375 px) do Início nas situações `finish_menu`, `whatsapp` e `null`.
 - `tsc --noEmit`, `npm test`, lint em `src`, `next build`.
 
 ## 8. Entrada no ar
@@ -183,4 +234,4 @@ troca o modo, como hoje.
 - **Só depois de 15/10** (fim do teste 2 de anúncios).
 - Sem migração. Deploy normal (`vercel deploy --prod`, pelo dono).
 - Depois do deploy: conta nova de teste em produção (dono) passando pelo
-  fluxo; conferir `/m/<slug>` e o funil (`no_restaurant`) na semana seguinte.
+  fluxo; acompanhar `no_menu → live` das contas novas na semana seguinte.
