@@ -51,12 +51,18 @@ export function RestaurantSettingsForm({ restaurant }: { restaurant: Restaurant 
     return initial;
   });
 
+  // What was submitted last: "Salvo ✓" only stands while the fields still
+  // match it, so it disappears on the first change (typed or dictated).
+  const values = JSON.stringify([name, slug, whatsapp, instagram, description, country, links]);
+  const [submitted, setSubmitted] = useState<string | null>(null);
+  const showSaved = state.ok && !pending && submitted === values;
+
   const s = t.dashboard.settings;
   const apps = getAppsForCountry(country);
   const blockTitle = "text-lg font-bold text-[color:var(--color-navy)]";
 
   return (
-    <form action={action} className="flex flex-col gap-5 sm:gap-6">
+    <form action={action} onSubmit={() => setSubmitted(values)} className="flex flex-col gap-5 sm:gap-6">
       <input type="hidden" name="id" value={restaurant.id} />
 
       <section className="card flex flex-col gap-4">
@@ -207,7 +213,7 @@ export function RestaurantSettingsForm({ restaurant }: { restaurant: Restaurant 
         <button type="submit" disabled={pending} className="btn btn-primary w-full sm:w-auto">
           {pending ? t.common.saving : t.common.save}
         </button>
-        {state.ok && !pending && (
+        {showSaved && (
           <p role="status" className="text-sm font-semibold text-green-700">
             {t.dashboard.home.saved}
           </p>

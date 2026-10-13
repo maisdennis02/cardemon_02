@@ -183,7 +183,12 @@ export async function saveWhatsappNumber(_p: ActionState, formData: FormData): P
   const restaurantId = String(formData.get("restaurantId") ?? "");
   const restaurant = await requireOwnedRestaurant(userId, restaurantId);
 
-  const whatsappNumber = normalizeWhatsapp(String(formData.get("whatsappNumber") ?? ""));
+  // The home step asks for the number "com DDD"; the country supplies the
+  // calling code wa.me needs.
+  const whatsappNumber = normalizeWhatsapp(
+    String(formData.get("whatsappNumber") ?? ""),
+    restaurant.country,
+  );
   if (!whatsappNumber) return { error: t.errors.whatsappFormat };
 
   await prisma.restaurant.update({ where: { id: restaurant.id }, data: { whatsappNumber } });
@@ -206,10 +211,12 @@ export async function updateRestaurant(_p: ActionState, formData: FormData): Pro
     }
   }
 
-  // Dictated numbers ("11 91234-5678") are reduced to digits first; the field
-  // is optional, so only a non-empty one has to pass.
+  // Dictated numbers ("11 91234-5678") are reduced to digits and given the
+  // calling code of the country being saved (or the stored one); the field is
+  // optional, so only a non-empty one has to pass.
   const rawWhatsapp = String(formData.get("whatsappNumber") ?? "").trim();
-  const whatsappNumber = rawWhatsapp ? normalizeWhatsapp(rawWhatsapp) : undefined;
+  const country = String(formData.get("country") ?? "") || existing.country;
+  const whatsappNumber = rawWhatsapp ? normalizeWhatsapp(rawWhatsapp, country) : undefined;
   if (whatsappNumber === null) return { error: t.errors.whatsappFormat };
 
   const parsed = restaurantSchema.safeParse({

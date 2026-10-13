@@ -54,7 +54,7 @@ export default async function SettingsPage() {
           </div>
           {userIsPro ? (
             <form action="/api/stripe/portal" method="post">
-              <button className="btn btn-secondary btn-sm">{p.manage}</button>
+              <button className="btn btn-secondary btn-sm">{t.dashboard.managePlan}</button>
             </form>
           ) : (
             <Link href="/pricing" className="btn btn-primary btn-sm self-start">
