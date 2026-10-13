@@ -90,6 +90,7 @@ export function StepItems({
     if (!newItemId) return;
     setMenu(next);
     setEditingId(newItemId);
+    capture("item_added", { via: "sample" });
   }
 
   function hideSamples() {
