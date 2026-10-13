@@ -65,6 +65,7 @@ export function MenuHomeCard({
         <div className="flex flex-col gap-3">
           <Link
             href="/dashboard/cardapio"
+            onClick={() => capture("menu_mode_chosen", { mode: "built" })}
             className="btn btn-primary w-full py-3 text-base sm:w-auto sm:self-start"
           >
             {h.continueMenu}

@@ -239,8 +239,6 @@ export const en = {
       edit: "Edit",
       continueMenu: "Continue my menu",
       havePhotos: "I have photos of my menu",
-      finishTitle: "Finish your menu",
-      finishLead: "Almost there: check your items and publish.",
       whatsappTitle: "Get orders on WhatsApp",
       whatsappLead: "Enter the number with area code. Orders from your menu go there.",
       whatsappMic: "Hold to say the number",

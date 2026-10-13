@@ -237,8 +237,6 @@ const es: Dictionary = {
       edit: "Editar",
       continueMenu: "Continuar mi menú",
       havePhotos: "Tengo fotos del menú",
-      finishTitle: "Termina tu menú",
-      finishLead: "Falta poco: revisa los ítems y publica.",
       whatsappTitle: "Recibe pedidos por WhatsApp",
       whatsappLead: "Escribe el número con código de área. Los pedidos del menú llegan ahí.",
       whatsappMic: "Mantén presionado para decir el número",

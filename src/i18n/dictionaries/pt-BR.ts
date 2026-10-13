@@ -237,8 +237,6 @@ const ptBR: Dictionary = {
       edit: "Editar",
       continueMenu: "Continuar meu cardápio",
       havePhotos: "Tenho fotos do cardápio",
-      finishTitle: "Termine seu cardápio",
-      finishLead: "Falta pouco: confira os itens e publique.",
       whatsappTitle: "Receba pedidos no WhatsApp",
       whatsappLead: "Informe o número com DDD. Os pedidos do cardápio chegam nele.",
       whatsappMic: "Segure para falar o número",
