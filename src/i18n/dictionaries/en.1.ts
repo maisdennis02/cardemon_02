@@ -333,6 +333,10 @@ export const en = {
         pasteCancel: "Cancel",
         pasteDropped: "{n} items didn't fit (at most 300 items and 30 sections).",
         empty: "No items yet. Type the first one above.",
+        sampleBadge: "example",
+        samplesLead: "Tap an example to use and edit it, or start typing.",
+        hideSamples: "Hide examples",
+        haveMenuPhotos: "I already have photos of my menu",
       },
       editor: {
         name: "Name",

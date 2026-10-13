@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { useState } from "react";
+import { useState, useSyncExternalStore } from "react";
 import { useT } from "@/i18n/provider";
 import { format, localeForCountry, type Locale } from "@/i18n/config";
 import { capture } from "@/lib/posthog";
@@ -11,6 +11,7 @@ import { parseItemLine } from "@/lib/menu-parse";
 import {
   addItem,
   addSection,
+  adoptSample,
   newId,
   moveItem,
   moveItemToSection,
@@ -18,22 +19,40 @@ import {
   removeItem,
   removeSection,
   renameSection,
+  sampleMenu,
+  showSamples,
   updateItem,
 } from "@/lib/menu-edit";
 import { MicButton } from "@/components/voice/mic-button";
 import { speechLang } from "@/lib/speech";
 import { ItemEditor } from "./item-editor";
 import { PasteList } from "./paste-list";
+import { SampleItems } from "./sample-items";
+
+// The owner's "hide samples", per restaurant. Read through
+// useSyncExternalStore so the server render (nothing dismissed) hydrates
+// cleanly; without storage the samples just go with the first item.
+const samplesHiddenKey = (restaurantId: string) => `menulala:samples-hidden:${restaurantId}`;
+const noSubscribe = () => () => {};
+function readSamplesHidden(restaurantId: string): boolean {
+  try {
+    return window.localStorage.getItem(samplesHiddenKey(restaurantId)) === "1";
+  } catch {
+    return false;
+  }
+}
 
 // Step 2 (spec §3): sections and items. One line per item, "name price",
 // typed or dictated; ambiguous prices become items without a price.
 export function StepItems({
+  restaurantId,
   menu,
   setMenu,
   isPro,
   country,
   sectionSuggestions,
 }: {
+  restaurantId: string;
   menu: Menu;
   setMenu: (next: Menu) => void;
   isPro: boolean;
@@ -49,6 +68,12 @@ export function StepItems({
   // first item and a new section both swap in a field that wasn't there, and
   // dictating item after item must not need a tap on the screen.
   const [focusSectionId, setFocusSectionId] = useState<string | null>(null);
+  const [hiddenNow, setHiddenNow] = useState(false);
+  const hiddenStored = useSyncExternalStore(
+    noSubscribe,
+    () => readSamplesHidden(restaurantId),
+    () => false,
+  );
 
   const total = countItems(menu);
   // Items are dictated in the menu's language, which the country sets.
@@ -57,6 +82,24 @@ export function StepItems({
   const visibleIds = new Set(shown.sections.flatMap((s) => s.items.map((i) => i.id)));
   const used = new Set(menu.sections.map((s) => s.title?.toLowerCase()));
   const suggestions = sectionSuggestions[localeForCountry(country)].filter((s) => !used.has(s.toLowerCase()));
+  // Samples follow the menu's language (the country), like the suggestions.
+  const sample = sampleMenu(localeForCountry(country));
+
+  function adopt(itemId: string) {
+    const { menu: next, newItemId } = adoptSample(menu, sample, itemId);
+    if (!newItemId) return;
+    setMenu(next);
+    setEditingId(newItemId);
+  }
+
+  function hideSamples() {
+    setHiddenNow(true);
+    try {
+      window.localStorage.setItem(samplesHiddenKey(restaurantId), "1");
+    } catch {
+      // No storage: hidden for this visit only.
+    }
+  }
 
   function createSection(title: string) {
     const clean = title.trim().slice(0, 60);
@@ -139,6 +182,10 @@ export function StepItems({
         />
       ))}
 
+      {showSamples(menu, hiddenNow || hiddenStored) && (
+        <SampleItems sample={sample} country={country} onAdopt={adopt} onHide={hideSamples} />
+      )}
+
       <section className="flex flex-col gap-2">
         {menu.sections.length < 3 && suggestions.length > 0 && (
           <>
@@ -188,6 +235,14 @@ export function StepItems({
           </form>
         )}
       </section>
+
+      <Link
+        href="/dashboard/fotos"
+        className="self-start text-sm text-gray-600 underline"
+        onClick={() => capture("menu_mode_chosen", { mode: "photos" })}
+      >
+        {it.haveMenuPhotos} →
+      </Link>
     </div>
   );
 }

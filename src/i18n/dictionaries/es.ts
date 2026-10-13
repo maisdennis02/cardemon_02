@@ -331,6 +331,10 @@ const es: Dictionary = {
         pasteCancel: "Cancelar",
         pasteDropped: "{n} ítems no cupieron (máximo 300 ítems y 30 secciones).",
         empty: "Todavía no hay ítems. Escribe el primero arriba.",
+        sampleBadge: "ejemplo",
+        samplesLead: "Toca un ejemplo para usarlo y editarlo, o empieza escribiendo.",
+        hideSamples: "Ocultar ejemplos",
+        haveMenuPhotos: "Ya tengo fotos del menú",
       },
       editor: {
         name: "Nombre",

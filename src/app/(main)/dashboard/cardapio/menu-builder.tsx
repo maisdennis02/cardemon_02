@@ -205,6 +205,7 @@ export function MenuBuilder({
         )}
         {step === "items" && (
           <StepItems
+            restaurantId={restaurant.id}
             menu={menu}
             setMenu={setMenu}
             isPro={isPro}

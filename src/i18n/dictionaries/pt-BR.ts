@@ -331,6 +331,10 @@ const ptBR: Dictionary = {
         pasteCancel: "Cancelar",
         pasteDropped: "{n} itens não couberam (máximo de 300 itens e 30 seções).",
         empty: "Nenhum item ainda. Escreva o primeiro acima.",
+        sampleBadge: "exemplo",
+        samplesLead: "Toque num exemplo para usar e editar, ou comece digitando.",
+        hideSamples: "Esconder exemplos",
+        haveMenuPhotos: "Já tenho fotos do cardápio",
       },
       editor: {
         name: "Nome",

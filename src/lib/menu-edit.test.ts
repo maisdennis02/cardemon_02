@@ -2,6 +2,7 @@ import { describe, expect, it } from "vitest";
 import { MENU_MAX_ITEMS, MENU_MAX_SECTIONS, MenuSchema, countItems, type Menu, type MenuSection } from "@/lib/menu";
 import {
   addItem,
+  adoptSample,
   addSection,
   appendSections,
   initialBuilderMenu,
@@ -12,6 +13,8 @@ import {
   removeItem,
   removeSection,
   renameSection,
+  sampleMenu,
+  showSamples,
   updateItem,
 } from "@/lib/menu-edit";
 
@@ -181,5 +184,45 @@ describe("every operation keeps the menu valid", () => {
     menu = appendSections(menu, [{ id: newId(), title: "Bebidas", items: [{ id: newId(), name: "Suco", priceCents: 850 }] }]).menu;
     menu = removeSection(menu, menu.sections[0].id);
     expect(MenuSchema.safeParse(menu).success).toBe(true);
+  });
+});
+
+describe("showSamples", () => {
+  it("shows the samples only on a menu without items, until dismissed", () => {
+    expect(showSamples(EMPTY, false)).toBe(true);
+    expect(showSamples(menuOf(["Lanches", ["X"]]), false)).toBe(false);
+    expect(showSamples(EMPTY, true)).toBe(false);
+  });
+});
+
+describe("adoptSample", () => {
+  const sample = sampleMenu("pt-BR");
+  const [first, second] = sample.sections[0].items;
+
+  it("copies the item and its section with fresh ids", () => {
+    const result = adoptSample(EMPTY, sample, first.id);
+    expect(result.menu.sections).toHaveLength(1);
+    expect(result.menu.sections[0].title).toBe(sample.sections[0].title);
+    expect(result.menu.sections[0].id).not.toBe(sample.sections[0].id);
+    expect(result.menu.sections[0].items).toHaveLength(1);
+    const item = result.menu.sections[0].items[0];
+    expect(item.name).toBe(first.name);
+    expect(item.priceCents).toBe(first.priceCents);
+    expect(item.id).not.toBe(first.id);
+    expect(result.newItemId).toBe(item.id);
+    expect(MenuSchema.safeParse(result.menu).success).toBe(true);
+  });
+
+  it("puts two items of the same sample section into one section", () => {
+    const once = adoptSample(EMPTY, sample, first.id);
+    const twice = adoptSample(once.menu, sample, second.id);
+    expect(twice.menu.sections).toHaveLength(1);
+    expect(twice.menu.sections[0].items.map((i) => i.name)).toEqual([first.name, second.name]);
+  });
+
+  it("leaves the menu alone for an unknown item", () => {
+    const result = adoptSample(EMPTY, sample, "nope");
+    expect(result.menu).toBe(EMPTY);
+    expect(result.newItemId).toBeNull();
   });
 });

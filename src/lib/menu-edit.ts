@@ -12,6 +12,8 @@ import {
   type MenuItem,
   type MenuSection,
 } from "@/lib/menu";
+import type { Locale } from "@/i18n/config";
+import { LANDING_DEMO } from "@/lib/landing-demo";
 
 const EMPTY: Menu = { v: 1, sections: [] };
 
@@ -151,4 +153,38 @@ export function appendSections(menu: Menu, incoming: MenuSection[]): { menu: Men
     sections.push({ ...section, items });
   }
   return { menu: { ...menu, sections }, dropped };
+}
+
+// Ghost samples (spec §2): the landing's example menu, shown faded in the
+// Items step while the menu has no item. They live only on screen; adopting
+// one copies it into the menu as a real item, so a sample never reaches the
+// draft or the published menu on its own.
+export function sampleMenu(locale: Locale): Menu {
+  return LANDING_DEMO[locale].menu;
+}
+
+export function showSamples(menu: Menu, dismissed: boolean): boolean {
+  return !dismissed && countItems(menu) === 0;
+}
+
+// Copies the sample item with a fresh id into the section of the same title,
+// created (fresh id too) when the menu has none.
+export function adoptSample(menu: Menu, sample: Menu, itemId: string): { menu: Menu; newItemId: string | null } {
+  const at = findItem(sample, itemId);
+  if (!at) return { menu, newItemId: null };
+  const { title } = sample.sections[at.s];
+  const { name, description, priceCents } = sample.sections[at.s].items[at.i];
+  const item: Omit<MenuItem, "id"> = description ? { name, description, priceCents } : { name, priceCents };
+  const key = title?.trim().toLowerCase() ?? null;
+  let base = menu;
+  let section = base.sections.find((s) => (s.title?.trim().toLowerCase() ?? null) === key);
+  if (!section) {
+    const sectionId = newId();
+    base = addSection(base, title, sectionId);
+    section = base.sections.find((s) => s.id === sectionId);
+    if (!section) return { menu, newItemId: null };
+  }
+  const id = newId();
+  const next = addItem(base, section.id, item, id);
+  return next === base ? { menu, newItemId: null } : { menu: next, newItemId: id };
 }
