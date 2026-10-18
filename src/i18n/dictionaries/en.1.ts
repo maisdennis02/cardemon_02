@@ -361,6 +361,7 @@ export const en = {
         publish: "Publish menu",
         publishing: "Publishing…",
         empty: "Add at least one item to publish.",
+        noWhatsapp: "Without a number the menu is published, but takes no orders.",
       },
     },
     back: "← Home",

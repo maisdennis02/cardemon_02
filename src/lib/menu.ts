@@ -75,12 +75,16 @@ export const MenuThemeSchema: z.ZodType<MenuTheme> = z.object({
 
 // Server actions receive whatever the client sends: check the envelope before
 // any id reaches a Prisma filter. The menu itself is validated by MenuSchema.
-export const PublishMenuInputSchema = z.object({
+export const SaveDraftInputSchema = z.object({
   restaurantId: z.string().cuid(),
   menu: z.unknown(),
 });
 
-export const SaveDraftInputSchema = PublishMenuInputSchema;
+// The preview asks for the WhatsApp number when the restaurant has none; it is
+// optional, and normalized by the action like the dashboard step's.
+export const PublishMenuInputSchema = SaveDraftInputSchema.extend({
+  whatsappNumber: z.string().max(30).optional(),
+});
 
 export const MenuVisualInputSchema = z.object({
   restaurantId: z.string().cuid(),

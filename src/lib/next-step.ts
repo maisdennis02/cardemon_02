@@ -17,9 +17,10 @@ export type NextStepState = {
 
 export function nextStep(s: NextStepState): NextStep {
   if (!s.hasMenu) return "finish_menu";
-  if (s.totalViews === 0) return "share";
   // WhatsApp orders only exist on the text menu, so photo menus skip this step.
+  // It comes before sharing: a text menu without the number takes no orders.
   if (s.mode === "built" && !s.hasWhatsapp) return "whatsapp";
+  if (s.totalViews === 0) return "share";
   if (!s.hasDeliveryLink) return "delivery";
   return null;
 }

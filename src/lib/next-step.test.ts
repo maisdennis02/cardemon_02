@@ -24,6 +24,14 @@ describe("nextStep", () => {
     expect(nextStep({ ...base, mode: "built", hasWhatsapp: false })).toBe("whatsapp");
   });
 
+  it("asks for the WhatsApp number on a built menu before asking to share it", () => {
+    expect(nextStep({ ...base, mode: "built", totalViews: 0, hasWhatsapp: false })).toBe("whatsapp");
+  });
+
+  it("asks to share a photo menu without WhatsApp nobody has seen yet", () => {
+    expect(nextStep({ ...base, mode: "photos", totalViews: 0, hasWhatsapp: false })).toBe("share");
+  });
+
   it("skips WhatsApp on a photo menu and goes to delivery apps", () => {
     expect(nextStep({ ...base, mode: "photos", hasWhatsapp: false, hasDeliveryLink: false })).toBe("delivery");
   });

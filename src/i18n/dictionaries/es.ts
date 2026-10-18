@@ -359,6 +359,7 @@ const es: Dictionary = {
         publish: "Publicar menú",
         publishing: "Publicando…",
         empty: "Agrega al menos un ítem para publicar.",
+        noWhatsapp: "Sin número, el menú se publica, pero no recibe pedidos.",
       },
     },
     back: "← Inicio",

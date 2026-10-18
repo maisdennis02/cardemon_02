@@ -28,7 +28,12 @@ export default async function MenuBuilderPage() {
 
   return (
     <MenuBuilder
-      restaurant={{ id: restaurant.id, slug: restaurant.slug, name: restaurant.name }}
+      restaurant={{
+        id: restaurant.id,
+        slug: restaurant.slug,
+        name: restaurant.name,
+        hasWhatsapp: Boolean(restaurant.whatsappNumber),
+      }}
       initialTheme={readMenuTheme(restaurant.menuTheme)}
       initial={initialBuilderMenu(restaurant.menuDraft, restaurant.menuPublished)}
       hasPublished={restaurant.menuPublished != null}

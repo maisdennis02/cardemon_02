@@ -13,6 +13,9 @@ import {
   isOwnLogoUrl,
   readMenuTheme,
 } from "@/lib/menu";
+import { normalizeWhatsapp } from "@/lib/whatsapp";
+import { COUNTRY_FOR_LOCALE } from "@/i18n/config";
+import { getLocale } from "@/i18n";
 import { dashT, requireOwnedRestaurant, requireUserId } from "./guards";
 
 // Autosave target, called after every pause in editing. Two things it must
@@ -109,6 +112,7 @@ export async function chooseMenuPhotos(input: {
 export async function publishMenu(input: {
   restaurantId: string;
   menu: unknown;
+  whatsappNumber?: string;
 }): Promise<{ error?: string }> {
   const userId = await requireUserId();
   const envelope = PublishMenuInputSchema.safeParse(input);
@@ -128,9 +132,22 @@ export async function publishMenu(input: {
     return { error: t.errors.invalidMenu };
   }
 
+  // A blank field publishes without a number; anything typed must be valid,
+  // so a typo doesn't publish a menu that silently takes no orders.
+  const typed = envelope.data.whatsappNumber?.trim();
+  let whatsappNumber: string | undefined;
+  if (typed) {
+    const normalized = normalizeWhatsapp(typed, restaurant.country ?? COUNTRY_FOR_LOCALE[await getLocale()]);
+    if (!normalized) {
+      const t = await dashT();
+      return { error: t.errors.whatsappFormat };
+    }
+    whatsappNumber = normalized;
+  }
+
   await prisma.restaurant.update({
     where: { id: restaurant.id },
-    data: { menuDraft: menu, menuPublished: menu, menuMode: "built" },
+    data: { menuDraft: menu, menuPublished: menu, menuMode: "built", ...(whatsappNumber && { whatsappNumber }) },
   });
 
   revalidatePath(`/m/${restaurant.slug}`);

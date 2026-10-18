@@ -16,7 +16,7 @@ import { StepPreview } from "./step-preview";
 export type BuilderStep = "visual" | "items" | "preview";
 const STEPS: BuilderStep[] = ["visual", "items", "preview"];
 
-export type BuilderRestaurant = { id: string; slug: string; name: string };
+export type BuilderRestaurant = { id: string; slug: string; name: string; hasWhatsapp: boolean };
 
 // The builder (spec §3). Holds the menu being edited and autosaves it as a
 // draft; country and look are saved when the owner leaves the first step.

@@ -359,6 +359,7 @@ const ptBR: Dictionary = {
         publish: "Publicar cardápio",
         publishing: "Publicando…",
         empty: "Adicione pelo menos um item para publicar.",
+        noWhatsapp: "Sem número, o cardápio é publicado, mas não recebe pedidos.",
       },
     },
     back: "← Início",

@@ -254,6 +254,14 @@ describe("PublishMenuInputSchema", () => {
   it("rejects a restaurant id that is not a cuid", () => {
     expect(ok({ restaurantId: "nope nope", menu: {} })).toBe(false);
   });
+
+  it("accepts an optional WhatsApp number typed on the preview", () => {
+    expect(ok({ restaurantId: "cmg1abcde0000xyz123456789", menu: {}, whatsappNumber: "11 91234-5678" })).toBe(true);
+  });
+
+  it("rejects a WhatsApp number longer than the field allows", () => {
+    expect(ok({ restaurantId: "cmg1abcde0000xyz123456789", menu: {}, whatsappNumber: "1".repeat(31) })).toBe(false);
+  });
 });
 
 describe("MenuThemeSchema", () => {
