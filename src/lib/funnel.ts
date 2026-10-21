@@ -1,4 +1,5 @@
 import { prisma } from "@/lib/prisma";
+import { countMenuEvents } from "@/lib/menu-view-counts";
 import { isTestEmail, maskEmail } from "@/lib/admin";
 import { acquisitionSource, asAcquisition, isAdClick } from "@/lib/acquisition";
 import { isPro } from "@/lib/pricing";
@@ -232,16 +233,11 @@ export async function loadFunnel(days: number): Promise<Funnel> {
   ]);
 
   // Views and orders apart: a click on WhatsApp or delivery is not a view.
+  // Crawler bursts are left out, as on the owner's dashboard.
   const ids = users.flatMap((u) => u.restaurants.map((r) => r.id));
-  const events = ids.length
-    ? await prisma.menuView.groupBy({
-        by: ["restaurantId", "kind"],
-        where: { restaurantId: { in: ids }, kind: { in: ["view", "click_order"] } },
-        _count: { _all: true },
-      })
-    : [];
+  const events = await countMenuEvents(ids, from);
   const countOf = (id: string, kind: string) =>
-    events.find((e) => e.restaurantId === id && e.kind === kind)?._count._all ?? 0;
+    events.find((e) => e.restaurantId === id && e.kind === kind)?.total ?? 0;
 
   const rows: FunnelUserRow[] = users.map((u) => {
     const r = u.restaurants[0] ?? null;

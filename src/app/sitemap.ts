@@ -1,9 +1,11 @@
 import type { MetadataRoute } from "next";
 import { PHASE_PRODUCTION_BUILD } from "next/constants";
+import { Prisma } from "@/generated/prisma/client";
 import { prisma } from "@/lib/prisma";
 import { siteUrl } from "@/lib/site";
 import { LOCALES, localizedPath } from "@/i18n/config";
-import { PUBLIC_PAGES, languageAlternates } from "@/lib/seo";
+import { PUBLIC_PAGES, isTestMenu, languageAlternates } from "@/lib/seo";
+import { isPublished, publishedItemCount } from "@/lib/menu";
 import { isReservedSlug } from "@/lib/example-menus";
 
 export const revalidate = 3600;
@@ -38,16 +40,20 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   return [...staticEntries, ...menuEntries];
 }
 
-// Menus worth indexing: only restaurants that uploaded at least one page. An
-// empty menu renders "this menu is being prepared", is `noindex` on the page
-// itself, and has no business in the sitemap.
+// Menus worth indexing: the ones whose page is indexable — published photos
+// or a published text menu (the same isPublished the page's robots tag uses,
+// so the two cannot disagree) — minus the try-out menus. An empty menu
+// renders "this menu is being prepared", is `noindex` on the page itself, and
+// has no business in the sitemap.
 async function listedMenus(): Promise<{ slug: string; lastModified: Date }[]> {
   try {
     const restaurants = await prisma.restaurant.findMany({
-      where: { images: { some: {} } },
+      where: { OR: [{ images: { some: {} } }, { menuPublished: { not: Prisma.DbNull } }] },
       select: {
         slug: true,
         updatedAt: true,
+        menuMode: true,
+        menuPublished: true,
         images: { select: { createdAt: true }, orderBy: { createdAt: "desc" }, take: 1 },
       },
       orderBy: { updatedAt: "desc" },
@@ -55,15 +61,26 @@ async function listedMenus(): Promise<{ slug: string; lastModified: Date }[]> {
     // Example menus are served from the code, are `noindex` and their slugs
     // cannot be registered; the filter only makes sure a stray row with one
     // of those slugs could never put an example in the sitemap.
-    return restaurants.filter((r) => !isReservedSlug(r.slug)).map((r) => {
-      // Uploading a page does not touch Restaurant.updatedAt, so the newest
-      // image counts too.
-      const newestImage = r.images[0]?.createdAt;
-      return {
-        slug: r.slug,
-        lastModified: newestImage && newestImage > r.updatedAt ? newestImage : r.updatedAt,
-      };
-    });
+    return restaurants
+      .filter(
+        (r) =>
+          !isReservedSlug(r.slug) &&
+          !isTestMenu(r.slug) &&
+          isPublished({
+            menuMode: r.menuMode,
+            imageCount: r.images.length,
+            publishedItemCount: publishedItemCount(r.menuPublished),
+          }),
+      )
+      .map((r) => {
+        // Uploading a page does not touch Restaurant.updatedAt, so the newest
+        // image counts too. Publishing a text menu does.
+        const newestImage = r.images[0]?.createdAt;
+        return {
+          slug: r.slug,
+          lastModified: newestImage && newestImage > r.updatedAt ? newestImage : r.updatedAt,
+        };
+      });
   } catch (err) {
     // At request time a failed regeneration must THROW: ISR then keeps
     // serving the last good sitemap instead of replacing it with one that

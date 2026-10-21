@@ -111,8 +111,8 @@ describe("the sitemap", () => {
       prisma: {
         restaurant: {
           findMany: async () => [
-            { slug: "maple-street-diner", updatedAt: new Date("2026-10-01"), images: [] },
-            { slug: "cavalo-marinho", updatedAt: new Date("2026-09-01"), images: [] },
+            { slug: "maple-street-diner", updatedAt: new Date("2026-10-01"), images: [{ createdAt: new Date("2026-10-01") }] },
+            { slug: "cavalo-marinho", updatedAt: new Date("2026-09-01"), images: [{ createdAt: new Date("2026-09-01") }] },
           ],
         },
       },

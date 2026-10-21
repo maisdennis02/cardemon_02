@@ -1,12 +1,14 @@
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import { readFileSync } from "node:fs";
 import { fileURLToPath } from "node:url";
+import { Prisma } from "@/generated/prisma/client";
 import { LOCALES, localizedPath } from "@/i18n/config";
 import {
   NOINDEX_PATHS,
   PRIVATE_PATHS,
   PUBLIC_PAGES,
   ROBOTS_DISALLOW,
+  TEST_MENU_SLUGS,
 } from "@/lib/seo";
 
 const findMany = vi.hoisted(() => vi.fn());
@@ -16,6 +18,13 @@ import robots from "./robots";
 import sitemap from "./sitemap";
 
 const BASE = "https://menulala.com";
+
+const PUBLISHED_TEXT_MENU = {
+  v: 1,
+  sections: [
+    { id: "s1", title: "Lanches", items: [{ id: "i1", name: "Macarronada", priceCents: 2500 }] },
+  ],
+};
 
 beforeEach(() => {
   vi.stubEnv("APP_URL", BASE);
@@ -30,6 +39,26 @@ beforeEach(() => {
       slug: "cavalo-marinho",
       updatedAt: new Date("2026-09-01T04:03:55Z"),
       images: [{ createdAt: new Date("2026-05-20T00:00:00Z") }],
+    },
+    // A text menu with items: published, no photos.
+    {
+      slug: "lachekab",
+      updatedAt: new Date("2026-10-14T23:38:19Z"),
+      images: [],
+      menuPublished: PUBLISHED_TEXT_MENU,
+    },
+    // Published, then emptied every section: the page is noindex.
+    {
+      slug: "rascunho",
+      updatedAt: new Date("2026-10-15T10:00:00Z"),
+      images: [],
+      menuPublished: { v: 1, sections: [] },
+    },
+    // A real row that is only a try-out of the product.
+    {
+      slug: "foodtest",
+      updatedAt: new Date("2026-06-01T00:00:00Z"),
+      images: [{ createdAt: new Date("2026-06-01T00:00:00Z") }],
     },
   ]);
 });
@@ -109,7 +138,7 @@ describe("sitemap.xml", () => {
 
   it("menus have one URL each and no hreflang", async () => {
     const menus = (await sitemap()).filter((e) => new URL(e.url).pathname.startsWith("/m/"));
-    expect(menus).toHaveLength(2);
+    expect(menus).toHaveLength(3);
     for (const menu of menus) expect(menu.alternates).toBeUndefined();
     for (const entry of await sitemap()) {
       expect(new URL(entry.url).pathname).not.toMatch(/^\/(pt-BR|es)\/m\//);
@@ -130,10 +159,29 @@ describe("sitemap.xml", () => {
     expect(cavalo.lastModified).toEqual(new Date("2026-09-01T04:03:55Z"));
   });
 
-  it("asks the database only for menus that have at least one page", async () => {
+  it("asks the database only for menus with a page or a text menu", async () => {
     await sitemap();
     expect(findMany).toHaveBeenCalledTimes(1);
-    expect(findMany.mock.calls[0][0].where).toEqual({ images: { some: {} } });
+    expect(findMany.mock.calls[0][0].where).toEqual({
+      OR: [{ images: { some: {} } }, { menuPublished: { not: Prisma.DbNull } }],
+    });
+  });
+
+  // The sitemap and the page's own robots tag must agree: a published text
+  // menu is indexable, so it is listed; an empty one is noindex, so it is not.
+  it("lists a published text menu, dated by its last edit", async () => {
+    const entry = (await sitemap()).find((e) => e.url === `${BASE}/m/lachekab`);
+    expect(entry?.lastModified).toEqual(new Date("2026-10-14T23:38:19Z"));
+  });
+
+  it("leaves out a text menu with nothing published", async () => {
+    const urls = (await sitemap()).map((e) => e.url);
+    expect(urls).not.toContain(`${BASE}/m/rascunho`);
+  });
+
+  it("leaves out the try-out menus", async () => {
+    const urls = (await sitemap()).map((e) => e.url);
+    for (const slug of TEST_MENU_SLUGS) expect(urls).not.toContain(`${BASE}/m/${slug}`);
   });
 
   // A failed regeneration must not overwrite the cached sitemap with one

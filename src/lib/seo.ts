@@ -68,6 +68,16 @@ export const ROBOTS_DISALLOW = ["/dashboard", "/api"] as const;
 // whichever of the two tools keeps it out.
 export const PRIVATE_PATHS = [...NOINDEX_PATHS, "/dashboard"] as const;
 
+// Real restaurant rows that only try the product out (the ad landing test,
+// early tests). They keep working for whoever has the link, but are noindex
+// and out of the sitemap: an empty "test" page ranking for the brand is worse
+// than no page. Add a slug here when a new try-out ends up public.
+export const TEST_MENU_SLUGS = ["ads-test", "foodtest", "restaurante-teste", "test-01"] as const;
+
+export function isTestMenu(slug: string): boolean {
+  return (TEST_MENU_SLUGS as readonly string[]).includes(slug);
+}
+
 // "noindex, follow": keep the page out of results without hiding its links.
 export const NOINDEX: NonNullable<Metadata["robots"]> = {
   index: false,

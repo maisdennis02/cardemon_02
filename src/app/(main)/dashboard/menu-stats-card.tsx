@@ -1,5 +1,5 @@
 import type { ReactNode } from "react";
-import { prisma } from "@/lib/prisma";
+import { countMenuEvents } from "@/lib/menu-view-counts";
 import { DELIVERY_APP_IDS, DELIVERY_APPS } from "@/lib/delivery-apps";
 import { WhatsAppIcon, InstagramIcon } from "@/components/icons";
 import type { Dictionary } from "@/i18n";
@@ -24,31 +24,25 @@ export type MenuStatsRestaurant = {
   didifoodUrl: string | null;
 };
 
+// Crawler bursts are left out (see countMenuEvents): an owner reading "120
+// views" should be reading diners.
 export async function loadMenuStats(
   restaurantId: string,
   sevenDaysAgo: Date,
 ): Promise<MenuStats> {
-  const [totalViews, last7Days, orders7Days, grouped] = await Promise.all([
-    prisma.menuView.count({ where: { restaurantId, kind: "view" } }),
-    prisma.menuView.count({
-      where: { restaurantId, kind: "view", viewedAt: { gte: sevenDaysAgo } },
-    }),
-    prisma.menuView.count({
-      where: { restaurantId, kind: "click_order", viewedAt: { gte: sevenDaysAgo } },
-    }),
-    prisma.menuView.groupBy({
-      by: ["kind"],
-      where: { restaurantId, kind: { startsWith: "click_" } },
-      _count: { _all: true },
-    }),
-  ]);
-
+  const counts = await countMenuEvents([restaurantId], sevenDaysAgo);
+  const view = counts.find((c) => c.kind === "view");
   const clicks: Record<string, number> = {};
-  for (const row of grouped) {
-    clicks[row.kind] = row._count._all;
+  for (const c of counts) {
+    if (c.kind.startsWith("click_")) clicks[c.kind] = c.total;
   }
 
-  return { totalViews, last7Days, orders7Days, clicks };
+  return {
+    totalViews: view?.total ?? 0,
+    last7Days: view?.recent ?? 0,
+    orders7Days: counts.find((c) => c.kind === "click_order")?.recent ?? 0,
+    clicks,
+  };
 }
 
 export function MenuStatsCard({

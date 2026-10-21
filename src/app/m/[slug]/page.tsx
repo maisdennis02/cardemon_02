@@ -17,7 +17,7 @@ import {
   readPublishedMenu,
   visibleMenu,
 } from "@/lib/menu";
-import { NOINDEX, SITE_NAME, menuDescription, restaurantLd } from "@/lib/seo";
+import { NOINDEX, SITE_NAME, isTestMenu, menuDescription, restaurantLd } from "@/lib/seo";
 import { getRestaurant } from "./data";
 
 export const revalidate = 60;
@@ -55,9 +55,11 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
     description,
     alternates: { canonical: path },
     // Out of the index: a menu with nothing published yet (it shows only
-    // "being prepared": no photos and no text menu) and the example menus,
-    // which are not restaurants and must never rank as one.
+    // "being prepared": no photos and no text menu), the example menus,
+    // which are not restaurants and must never rank as one, and the try-out
+    // menus (TEST_MENU_SLUGS).
     ...((r.example ||
+      isTestMenu(slug) ||
       !isPublished({
         menuMode: r.menuMode,
         imageCount: r.images.length,
