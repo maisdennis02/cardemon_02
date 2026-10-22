@@ -80,11 +80,29 @@ describe("the hero phone", () => {
     expect(html).toContain('data-demo-logo=""');
   });
 
-  it("lies on the doodles background", async () => {
+  it("lies on the plain grey page, like the example menu it links to", async () => {
     const { TextMenuPhone } = await import("./(main)/landing-sections");
-    const { menuBackgroundStyle } = await import("@/lib/menu-background");
     const html = renderToStaticMarkup(<TextMenuPhone locale="pt-BR" t={ptBR} />);
-    const tile = menuBackgroundStyle("doodles", "#c84630").backgroundImage!;
-    expect(html).toContain(tile.slice(12, 80));
+    expect(html).toContain("background-color:#f5f4f1");
+    expect(html).not.toContain("background-image");
+  });
+
+  it("draws each item as the public page does: a card reading name, then price, then +", async () => {
+    const { TextMenuPhone } = await import("./(main)/landing-sections");
+    const { LANDING_DEMO } = await import("@/lib/landing-demo");
+    const html = renderToStaticMarkup(<TextMenuPhone locale="pt-BR" t={ptBR} />);
+    const { formatPrice } = await import("@/lib/menu");
+    const demo = LANDING_DEMO["pt-BR"];
+    const first = demo.menu.sections[0]!.items[0]!;
+    const price = formatPrice(first.priceCents!, demo.country);
+    const card = html.match(/<li\b[\s\S]*?<\/li>/)?.[0] ?? "";
+    const at = (s: string) => card.indexOf(s);
+    expect(at(first.name), card).toBeGreaterThanOrEqual(0);
+    expect(at(first.name)).toBeLessThan(at(price));
+    // The round control after the price: "+" or, for the item already in the
+    // demo order, its quantity.
+    expect(at(price)).toBeLessThan(at("rounded-full"));
+    // Section titles read as headings, not as tiny tracked-out caps.
+    expect(html).not.toMatch(/uppercase[^>]*>Lanches/);
   });
 });

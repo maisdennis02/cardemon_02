@@ -7,6 +7,7 @@ import { ArrowRightIcon, CheckIcon } from "@/components/icons";
 import type { Dictionary } from "@/i18n/dictionaries/en";
 import { format, type Locale } from "@/i18n/config";
 import { formatPrice, headerColors, menuFontFamilies, type MenuFont } from "@/lib/menu";
+import { MenuItemBody } from "@/app/m/[slug]/menu-item-card";
 import { cartTotals } from "@/lib/cart";
 import { LANDING_DEMO, demoOrderLines, demoOrderMessage } from "@/lib/landing-demo";
 import { FREE_ITEM_LIMIT } from "@/lib/pricing";
@@ -38,7 +39,7 @@ export function TextMenuPhone({ locale, t }: { locale: Locale; t: Dictionary }) 
       role="img"
       aria-label={t.landing.phonePreviewAlt}
       className="relative mx-auto h-[560px] w-[280px] overflow-hidden rounded-[2.6rem] border-[10px] border-[color:var(--color-navy)] text-left text-gray-900 shadow-2xl"
-      style={menuBackgroundStyle("doodles", ACCENT)}
+      style={menuBackgroundStyle("plain", ACCENT)}
     >
       <div className="relative h-20" style={{ background: ACCENT }}>
         <DemoLogo
@@ -52,30 +53,35 @@ export function TextMenuPhone({ locale, t }: { locale: Locale; t: Dictionary }) 
       <p className="mt-10 px-5 text-center font-serif text-xl font-bold" style={{ color: ACCENT }}>
         {t.landing.demoRestaurant}
       </p>
-      <div className="px-5 pt-2">
+      {/* The same card the public page draws (menu-item-card.tsx), at phone-mockup scale. */}
+      <div className="px-3 pt-1 text-[13px]">
         {demo.menu.sections.map((section) => (
           <div key={section.id} className="mt-3">
-            <p
-              className="mb-1 border-b pb-1 text-[10px] font-bold uppercase tracking-widest"
-              style={{ color: ACCENT, borderColor: ACCENT }}
-            >
+            <p className="mb-1.5 px-1 text-[15px] font-bold leading-tight" style={{ color: ACCENT }}>
               {section.title}
             </p>
-            {section.items.map((item) => {
-              const qty = inCart.get(item.id) ?? 0;
-              return (
-                <div key={item.id} className="flex items-center gap-2 border-b border-gray-100 py-2 text-[13px]">
-                  <span className="flex-1 font-medium">{item.name}</span>
-                  <span className="font-bold tabular-nums">{formatPrice(item.priceCents ?? 0, demo.country)}</span>
-                  <span
-                    className="flex size-6 items-center justify-center rounded-full text-xs font-bold text-white"
-                    style={{ background: ACCENT }}
-                  >
-                    {qty > 0 ? qty : "+"}
-                  </span>
-                </div>
-              );
-            })}
+            <ul className="grid gap-1.5">
+              {section.items.map((item) => {
+                const qty = inCart.get(item.id) ?? 0;
+                return (
+                  <li key={item.id} className="rounded-xl border border-black/[.07] bg-white px-3 pb-2 pt-2.5">
+                    <MenuItemBody
+                      name={item.name}
+                      priceCents={item.priceCents}
+                      country={demo.country}
+                      trailing={
+                        <span
+                          className="flex size-6 items-center justify-center rounded-full text-xs font-bold text-white"
+                          style={{ background: ACCENT }}
+                        >
+                          {qty > 0 ? qty : "+"}
+                        </span>
+                      }
+                    />
+                  </li>
+                );
+              })}
+            </ul>
           </div>
         ))}
       </div>

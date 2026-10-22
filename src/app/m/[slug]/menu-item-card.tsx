@@ -48,9 +48,9 @@ export function MenuItemBody({
   return (
     <>
       <span className="block font-semibold leading-snug">{name}</span>
-      {description && <span className="mt-0.5 block text-sm leading-snug text-gray-500">{description}</span>}
+      {description && <span className="mt-0.5 block text-[0.875em] leading-snug text-gray-500">{description}</span>}
       {(price !== null || trailing) && (
-        <span className="mt-2 flex min-h-8 items-center justify-between gap-3">
+        <span className="mt-[0.5em] flex min-h-[2em] items-center justify-between gap-3">
           <span className="font-medium tabular-nums">{price}</span>
           {trailing}
         </span>
