@@ -7,6 +7,8 @@ import { headerColors, type MenuBackground } from "@/lib/menu";
 // public page, the builder and the landing all call it.
 
 const WHITE = "#ffffff";
+// The plain page is a light warm grey, so the white item cards read as cards.
+const PLAIN = "#f5f4f1";
 
 const svg = (body: string, size: number, attrs = "") =>
   `<svg xmlns='http://www.w3.org/2000/svg' width='${size}' height='${size}' ${attrs}>${body}</svg>`;
@@ -69,7 +71,7 @@ const PATTERNS: Record<Exclude<MenuBackground, "plain">, { color: string; size: 
 };
 
 export function menuBackgroundStyle(background: MenuBackground | undefined, color: string): CSSProperties {
-  if (!background || background === "plain") return { backgroundColor: WHITE };
+  if (!background || background === "plain") return { backgroundColor: PLAIN };
   const pattern = PATTERNS[background];
   const { accent } = headerColors(color);
   return {

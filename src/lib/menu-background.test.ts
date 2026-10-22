@@ -20,9 +20,9 @@ describe("menu backgrounds", () => {
     expect(theme("url(https://evil.example/x.png)")).toBe(false);
   });
 
-  it("keeps today's white page when nothing is chosen", () => {
-    expect(menuBackgroundStyle(undefined, "#c84630")).toEqual({ backgroundColor: "#ffffff" });
-    expect(menuBackgroundStyle("plain", "#c84630")).toEqual({ backgroundColor: "#ffffff" });
+  it("gives the plain page a light grey so the white item cards stand out", () => {
+    expect(menuBackgroundStyle(undefined, "#c84630")).toEqual({ backgroundColor: "#f5f4f1" });
+    expect(menuBackgroundStyle("plain", "#c84630")).toEqual({ backgroundColor: "#f5f4f1" });
   });
 
   it("draws every pattern as an inline SVG that CSS can read", () => {

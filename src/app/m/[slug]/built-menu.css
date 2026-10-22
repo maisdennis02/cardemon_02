@@ -8,3 +8,13 @@
 .built-menu-actions:empty {
   display: none;
 }
+
+/* The section chips scroll sideways without a visible bar, and keep the page
+   color behind them while stuck to the top. */
+.section-chips {
+  background: inherit;
+  scrollbar-width: none;
+}
+.section-chips::-webkit-scrollbar {
+  display: none;
+}

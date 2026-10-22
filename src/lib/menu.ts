@@ -13,7 +13,7 @@ export type MenuSection = { id: string; title: string | null; items: MenuItem[] 
 export type Menu = { v: 1; sections: MenuSection[] };
 export const MENU_FONTS = ["default", "modern", "elegant", "casual"] as const;
 export type MenuFont = (typeof MENU_FONTS)[number];
-// Page backgrounds, like a chat wallpaper; "plain" is the original white page.
+// Page backgrounds, like a chat wallpaper; "plain" is a light grey with no pattern.
 export const MENU_BACKGROUNDS = ["plain", "paper", "linen", "gingham", "dots", "doodles"] as const;
 export type MenuBackground = (typeof MENU_BACKGROUNDS)[number];
 export type MenuTheme = {

@@ -1,7 +1,8 @@
 import "./built-menu.css";
-import { formatPrice, headerColors, menuFontFamilies, type Menu, type MenuTheme } from "@/lib/menu";
+import { headerColors, menuFontFamilies, type Menu, type MenuTheme } from "@/lib/menu";
 import { menuBackgroundStyle } from "@/lib/menu-background";
 import { MenuViewPing } from "./menu-actions";
+import { MENU_SECTION_LIST_CLASS, MENU_SECTION_TITLE_CLASS, MenuItemCard } from "./menu-item-card";
 import { OrderableMenu } from "./order/orderable-menu";
 
 // Text menu built in the dashboard (spec §2). No hooks and no "use client":
@@ -54,6 +55,8 @@ export function BuiltMenu({
 
         <div className="built-menu-actions px-6 pt-5">{actions}</div>
 
+        <SectionChips menu={menu} accent={accent} />
+
         {ordering ? (
           <OrderableMenu
             slug={slug}
@@ -66,30 +69,23 @@ export function BuiltMenu({
             titleColor={title}
           />
         ) : (
-          <Main className="flex-1 px-6 pb-10 pt-4">
+          <Main className="flex-1 px-4 pb-10 pt-3">
             {menu.sections.map((section) => (
-              <section key={section.id} className="mt-6 first:mt-2">
+              <section key={section.id} id={section.id} className="mt-6 scroll-mt-14 first:mt-1">
                 {section.title && (
-                  <h2
-                    className="mb-1 border-b pb-1 text-xs font-bold uppercase tracking-widest"
-                    style={{ color: title, borderColor: accent }}
-                  >
+                  <h2 className={MENU_SECTION_TITLE_CLASS} style={{ color: title }}>
                     {section.title}
                   </h2>
                 )}
-                <ul>
+                <ul className={MENU_SECTION_LIST_CLASS}>
                   {section.items.map((item) => (
-                    <li key={item.id} className="border-b border-gray-100 py-2.5 last:border-b-0">
-                      <div className="flex items-baseline gap-3">
-                        <span className="flex-1 font-medium">{item.name}</span>
-                        {item.priceCents !== null && (
-                          <span className="whitespace-nowrap font-bold tabular-nums">
-                            {formatPrice(item.priceCents, country)}
-                          </span>
-                        )}
-                      </div>
-                      {item.description && <p className="mt-0.5 text-sm text-gray-500">{item.description}</p>}
-                    </li>
+                    <MenuItemCard
+                      key={item.id}
+                      name={item.name}
+                      description={item.description}
+                      priceCents={item.priceCents}
+                      country={country}
+                    />
                   ))}
                 </ul>
               </section>
@@ -147,5 +143,29 @@ export function BuiltMenuHeader({ name, theme }: { name: string; theme: MenuThem
       </h1>
       {!band && <div className="mx-auto mt-4 h-0.5 w-16" style={{ background: accent }} />}
     </header>
+  );
+}
+
+// With three or more titled sections, a row of chips that stays at the top
+// while the page scrolls, one anchor per section. Plain links: the page has
+// no JavaScript to mark the section in view, and it doesn't need any to jump.
+export const SECTION_CHIPS_MIN = 3;
+
+export function SectionChips({ menu, accent }: { menu: Menu; accent: string }) {
+  const titled = menu.sections.filter((s) => s.title);
+  if (titled.length < SECTION_CHIPS_MIN) return null;
+  return (
+    <nav className="section-chips sticky top-0 z-10 flex gap-2 overflow-x-auto px-4 py-2.5">
+      {titled.map((s) => (
+        <a
+          key={s.id}
+          href={`#${s.id}`}
+          className="shrink-0 rounded-full border bg-white px-3.5 py-1.5 text-sm font-semibold text-gray-800"
+          style={{ borderColor: `${accent}33` }}
+        >
+          {s.title}
+        </a>
+      ))}
+    </nav>
   );
 }

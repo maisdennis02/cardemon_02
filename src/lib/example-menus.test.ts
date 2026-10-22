@@ -56,6 +56,12 @@ describe("the example registry", () => {
     expect(localeForCountry(menu.country)).toBe(menu.locale);
   });
 
+  it("text-menu examples use the plain background, like a new restaurant does", () => {
+    for (const menu of EXAMPLE_MENUS.filter((m) => m.built)) {
+      expect(menu.built!.theme.background, menu.slug).toBe("plain");
+    }
+  });
+
   it("unknown slugs are not examples", () => {
     expect(findExampleMenu("cavalo-marinho")).toBeUndefined();
     expect(findExampleMenu("")).toBeUndefined();

@@ -7,6 +7,7 @@ import { formatPrice, type Menu } from "@/lib/menu";
 import { addToCart, cartTotals, emptyCart, readCart, resolveCart, setQty, type Cart } from "@/lib/cart";
 import type { OrderDetails } from "@/lib/order";
 import { readCartRaw, subscribeCart, writeCartRaw } from "./cart-store";
+import { MENU_ITEM_CARD_CLASS, MENU_SECTION_LIST_CLASS, MENU_SECTION_TITLE_CLASS, MenuItemBody } from "../menu-item-card";
 import { OrderSheet } from "./order-sheet";
 
 // The text menu with ordering (spec §2): tap an item to add it, ± once it is
@@ -57,44 +58,42 @@ export function OrderableMenu({
 
   return (
     <>
-      <main className="flex-1 px-6 pb-10 pt-4">
+      <main className="flex-1 px-4 pb-10 pt-3">
         {menu.sections.map((section) => (
-          <section key={section.id} className="mt-6 first:mt-2">
+          <section key={section.id} id={section.id} className="mt-6 scroll-mt-14 first:mt-1">
             {section.title && (
-              <h2
-                className="mb-1 border-b pb-1 text-xs font-bold uppercase tracking-widest"
-                style={{ color: titleColor, borderColor: accent }}
-              >
+              <h2 className={MENU_SECTION_TITLE_CLASS} style={{ color: titleColor }}>
                 {section.title}
               </h2>
             )}
-            <ul>
+            <ul className={MENU_SECTION_LIST_CLASS}>
               {section.items.map((item) => {
                 const qty = qtyOf(item.id);
                 return (
-                  <li key={item.id} className="border-b border-gray-100 last:border-b-0">
+                  <li key={item.id} className={MENU_ITEM_CARD_CLASS}>
                     <button
                       type="button"
                       aria-label={format(o.add, { name: item.name })}
                       onClick={() => save(addToCart(cart, item.id, Date.now()))}
-                      className="block w-full py-2.5 text-left active:bg-gray-50"
+                      className="block w-full text-left"
                     >
-                      <span className="flex items-center gap-3">
-                        <span className="flex-1 font-medium">{item.name}</span>
-                        <span className="whitespace-nowrap font-bold tabular-nums">
-                          {item.priceCents === null ? "" : formatPrice(item.priceCents, country)}
-                        </span>
-                        {/* The "+" every ordering app uses, so diners see the
-                            item can be added; once added it shows the count. */}
-                        <span
-                          aria-hidden
-                          className="flex size-8 shrink-0 items-center justify-center rounded-full text-lg font-bold text-white"
-                          style={{ background: accent }}
-                        >
-                          {qty > 0 ? <span className="text-sm tabular-nums">{qty}</span> : "+"}
-                        </span>
-                      </span>
-                      {item.description && <span className="mt-0.5 block text-sm text-gray-500">{item.description}</span>}
+                      <MenuItemBody
+                        name={item.name}
+                        description={item.description}
+                        priceCents={item.priceCents}
+                        country={country}
+                        trailing={
+                          /* The "+" every ordering app uses, so diners see the
+                             item can be added; once added it shows the count. */
+                          <span
+                            aria-hidden
+                            className="flex size-8 shrink-0 items-center justify-center rounded-full text-lg font-bold text-white"
+                            style={{ background: accent }}
+                          >
+                            {qty > 0 ? <span className="text-sm tabular-nums">{qty}</span> : "+"}
+                          </span>
+                        }
+                      />
                     </button>
                     {qty > 0 && (
                       <QtyControl
