@@ -67,47 +67,17 @@ export function OrderableMenu({
               </h2>
             )}
             <ul className={MENU_SECTION_LIST_CLASS}>
-              {section.items.map((item) => {
-                const qty = qtyOf(item.id);
-                return (
-                  <li key={item.id} className={MENU_ITEM_CARD_CLASS}>
-                    <button
-                      type="button"
-                      aria-label={format(o.add, { name: item.name })}
-                      onClick={() => save(addToCart(cart, item.id, Date.now()))}
-                      className="block w-full text-left"
-                    >
-                      <MenuItemBody
-                        name={item.name}
-                        description={item.description}
-                        priceCents={item.priceCents}
-                        country={country}
-                        trailing={
-                          /* The "+" every ordering app uses, so diners see the
-                             item can be added; once added it shows the count. */
-                          <span
-                            aria-hidden
-                            className="flex size-8 shrink-0 items-center justify-center rounded-full text-lg font-bold text-white"
-                            style={{ background: accent }}
-                          >
-                            {qty > 0 ? <span className="text-sm tabular-nums">{qty}</span> : "+"}
-                          </span>
-                        }
-                      />
-                    </button>
-                    {qty > 0 && (
-                      <QtyControl
-                        qty={qty}
-                        accent={accent}
-                        label={format(o.inCart, { n: qty })}
-                        lessLabel={o.less}
-                        moreLabel={o.more}
-                        onChange={(n) => save(setQty(cart, item.id, n, Date.now()))}
-                      />
-                    )}
-                  </li>
-                );
-              })}
+              {section.items.map((item) => (
+                <OrderableItem
+                  key={item.id}
+                  item={item}
+                  qty={qtyOf(item.id)}
+                  country={country}
+                  accent={accent}
+                  onAdd={() => save(addToCart(cart, item.id, Date.now()))}
+                  onQty={(n) => save(setQty(cart, item.id, n, Date.now()))}
+                />
+              ))}
             </ul>
           </section>
         ))}
@@ -152,6 +122,68 @@ export function OrderableMenu({
   );
 }
 
+// One item of the ordering list. Tapping the card adds it; once it is in the
+// order the ± control takes the place of the "+" on the price line — one
+// count on screen, not a badge plus a control under it (2026-10-23).
+export function OrderableItem({
+  item,
+  qty,
+  country,
+  accent,
+  onAdd,
+  onQty,
+}: {
+  item: Menu["sections"][number]["items"][number];
+  qty: number;
+  country: string | null;
+  accent: string;
+  onAdd: () => void;
+  onQty: (qty: number) => void;
+}) {
+  const t = useT();
+  const o = t.menu.order;
+  return (
+    <li className={`${MENU_ITEM_CARD_CLASS} relative`}>
+      <button type="button" aria-label={format(o.add, { name: item.name })} onClick={onAdd} className="block w-full text-left">
+        <MenuItemBody
+          name={item.name}
+          description={item.description}
+          priceCents={item.priceCents}
+          country={country}
+          trailing={
+            qty > 0 ? (
+              // Holds the ± control's width so the price line stays clear of it.
+              <span aria-hidden className="h-8 w-[7.5rem] shrink-0" />
+            ) : (
+              /* The "+" every ordering app uses, so diners see the item can be added. */
+              <span
+                aria-hidden
+                className="flex size-8 shrink-0 items-center justify-center rounded-full text-lg font-bold text-white"
+                style={{ background: accent }}
+              >
+                +
+              </span>
+            )
+          }
+        />
+      </button>
+      {qty > 0 && (
+        // Sits on the price line, inside the card's padding (px-4 pb-3).
+        <div className="absolute bottom-3 right-4">
+          <QtyControl
+            qty={qty}
+            accent={accent}
+            label={format(o.inCart, { n: qty })}
+            lessLabel={o.less}
+            moreLabel={o.more}
+            onChange={onQty}
+          />
+        </div>
+      )}
+    </li>
+  );
+}
+
 export function QtyControl({
   qty,
   accent,
@@ -168,12 +200,12 @@ export function QtyControl({
   onChange: (qty: number) => void;
 }) {
   return (
-    <div className="flex items-center justify-end gap-3 pb-2.5" aria-label={label}>
+    <div className="flex items-center justify-end gap-4" aria-label={label}>
       <button
         type="button"
         aria-label={lessLabel}
         onClick={() => onChange(qty - 1)}
-        className="flex size-9 items-center justify-center rounded-full border-2 text-lg font-bold"
+        className="flex size-8 items-center justify-center rounded-full border-2 text-lg font-bold"
         style={{ borderColor: accent, color: accent }}
       >
         −
@@ -183,7 +215,7 @@ export function QtyControl({
         type="button"
         aria-label={moreLabel}
         onClick={() => onChange(qty + 1)}
-        className="flex size-9 items-center justify-center rounded-full text-lg font-bold text-white"
+        className="flex size-8 items-center justify-center rounded-full text-lg font-bold text-white"
         style={{ background: accent }}
       >
         +

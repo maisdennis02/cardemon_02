@@ -4,7 +4,7 @@ import en from "@/i18n/dictionaries/en";
 import { DictionaryProvider } from "@/i18n/provider";
 import type { Menu, MenuTheme } from "@/lib/menu";
 import { BuiltMenu } from "./built-menu";
-import { OrderableMenu } from "./order/orderable-menu";
+import { OrderableItem, OrderableMenu } from "./order/orderable-menu";
 
 // The text menu's layout (2026-10-22): each item is a card that reads name,
 // description, price, top to bottom — the price is never a right-hand column
@@ -129,5 +129,43 @@ describe("section chips", () => {
       </DictionaryProvider>,
     );
     expect(html.match(/<nav\b/g)).toHaveLength(1);
+  });
+});
+
+describe("an item already in the order", () => {
+  // 2026-10-23: with the card layout the ± control had been left hanging
+  // under the price line, next to a badge repeating the same count.
+  const render = (qty: number) =>
+    renderToStaticMarkup(
+      <DictionaryProvider locale="en" dictionary={en}>
+        <OrderableItem
+          item={item("xb", "X-Burguer", 2590, "Pão, carne, queijo e salada.")}
+          qty={qty}
+          country="BR"
+          accent="#c84630"
+          onAdd={() => {}}
+          onQty={() => {}}
+        />
+      </DictionaryProvider>,
+    );
+
+  it("shows its count once, on the price line, between − and +", () => {
+    const li = render(2);
+    // One count, not a badge plus a control repeating it.
+    expect(li.match(/>2</g)).toHaveLength(1);
+    expect(li).toContain("−");
+    expect(li).toContain(">+<");
+    // The control sits on the price line, inside the card's padding, with
+    // room between the buttons and the number.
+    expect(li).toMatch(/class="absolute bottom-3 right-4"/);
+    expect(li).toMatch(/class="flex items-center justify-end gap-4"/);
+    // And the price line keeps its width clear of the control.
+    expect(li).toMatch(/w-\[7\.5rem\]/);
+  });
+
+  it("shows the plain + when it is not in the order", () => {
+    const li = render(0);
+    expect(li).toContain(">+<");
+    expect(li).not.toContain("−");
   });
 });

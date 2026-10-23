@@ -140,7 +140,7 @@ export function OrderSheet({
           <>
             <ul className="divide-y divide-gray-100">
               {lines.map(({ item, qty }) => (
-                <li key={item.id} className="pt-2.5">
+                <li key={item.id} className="py-2.5">
                   <div className="flex items-baseline gap-3">
                     <span className="flex-1 font-medium">{item.name}</span>
                     <span className="whitespace-nowrap font-bold tabular-nums">
