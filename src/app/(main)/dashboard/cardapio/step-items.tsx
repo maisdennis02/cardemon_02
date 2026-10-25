@@ -1,13 +1,13 @@
 "use client";
 
 import Link from "next/link";
-import { useState, useSyncExternalStore } from "react";
+import { useRef, useState, useSyncExternalStore } from "react";
 import { useT } from "@/i18n/provider";
 import { format, localeForCountry, type Locale } from "@/i18n/config";
 import { capture } from "@/lib/posthog";
 import { FREE_ITEM_LIMIT } from "@/lib/pricing";
 import { countItems, formatPrice, visibleMenu, type Menu, type MenuSection } from "@/lib/menu";
-import { parseItemLine } from "@/lib/menu-parse";
+import { parseItemInput, parseItemLine } from "@/lib/menu-parse";
 import {
   addItem,
   addSection,
@@ -42,8 +42,8 @@ function readSamplesHidden(restaurantId: string): boolean {
   }
 }
 
-// Step 2 (spec §3): sections and items. One line per item, "name price",
-// typed or dictated; ambiguous prices become items without a price.
+// Step 2 (spec §3): sections and items. Name and price typed or dictated;
+// ambiguous prices become items without a price.
 export function StepItems({
   restaurantId,
   menu,
@@ -373,8 +373,11 @@ function SectionBlock({
   );
 }
 
-// Enter adds the item and keeps the focus here, so dictating one item after
-// another never needs a tap on the screen.
+// Name and price each get a field: owners on a phone typed the name alone and
+// fixed the price in the editor. Enter on the name jumps to the price unless
+// the line already carries one ("X-Burguer 25,90", often dictated); Enter on
+// the price adds the item and brings the focus back to the name, so item
+// after item never needs a tap on the screen.
 function AddItemField({
   onAdd,
   autoFocus = false,
@@ -387,36 +390,81 @@ function AddItemField({
   const t = useT();
   const it = t.dashboard.builder.items;
   const [line, setLine] = useState("");
+  const [price, setPrice] = useState("");
+  const [invalid, setInvalid] = useState(false);
+  const nameRef = useRef<HTMLInputElement>(null);
+  const priceRef = useRef<HTMLInputElement>(null);
+
+  function submit() {
+    const parsed = parseItemInput(line, price);
+    if (!parsed) return;
+    if (parsed === "invalid") {
+      setInvalid(true);
+      priceRef.current?.focus();
+      return;
+    }
+    onAdd(parsed);
+    capture("item_added", { via: "typed", price_field: price.trim() !== "" });
+    setLine("");
+    setPrice("");
+    setInvalid(false);
+    nameRef.current?.focus();
+  }
 
   return (
     <form
-      className="flex flex-col gap-1"
+      className="flex flex-col gap-2"
       onSubmit={(e) => {
         e.preventDefault();
-        const parsed = parseItemLine(line);
-        if (!parsed) return;
-        onAdd(parsed);
-        capture("item_added", { via: "typed" });
-        setLine("");
+        submit();
       }}
     >
       <div className="flex gap-2">
         <input
+          ref={nameRef}
           className="input min-w-0"
-          enterKeyHint="done"
+          enterKeyHint="next"
           autoFocus={autoFocus}
           autoComplete="off"
+          maxLength={80}
           placeholder={it.addPlaceholder}
           aria-label={it.addPlaceholder}
           value={line}
           onChange={(e) => setLine(e.target.value)}
+          onKeyDown={(e) => {
+            if (e.key !== "Enter" || price.trim()) return;
+            if (parseItemLine(line)?.priceCents != null) return;
+            e.preventDefault();
+            if (line.trim()) priceRef.current?.focus();
+          }}
         />
         <MicButton value={line} onChange={setLine} lang={lang} label={t.menu.order.mic} />
+      </div>
+      <div className="flex gap-2">
+        <input
+          ref={priceRef}
+          className={`input w-32 tabular-nums ${invalid ? "border-red-500" : ""}`}
+          inputMode="decimal"
+          enterKeyHint="done"
+          autoComplete="off"
+          placeholder={it.pricePlaceholder}
+          aria-label={it.pricePlaceholder}
+          aria-invalid={invalid}
+          value={price}
+          onChange={(e) => {
+            setPrice(e.target.value);
+            setInvalid(false);
+          }}
+        />
         <button type="submit" className="btn btn-primary btn-sm" disabled={!line.trim()}>
           {it.add}
         </button>
       </div>
-      <span className="text-xs text-gray-500">{it.addHint}</span>
+      {invalid ? (
+        <span className="text-xs text-red-600">{t.dashboard.builder.editor.invalidPrice}</span>
+      ) : (
+        <span className="text-xs text-gray-500">{it.addHint}</span>
+      )}
     </form>
   );
 }

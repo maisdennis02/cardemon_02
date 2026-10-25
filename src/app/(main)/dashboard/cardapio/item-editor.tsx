@@ -3,7 +3,7 @@
 import { useState } from "react";
 import { useT } from "@/i18n/provider";
 import type { MenuItem, MenuSection } from "@/lib/menu";
-import { parseItemLine } from "@/lib/menu-parse";
+import { parsePrice } from "@/lib/menu-parse";
 import { MicButton } from "@/components/voice/mic-button";
 import { IconButton } from "./step-items";
 
@@ -11,13 +11,6 @@ type Patch = { name?: string; description?: string; priceCents?: number | null }
 
 function priceText(cents: number | null): string {
   return cents === null ? "" : (cents / 100).toFixed(2).replace(".", ",");
-}
-
-// Reads a price typed on its own with the same rule as an item line, so
-// "25,90", "R$ 25" and "25 e 90" all work here too.
-function parsePrice(text: string): number | null | "invalid" {
-  if (!text.trim()) return null;
-  return parseItemLine(`x ${text}`)?.priceCents ?? "invalid";
 }
 
 // Inline editor for one item: name, description, price, order, section.

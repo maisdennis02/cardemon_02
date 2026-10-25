@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { parseItemLine, parsePastedList } from "@/lib/menu-parse";
+import { parseItemInput, parseItemLine, parsePastedList, parsePrice } from "@/lib/menu-parse";
 
 describe("parseItemLine", () => {
   it.each([
@@ -36,6 +36,57 @@ describe("parseItemLine", () => {
 
   it("cuts the name to 80 characters", () => {
     expect(parseItemLine("x".repeat(120))?.name).toHaveLength(80);
+  });
+});
+
+describe("parsePrice", () => {
+  it.each([
+    ["25,90", 2590],
+    ["R$ 25", 2500],
+    ["12.5", 1250],
+    ["8 e 50", 850],
+    ["7 reais.", 700],
+    ["  ", null],
+  ])("%s", (input, priceCents) => {
+    expect(parsePrice(input)).toBe(priceCents);
+  });
+
+  it.each(["abc", "1.250", "8 e 5"])("%s is invalid", (input) => {
+    expect(parsePrice(input)).toBe("invalid");
+  });
+});
+
+// The add row has a name field and a price field. Owners on a phone typed the
+// name alone and set the price in the editor, or put the price in the name
+// (ads batch 3, 22-23/10/2026), so the price gets a field of its own.
+describe("parseItemInput", () => {
+  it("takes the price from its own field", () => {
+    expect(parseItemInput("Açaí copão 300 ml", "12")).toEqual({ name: "Açaí copão 300 ml", priceCents: 1200 });
+  });
+
+  it("keeps a number at the end of the name when the price field has the price", () => {
+    expect(parseItemInput("Coxinha 10", "6,50")).toEqual({ name: "Coxinha 10", priceCents: 650 });
+  });
+
+  it("still reads a dictated 'name price' line when the price field is empty", () => {
+    expect(parseItemInput("X-Burguer 25,90", "")).toEqual({ name: "X-Burguer", priceCents: 2590 });
+  });
+
+  it("adds an item without a price when both say nothing", () => {
+    expect(parseItemInput("Pastel de carne", " ")).toEqual({ name: "Pastel de carne", priceCents: null });
+  });
+
+  it("refuses a price it cannot read", () => {
+    expect(parseItemInput("Pastel", "dez")).toBe("invalid");
+  });
+
+  it("needs a name", () => {
+    expect(parseItemInput("  ", "10")).toBeNull();
+  });
+
+  it("cuts the name to 80 characters", () => {
+    const parsed = parseItemInput("x".repeat(120), "10");
+    expect(parsed && parsed !== "invalid" ? parsed.name : "").toHaveLength(80);
   });
 });
 
