@@ -42,7 +42,7 @@ export function PrintMenu({
       </div>
 
       <div
-        className="print-flow mx-auto my-4 w-full max-w-[210mm] bg-white px-[14mm] pb-[14mm] pt-[12mm] shadow"
+        className="print-flow mx-auto my-4 w-full max-w-[210mm] bg-white px-5 pb-8 pt-8 shadow sm:px-[14mm] sm:pb-[14mm] sm:pt-[12mm]"
         style={{ fontFamily: fonts.body }}
       >
         <header className="mb-6 text-center">
@@ -55,7 +55,8 @@ export function PrintMenu({
           </h1>
         </header>
 
-        <main className="columns-2 gap-8">
+        {/* One column on a phone screen; the A4 sheet always has two. */}
+        <main className="gap-8 sm:columns-2 print:columns-2">
           {menu.sections.map((section) => (
             <section key={section.id} className="mb-5">
               {section.title && (
