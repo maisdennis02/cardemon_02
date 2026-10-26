@@ -6,7 +6,8 @@ import { useT } from "@/i18n/provider";
 import { format, localeForCountry, type Locale } from "@/i18n/config";
 import { capture } from "@/lib/posthog";
 import { FREE_ITEM_LIMIT } from "@/lib/pricing";
-import { countItems, formatPrice, visibleMenu, type Menu, type MenuSection } from "@/lib/menu";
+import { countItems, formatPrice, visibleMenu, type Menu, type MenuItem, type MenuSection } from "@/lib/menu";
+import { countPhotos } from "@/lib/menu-photos";
 import { parseItemInput, parseItemLine } from "@/lib/menu-parse";
 import {
   addItem,
@@ -83,6 +84,7 @@ export function StepItems({
   const lang = speechLang(localeForCountry(country));
   const { menu: shown, hidden } = visibleMenu(menu, isPro);
   const visibleIds = new Set(shown.sections.flatMap((s) => s.items.map((i) => i.id)));
+  const photoCount = countPhotos(menu);
   const used = new Set(menu.sections.map((s) => s.title?.toLowerCase()));
   const suggestions = sectionSuggestions[localeForCountry(country)].filter((s) => !used.has(s.toLowerCase()));
   // Samples follow the menu's language (the country), like the suggestions.
@@ -169,6 +171,9 @@ export function StepItems({
           lang={lang}
           country={country}
           visibleIds={visibleIds}
+          restaurantId={restaurantId}
+          isPro={isPro}
+          photoCount={photoCount}
           editingId={editingId}
           setEditingId={setEditingId}
           sections={menu.sections}
@@ -263,6 +268,9 @@ function SectionBlock({
   lang,
   country,
   visibleIds,
+  restaurantId,
+  isPro,
+  photoCount,
   editingId,
   setEditingId,
   sections,
@@ -282,6 +290,9 @@ function SectionBlock({
   lang: string;
   country: string;
   visibleIds: Set<string>;
+  restaurantId: string;
+  isPro: boolean;
+  photoCount: number;
   editingId: string | null;
   setEditingId: (id: string | null) => void;
   sections: MenuSection[];
@@ -289,7 +300,7 @@ function SectionBlock({
   onMove: (dir: -1 | 1) => void;
   onRemove: () => void;
   onAdd: (item: { name: string; priceCents: number | null }) => void;
-  onItem: (itemId: string, patch: { name?: string; description?: string; priceCents?: number | null }) => void;
+  onItem: (itemId: string, patch: Partial<Omit<MenuItem, "id">>) => void;
   onItemMove: (itemId: string, dir: -1 | 1) => void;
   onItemMoveTo: (itemId: string, sectionId: string) => void;
   onItemRemove: (itemId: string) => void;
@@ -338,6 +349,9 @@ function SectionBlock({
                     onRemove={() => onItemRemove(item.id)}
                     onDone={() => setEditingId(null)}
                     lang={lang}
+                    restaurantId={restaurantId}
+                    isPro={isPro}
+                    photoCount={photoCount}
                   />
                 </li>
               );
@@ -350,6 +364,12 @@ function SectionBlock({
                   onClick={() => setEditingId(item.id)}
                   className={`flex w-full items-baseline gap-3 py-2.5 text-left ${visible ? "" : "opacity-40"}`}
                 >
+                  {item.photo ? (
+                    /* eslint-disable-next-line @next/next/no-img-element */
+                    <img src={item.photo.thumb} alt="" width={44} height={44} className="size-11 shrink-0 self-center rounded-lg object-cover" />
+                  ) : (
+                    <span aria-hidden className="size-11 shrink-0 self-center rounded-lg border-2 border-dashed border-gray-200" />
+                  )}
                   <span className="flex-1">
                     <span className="font-medium">{item.name}</span>
                     {!visible && <span className="block text-xs text-amber-700">{it.overLimit}</span>}
