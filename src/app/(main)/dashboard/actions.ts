@@ -23,7 +23,8 @@ import {
   type DeliveryUrlColumn,
 } from "@/lib/delivery-apps";
 import { FREE_IMAGE_LIMIT, PRO_IMAGE_LIMIT, imageLimitFor, isPro } from "@/lib/pricing";
-import { readMenuTheme } from "@/lib/menu";
+import { MenuSchema, readMenuTheme } from "@/lib/menu";
+import { photoUrls } from "@/lib/menu-photos";
 import { normalizeWhatsapp } from "@/lib/whatsapp";
 import { dashT, requireOwnedRestaurant, requireUserId } from "./guards";
 
@@ -398,7 +399,7 @@ export async function deleteAccount(): Promise<void> {
   const userId = await requireUserId();
   const restaurants = await prisma.restaurant.findMany({
     where: { ownerId: userId },
-    select: { slug: true, menuTheme: true, images: { select: { url: true } } },
+    select: { slug: true, menuTheme: true, menuDraft: true, menuPublished: true, images: { select: { url: true } } },
   });
 
   // Blobs before rows: once user.delete cascades, no record of the URLs
@@ -406,7 +407,9 @@ export async function deleteAccount(): Promise<void> {
   // can be cleaned up by hand instead of orphaning silently.
   for (const r of restaurants) {
     const logoUrl = readMenuTheme(r.menuTheme).logoUrl;
-    for (const url of [...r.images.map((img) => img.url), ...(logoUrl ? [logoUrl] : [])]) {
+    // Draft and published share most photos: each URL once.
+    const photos = new Set([r.menuDraft, r.menuPublished].flatMap((raw) => photoUrls(MenuSchema.safeParse(raw).data ?? null)));
+    for (const url of [...r.images.map((img) => img.url), ...(logoUrl ? [logoUrl] : []), ...photos]) {
       await del(url).catch((err) =>
         console.error("[deleteAccount] blob delete failed:", url, err),
       );

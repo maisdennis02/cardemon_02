@@ -498,6 +498,8 @@ export const en = {
       restaurantNotFound: "Restaurant not found.",
       invalidMenu: "Couldn't save the menu. Check the items and try again.",
       logoInvalid: "The logo could not be saved. Please upload the image again.",
+      photoInvalid: "This photo doesn't belong to this menu.",
+      photoLimit: "Free plan: up to 20 photos. Pro: all of them.",
       imageNotFound: "Image not found.",
       invalidImageId: "Invalid image id.",
       reorderInvalid: "Invalid reorder request.",

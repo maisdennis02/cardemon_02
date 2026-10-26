@@ -496,6 +496,8 @@ const ptBR: Dictionary = {
       restaurantNotFound: "Restaurante não encontrado.",
       invalidMenu: "Não foi possível salvar o cardápio. Confira os itens e tente de novo.",
       logoInvalid: "O logo não pôde ser salvo. Envie a imagem de novo.",
+      photoInvalid: "Essa foto não pertence a este cardápio.",
+      photoLimit: "No grátis, até 20 fotos. No Pro, todas.",
       imageNotFound: "Imagem não encontrada.",
       invalidImageId: "ID de imagem inválido.",
       reorderInvalid: "Pedido de reordenação inválido.",
