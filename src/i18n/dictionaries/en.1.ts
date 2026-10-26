@@ -559,6 +559,8 @@ export const en = {
       more: "One more",
       less: "One less",
       inCart: "{n} in the order",
+      open: "See {name}",
+      addToOrder: "Add",
       viewOrder: "View order",
       count: "{n} items",
       countOne: "1 item",

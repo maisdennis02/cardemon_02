@@ -559,6 +559,8 @@ const ptBR: Dictionary = {
       more: "Mais um",
       less: "Menos um",
       inCart: "{n} no pedido",
+      open: "Ver {name}",
+      addToOrder: "Adicionar",
       viewOrder: "Ver pedido",
       count: "{n} itens",
       countOne: "1 item",

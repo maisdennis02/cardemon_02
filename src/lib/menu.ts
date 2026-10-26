@@ -315,6 +315,7 @@ export function menuJsonLd(menu: Menu, country: string | null | undefined): Reco
         "@type": "MenuItem",
         name: item.name,
         ...(item.description && { description: item.description }),
+        ...(item.photo && { image: item.photo.full }),
         ...(item.priceCents !== null && {
           offers: { "@type": "Offer", price: (item.priceCents / 100).toFixed(2), priceCurrency: currency },
         }),

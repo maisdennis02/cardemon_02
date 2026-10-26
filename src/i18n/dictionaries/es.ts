@@ -559,6 +559,8 @@ const es: Dictionary = {
       more: "Uno más",
       less: "Uno menos",
       inCart: "{n} en el pedido",
+      open: "Ver {name}",
+      addToOrder: "Agregar",
       viewOrder: "Ver pedido",
       count: "{n} ítems",
       countOne: "1 ítem",
