@@ -128,7 +128,7 @@ export function OrderableMenu({
 // "+" beside it adds one straight away (spec 2026-10-25 §4, the delivery-app
 // pattern). Once the item is in the order the ± control takes the place of
 // the "+" on the price line — one count on screen (2026-10-23). With a photo
-// the "+" sits on the photo's corner and the ± stays left of the photo.
+// the "+" sits on the photo's corner and the ± gets a row under the card.
 export function OrderableItem({
   item,
   qty,
@@ -164,7 +164,7 @@ export function OrderableItem({
           country={country}
           photo={item.photo}
           trailing={
-            qty > 0 ? (
+            qty > 0 && !photo ? (
               // Holds the ± control's width so the price line stays clear of it.
               <span aria-hidden className="h-8 w-[7.5rem] shrink-0" />
             ) : photo ? undefined : (
@@ -174,9 +174,10 @@ export function OrderableItem({
         />
       </button>
       {qty > 0 ? (
-        // Sits on the price line, inside the card's padding (px-4 pb-3); with a
-        // photo, left of it (96 px photo + 12 px gap).
-        <div className={photo ? "absolute bottom-3 right-[7.75rem]" : "absolute bottom-3 right-4"}>
+        // Sits on the price line, inside the card's padding (px-4 pb-3). Next
+        // to a photo the text column is too narrow for price plus ± on a
+        // 360 px phone, so there it takes a row of its own under the card.
+        <div className={photo ? "mt-2 flex justify-end" : "absolute bottom-3 right-4"}>
           <QtyControl
             qty={qty}
             accent={accent}

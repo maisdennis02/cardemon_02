@@ -1,5 +1,5 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
-import { createAutosaver, type AutosaveStatus } from "@/lib/autosave";
+import { RefusedSaveError, createAutosaver, type AutosaveStatus } from "@/lib/autosave";
 
 beforeEach(() => vi.useFakeTimers());
 afterEach(() => vi.useRealTimers());
@@ -113,5 +113,28 @@ describe("createAutosaver", () => {
     finish();
     await done;
     expect(save).toHaveBeenLastCalledWith("b");
+  });
+
+  // A save the server refuses on purpose (photo cap, foreign photo) fails the
+  // same way every time: retrying every 5 s would hit the database forever
+  // and hold every later edit hostage (review of 2026-10-25).
+  it("does not retry a refused save, and saves the next edit", async () => {
+    const save = vi
+      .fn<(v: string) => Promise<void>>()
+      .mockRejectedValueOnce(new RefusedSaveError("No grátis, até 20 fotos."))
+      .mockResolvedValue();
+    const refused: string[] = [];
+    const statuses: AutosaveStatus[] = [];
+    const saver = createAutosaver<string>({ save, onStatus: (s) => statuses.push(s), onRefused: (m) => refused.push(m) });
+    saver.push("a");
+    await vi.advanceTimersByTimeAsync(2000);
+    await vi.advanceTimersByTimeAsync(30_000);
+    expect(save).toHaveBeenCalledTimes(1);
+    expect(refused).toEqual(["No grátis, até 20 fotos."]);
+    expect(statuses.at(-1)).toBe("error");
+    saver.push("b");
+    await vi.advanceTimersByTimeAsync(2000);
+    expect(save).toHaveBeenLastCalledWith("b");
+    expect(statuses.at(-1)).toBe("saved");
   });
 });

@@ -4,7 +4,8 @@ import { prisma } from "@/lib/prisma";
 import { getDictionary, getLocale } from "@/i18n";
 import { COUNTRY_FOR_LOCALE, LOCALES, type Locale } from "@/i18n/config";
 import { isPro } from "@/lib/pricing";
-import { readMenuTheme } from "@/lib/menu";
+import { MenuSchema, readMenuTheme } from "@/lib/menu";
+import { menuRev } from "@/lib/menu-photos";
 import { initialBuilderMenu } from "@/lib/menu-edit";
 import { MenuBuilder } from "./menu-builder";
 
@@ -36,6 +37,7 @@ export default async function MenuBuilderPage() {
       }}
       initialTheme={readMenuTheme(restaurant.menuTheme)}
       initial={initialBuilderMenu(restaurant.menuDraft, restaurant.menuPublished)}
+      draftRev={menuRev(MenuSchema.safeParse(restaurant.menuDraft).data ?? null)}
       hasPublished={restaurant.menuPublished != null}
       isPro={isPro(user)}
       sectionSuggestions={sectionSuggestions}

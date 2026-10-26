@@ -89,6 +89,8 @@ export const MenuThemeSchema: z.ZodType<MenuTheme> = z.object({
 export const SaveDraftInputSchema = z.object({
   restaurantId: z.string().cuid(),
   menu: z.unknown(),
+  // menuRev of the stored draft as this tab last saw it (menu-photos.ts).
+  baseRev: z.string().max(16).optional(),
 });
 
 // The preview asks for the WhatsApp number when the restaurant has none; it is

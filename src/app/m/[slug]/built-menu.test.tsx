@@ -242,4 +242,25 @@ describe("item photos (2026-10-25)", () => {
     // The "+" is its own button now, in the spot the ± control takes.
     expect(li).toMatch(/<button[^>]*aria-label="Add Batata frita to the order"[^>]*class="absolute [^"]*bottom-3 right-4/);
   });
+
+  // Review of 2026-10-25: next to a photo the text column is ~186 px on a
+  // 360 px phone, too narrow for the price plus the ± control.
+  it("puts the ± of a photo card in the order on its own row, not over the price", () => {
+    const li = renderToStaticMarkup(
+      <DictionaryProvider locale="en" dictionary={en}>
+        <OrderableItem
+          item={{ ...item("xb", "X-Burguer", 2590, "Pão, carne, queijo e salada."), photo }}
+          qty={2}
+          country="BR"
+          accent="#c84630"
+          onAdd={() => {}}
+          onQty={() => {}}
+        />
+      </DictionaryProvider>,
+    );
+    expect(li).not.toMatch(/right-\[7\.75rem\]/);
+    expect(li).not.toMatch(/w-\[7\.5rem\]/);
+    expect(li).toMatch(/class="mt-2 flex justify-end"/);
+    expect(li.match(/>2</g)).toHaveLength(1);
+  });
 });
