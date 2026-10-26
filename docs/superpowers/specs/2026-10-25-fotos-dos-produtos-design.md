@@ -70,10 +70,11 @@ toques em "Ver o Pro" vindos do aviso de foto (`photo_pro_tapped`).
 
 ## 3. A regra do plano
 
-- **Página pública:** `visibleMenu(menu, pro)` passa também a **tirar `photo`
-  de todo item quando `pro` é falso**. É a mesma função que já corta os itens
-  acima de 20, então a página pública, o pedido e o JSON-LD herdam a regra sem
-  mudança própria.
+- **Página pública:** função nova `publicMenu(menu, pro)` = `visibleMenu` (o
+  corte dos 20 itens) **e, quando `pro` é falso, sem `photo` em nenhum item**.
+  A página pública passa a chamar `publicMenu`, então o pedido e o JSON-LD
+  herdam a regra. `visibleMenu` fica como está porque a prévia do painel
+  também a usa, e lá as fotos aparecem sempre.
 - **Prévia do painel:** mostra sempre as fotos.
 - **Aviso no editor** (grátis, item com foto): "Na prévia você já vê o
   cardápio com as fotos. Para os clientes, as fotos aparecem no Pro. **Ver o
