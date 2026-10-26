@@ -217,6 +217,22 @@ export function effectiveMode(r: MenuContent): MenuMode {
   return has(other) ? other : "photos";
 }
 
+// What the printable sheet at /m/<slug>/print shows: a published text menu,
+// cut exactly as the public page cuts it, so paper never differs from the
+// online menu. Null when the page would not show a text menu.
+export function printableMenu(
+  r: { menuMode: string; imageCount: number; menuPublished: unknown; pro: boolean },
+  slug: string,
+): Menu | null {
+  const published = readPublishedMenu(r.menuPublished, slug);
+  const mode = effectiveMode({
+    menuMode: r.menuMode,
+    imageCount: r.imageCount,
+    publishedItemCount: countItems(published),
+  });
+  return mode === "built" && published ? publicMenu(published, r.pro) : null;
+}
+
 export function isPublished(r: MenuContent): boolean {
   return r.imageCount > 0 || r.publishedItemCount > 0;
 }

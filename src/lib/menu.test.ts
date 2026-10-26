@@ -24,6 +24,7 @@ import {
   readPublishedMenu,
   visibleMenu,
   publicMenu,
+  printableMenu,
   ITEM_PHOTO_MAX_BYTES,
   type Menu,
 } from "@/lib/menu";
@@ -446,5 +447,37 @@ describe("item photos", () => {
     expect(rules?.types).toEqual(["image/webp", "image/jpeg"]);
     expect(uploadRulesFor("item-photos/other/i1-full.webp", "abc")).toBeNull();
     expect(uploadRulesFor("item-photos/abc/../other/x.webp", "abc")).toBeNull();
+  });
+});
+
+// What /m/<slug>/print may show (spec 2026-10-26): only a published text
+// menu, and the same items the public page shows.
+describe("printableMenu", () => {
+  const items = (n: number): Menu => ({
+    v: 1,
+    sections: [{ id: "s1", title: null, items: Array.from({ length: n }, (_, i) => ({ id: `i${i}`, name: `Item ${i}`, priceCents: 100 })) }],
+  });
+  const row = (over: Partial<{ menuMode: string; imageCount: number; menuPublished: unknown; pro: boolean }>) => ({
+    menuMode: "built",
+    imageCount: 0,
+    menuPublished: items(3),
+    pro: false,
+    ...over,
+  });
+
+  it("is null for a photo menu", () => {
+    expect(printableMenu(row({ menuMode: "photos", imageCount: 2 }), "x")).toBeNull();
+  });
+
+  it("is null when no text menu is published", () => {
+    expect(printableMenu(row({ menuPublished: null }), "x")).toBeNull();
+  });
+
+  it("cuts a free menu at the same 20 items as the public page", () => {
+    expect(countItems(printableMenu(row({ menuPublished: items(25) }), "x"))).toBe(20);
+  });
+
+  it("prints every item on Pro", () => {
+    expect(countItems(printableMenu(row({ menuPublished: items(25), pro: true }), "x"))).toBe(25);
   });
 });
