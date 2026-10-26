@@ -464,6 +464,7 @@ const ptBR: Dictionary = {
       png: "PNG",
       svg: "SVG",
       open: "Abrir",
+      print: "Cardápio para imprimir (PDF)",
     },
     stats: {
       title: "Visualizações do cardápio",
@@ -554,6 +555,14 @@ const ptBR: Dictionary = {
     },
   },
   menu: {
+    // The printable sheet at /m/<slug>/print (spec 2026-10-26).
+    print: {
+      save: "Salvar PDF ou imprimir",
+      help: "No celular, escolha \"Salvar como PDF\" ou \"Imprimir\" na tela que abrir.",
+      footerOrder: "Preços atualizados e pedido pelo WhatsApp: aponte a câmera.",
+      footerNoOrder: "Preços atualizados: aponte a câmera.",
+      madeWith: "Cardápio feito com",
+    },
     order: {
       add: "Adicionar {name} ao pedido",
       more: "Mais um",

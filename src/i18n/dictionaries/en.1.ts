@@ -466,6 +466,7 @@ export const en = {
       png: "PNG",
       svg: "SVG",
       open: "Open",
+      print: "Printable menu (PDF)",
     },
     stats: {
       title: "Menu views",
@@ -554,6 +555,13 @@ export const en = {
     },
   },
   menu: {
+    print: {
+      save: "Save PDF or print",
+      help: "On a phone, choose \"Save as PDF\" or \"Print\" on the screen that opens.",
+      footerOrder: "Up-to-date prices and WhatsApp ordering: point your camera.",
+      footerNoOrder: "Up-to-date prices: point your camera.",
+      madeWith: "Menu made with",
+    },
     order: {
       add: "Add {name} to the order",
       more: "One more",

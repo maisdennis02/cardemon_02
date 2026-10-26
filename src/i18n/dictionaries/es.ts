@@ -464,6 +464,7 @@ const es: Dictionary = {
       png: "PNG",
       svg: "SVG",
       open: "Abrir",
+      print: "Menú para imprimir (PDF)",
     },
     stats: {
       title: "Vistas del menú",
@@ -554,6 +555,13 @@ const es: Dictionary = {
     },
   },
   menu: {
+    print: {
+      save: "Guardar PDF o imprimir",
+      help: "En el celular, elige \"Guardar como PDF\" o \"Imprimir\" en la pantalla que se abra.",
+      footerOrder: "Precios actualizados y pedidos por WhatsApp: apunta la cámara.",
+      footerNoOrder: "Precios actualizados: apunta la cámara.",
+      madeWith: "Menú hecho con",
+    },
     order: {
       add: "Agregar {name} al pedido",
       more: "Uno más",
