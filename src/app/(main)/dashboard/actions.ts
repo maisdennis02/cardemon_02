@@ -1,6 +1,7 @@
 "use server";
 
 import { revalidatePath } from "next/cache";
+import { revalidateMenu } from "@/lib/menu-cache";
 import { redirect } from "next/navigation";
 import { z } from "zod";
 import bcrypt from "bcryptjs";
@@ -176,7 +177,7 @@ export async function createRestaurant(_p: ActionState, formData: FormData): Pro
   track("restaurant_created").catch(() => {});
   revalidatePath("/dashboard");
   // A scan before creation may have cached the 404 for this slug.
-  revalidatePath(`/m/${slug}`);
+  revalidateMenu(slug);
   redirect("/dashboard/cardapio");
 }
 
@@ -198,7 +199,7 @@ export async function saveWhatsappNumber(_p: ActionState, formData: FormData): P
   await prisma.restaurant.update({ where: { id: restaurant.id }, data: { whatsappNumber } });
   revalidatePath("/dashboard");
   revalidatePath("/dashboard/ajustes");
-  revalidatePath(`/m/${restaurant.slug}`);
+  revalidateMenu(restaurant.slug);
   return { ok: true };
 }
 
@@ -264,8 +265,8 @@ export async function updateRestaurant(_p: ActionState, formData: FormData): Pro
   });
   revalidatePath("/dashboard");
   revalidatePath("/dashboard/ajustes");
-  revalidatePath(`/m/${parsed.data.slug}`);
-  if (existing.slug !== parsed.data.slug) revalidatePath(`/m/${existing.slug}`);
+  revalidateMenu(parsed.data.slug);
+  if (existing.slug !== parsed.data.slug) revalidateMenu(existing.slug);
   return { ok: true, whatsappNumber: parsed.data.whatsappNumber || null };
 }
 
@@ -330,7 +331,7 @@ export async function recordMenuImages(input: {
 
   revalidatePath("/dashboard");
   revalidatePath("/dashboard/fotos");
-  revalidatePath(`/m/${restaurant.slug}`);
+  revalidateMenu(restaurant.slug);
   return {};
 }
 
@@ -357,7 +358,7 @@ export async function deleteMenuImage(formData: FormData) {
 
   revalidatePath("/dashboard");
   revalidatePath("/dashboard/fotos");
-  revalidatePath(`/m/${image.restaurant.slug}`);
+  revalidateMenu(image.restaurant.slug);
 }
 
 export async function reorderMenuImages(formData: FormData) {
@@ -387,7 +388,7 @@ export async function reorderMenuImages(formData: FormData) {
 
   revalidatePath("/dashboard");
   revalidatePath("/dashboard/fotos");
-  revalidatePath(`/m/${restaurant.slug}`);
+  revalidateMenu(restaurant.slug);
 }
 
 // LGPD Art. 18 self-service erasure: removes the user, their restaurants,
@@ -421,7 +422,7 @@ export async function deleteAccount(): Promise<void> {
 
   // The public menu page is ISR-cached; without this the deleted menu keeps
   // serving until its next revalidation.
-  for (const r of restaurants) revalidatePath(`/m/${r.slug}`);
+  for (const r of restaurants) revalidateMenu(r.slug);
 
   await signOut({ redirectTo: "/" });
 }

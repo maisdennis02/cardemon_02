@@ -1,6 +1,7 @@
 "use server";
 
 import { revalidatePath } from "next/cache";
+import { revalidateMenu } from "@/lib/menu-cache";
 import { del } from "@vercel/blob";
 import { prisma } from "@/lib/prisma";
 import {
@@ -117,7 +118,7 @@ export async function saveMenuVisual(input: {
     );
   }
 
-  revalidatePath(`/m/${restaurant.slug}`);
+  revalidateMenu(restaurant.slug);
   return {};
 }
 
@@ -138,7 +139,7 @@ export async function chooseMenuPhotos(input: {
   if (images === 0) return { needsUpload: true };
 
   await prisma.restaurant.update({ where: { id: restaurant.id }, data: { menuMode: "photos" } });
-  revalidatePath(`/m/${restaurant.slug}`);
+  revalidateMenu(restaurant.slug);
   revalidatePath("/dashboard");
   return {};
 }
@@ -200,7 +201,7 @@ export async function publishMenu(input: {
     await deletePhotos(photosToDelete([previousPublished, previousDraft], [menu]), "publishMenu");
   }
 
-  revalidatePath(`/m/${restaurant.slug}`);
+  revalidateMenu(restaurant.slug);
   revalidatePath("/dashboard");
   return {};
 }
