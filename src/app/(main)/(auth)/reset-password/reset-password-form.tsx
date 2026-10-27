@@ -1,6 +1,6 @@
 "use client";
 
-import { useActionState, useEffect } from "react";
+import { useActionState, useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { resetPassword, type ActionResult } from "../actions";
 import { PasswordInput } from "@/components/password-input";
@@ -13,6 +13,8 @@ export function ResetPasswordForm({ token }: { token: string }) {
     resetPassword,
     {},
   );
+  // Controlled, so an error answer does not wipe the new password.
+  const [password, setPassword] = useState("");
 
   useEffect(() => {
     if (state.ok) {
@@ -25,6 +27,8 @@ export function ResetPasswordForm({ token }: { token: string }) {
       <input type="hidden" name="token" value={token} />
       <PasswordInput
         name="password"
+        value={password}
+        onChange={setPassword}
         label={t.auth.reset.newPassword}
         required
         minLength={8}

@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { Suspense, useActionState } from "react";
+import { Suspense, useActionState, useState } from "react";
 import { useSearchParams } from "next/navigation";
 import { login, type ActionResult } from "../actions";
 import { GoogleAuth } from "../google-auth";
@@ -18,6 +18,10 @@ function LoginForm() {
   // only way a rejected Google sign-in ever surfaces to the owner.
   const oauthError = params.get("error");
   const [state, formAction, pending] = useActionState<ActionResult, FormData>(login, {});
+  // Controlled, so a wrong password does not wipe what was typed (React
+  // resets an uncontrolled form after every submit).
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
 
   return (
     <div className="flex flex-col gap-4">
@@ -43,10 +47,14 @@ function LoginForm() {
             placeholder={t.auth.emailPlaceholder}
             className="input"
             autoComplete="email"
+            value={email}
+            onChange={(e) => setEmail(e.target.value)}
           />
         </label>
         <PasswordInput
           name="password"
+          value={password}
+          onChange={setPassword}
           label={
             <span className="flex items-center justify-between gap-2">
               <span>{t.auth.password}</span>

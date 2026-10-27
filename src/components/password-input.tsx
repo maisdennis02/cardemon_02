@@ -7,6 +7,8 @@ import { useT } from "@/i18n/provider";
 type PasswordInputProps = {
   name: string;
   label: ReactNode;
+  value: string;
+  onChange: (value: string) => void;
   hint?: ReactNode;
   autoComplete: "current-password" | "new-password";
   required?: boolean;
@@ -21,10 +23,16 @@ type PasswordInputProps = {
  *
  * The toggle is a `type="button"` so it never submits the surrounding form,
  * and the input keeps its `name`, so `<form action={...}>` still sees it.
+ *
+ * Controlled on purpose: React resets an uncontrolled `<form action>` after
+ * every submit, an error answer included, and a wrong password must not wipe
+ * what the owner typed.
  */
 export function PasswordInput({
   name,
   label,
+  value,
+  onChange,
   hint,
   autoComplete,
   required,
@@ -44,6 +52,8 @@ export function PasswordInput({
           id={id}
           name={name}
           type={visible ? "text" : "password"}
+          value={value}
+          onChange={(e) => onChange(e.target.value)}
           required={required}
           minLength={minLength}
           placeholder={placeholder}
