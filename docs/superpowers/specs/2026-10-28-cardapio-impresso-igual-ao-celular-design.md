@@ -27,16 +27,19 @@ galeria ou o WhatsApp num toque.
   `print-color-adjust: exact` para sair na impressão.
 - **Página 1:** `BuiltMenuHeader` reutilizado (estilo centralizado ou faixa, logo,
   cor e fonte do título) — o mesmo do celular.
+  O nome do restaurante sai **maior que no celular** (cerca de 44 px na folha, contra
+  30 px no celular): na prévia de 28/10 ele sumia perto da faixa colorida.
 - **Páginas 2+:** faixa fina no topo com o nome na fonte e cor do título.
-- **Corpo:** duas colunas. Títulos de seção com `MENU_SECTION_TITLE_CLASS` e a cor do
+- **Corpo:** uma ou duas colunas (regras na §2). Títulos de seção com `MENU_SECTION_TITLE_CLASS` e a cor do
   tema. Cards iguais aos do celular (`MenuItemCard`; com foto, o card com miniatura),
   na variante `compact`: menos padding e espaço entre cards. Sem chips, sem botões
   de ação, sem "+", sem folha de detalhe (nada clicável).
 - **Fotos:** vêm de `printableMenu` → `publicMenu(published, pro)`, que já remove as
   fotos de quem não é Pro. Nada novo aqui.
-- **Rodapé em toda página:** QR para `/m/<slug>` + texto atual (`footerOrder` /
-  `footerNoOrder`) + "Cardápio feito com menulala.com". Altura reservada no fim de
-  cada página. Sai o truque de `position: fixed` da versão anterior.
+- **Rodapé em toda página, alinhado à direita:** o QR para `/m/<slug>` fica no canto
+  inferior direito da folha, para facilitar o scan, e à esquerda dele, alinhados à
+  direita, o texto atual (`footerOrder` / `footerNoOrder`) e "Cardápio feito com
+  menulala.com". Altura reservada no fim de cada página. Sai o truque de `position: fixed` da versão anterior.
 
 ## 2. Paginação
 
@@ -46,11 +49,24 @@ navegador na hora de imprimir.
 - Função pura `paginate(blocks, capacity)` em `src/app/m/[slug]/print/paginate.ts`:
   recebe blocos `{ kind: "title" | "item", height }` e a altura útil de uma coluna
   (diferente na página 1, por causa do header) e devolve
-  `pages[] → columns[2] → blocks[]`. Ordem: coluna 1 da página 1, coluna 2 da
+  `pages[] → columns[1 ou 2] → blocks[]`. Ordem: coluna 1 da página 1, coluna 2 da
   página 1, coluna 1 da página 2…
 - Regras: um título de seção nunca fica sozinho no fim de uma coluna (vai junto com
   o primeiro card); um card nunca é partido; um card mais alto que a coluna ocupa a
   coluna sozinho.
+- **As quatro regras de layout** (decididas na prévia de 28/10):
+  1. **Colunas:** até 8 itens, uma coluna larga e centralizada (cerca de 480 px); com
+     mais, duas colunas.
+  2. **Escala para preencher a folha:** o conteúdo (cards e títulos de seção, não o
+     header nem o rodapé) recebe a maior escala entre **80 % e 160 %** com a qual tudo
+     cabe em uma folha. Cardápio curto é ampliado; longo, reduzido até 80 %.
+  3. **Folhas divididas por igual:** se não couber em uma folha a 80 %, a escala volta a
+     100 % e os blocos são distribuídos entre as folhas (o mínimo necessário) de modo
+     equilibrado, sem uma última folha quase vazia.
+  4. **Nome maior no papel** (ver §1).
+  A escala e o número de colunas saem de uma função pura `planLayout(itemCount,
+  measure)` ao lado de `paginate`, testada sozinha. A medição deixa 4 % de folga,
+  porque na prévia a medida exata encostou no rodapé.
 - Um componente cliente (`PrintPages`) renderiza os blocos uma vez numa área de
   medição invisível com a largura exata da coluna, espera `document.fonts.ready` e o
   carregamento das imagens, mede, chama `paginate` e renderiza as páginas. Até lá a
@@ -92,6 +108,8 @@ PNG, SVG e Abrir; a URL longa corta com "…".
 
 ## 6. Testes
 
+- `planLayout`: 5 itens → 1 coluna e escala > 100 %; 25 itens que cabem a 80 % → 1 folha;
+  que não cabem → 100 % e 2 folhas equilibradas; nunca abaixo de 80 % nem acima de 160 %.
 - `paginate`: uma página; transbordo para a coluna 2 e para a página 2; título que não
   fica sozinho; card maior que a coluna; capacidade menor na página 1.
 - Render da folha: header só na página 1, faixa com o nome nas seguintes, rodapé em
