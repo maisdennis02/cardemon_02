@@ -1,5 +1,5 @@
 import { renderToStaticMarkup } from "react-dom/server";
-import { describe, expect, it } from "vitest";
+import { describe, expect, it, vi } from "vitest";
 import es from "@/i18n/dictionaries/es";
 import ptBR from "@/i18n/dictionaries/pt-BR";
 import { DictionaryProvider } from "@/i18n/provider";
@@ -67,5 +67,27 @@ describe("waitForAssets", () => {
     release();
     await p;
     expect(done).toBe(true);
+  });
+});
+
+describe("waitForAssets timeout", () => {
+  it("gives up on an image that never answers, so the buttons don't stay off", async () => {
+    vi.useFakeTimers();
+    let done = false;
+    const p = waitForAssets(root([img(false)]), null, 5000).then(() => (done = true));
+    await vi.advanceTimersByTimeAsync(4999);
+    expect(done).toBe(false);
+    await vi.advanceTimersByTimeAsync(1);
+    await p;
+    expect(done).toBe(true);
+    vi.useRealTimers();
+  });
+});
+
+describe("print CSS", () => {
+  it("prints each sheet at exactly A4, never half a pixel over a page", async () => {
+    const { readFileSync } = await import("node:fs");
+    const css = readFileSync(new URL("./print.css", import.meta.url), "utf8");
+    expect(css).toMatch(/\.print-page\s*{[^}]*width:\s*210mm[^}]*height:\s*297mm/);
   });
 });

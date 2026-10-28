@@ -1,5 +1,5 @@
 import { describe, expect, it, vi } from "vitest";
-import { deliverJpgs, exportJpgs, jpgFileName } from "./export-jpg";
+import { deliverJpgs, exportJpgs, jpgFileName, renderJpgs } from "./export-jpg";
 
 // One JPG per printable sheet (spec 2026-10-28 §3): shared in one go on a
 // phone, downloaded one by one elsewhere.
@@ -67,5 +67,15 @@ describe("deliverJpgs", () => {
       throw new DOMException("no activation", "NotAllowedError");
     });
     await expect(deliverJpgs(files, { canShare: () => true, share }, vi.fn())).resolves.toBe("needs-tap");
+  });
+});
+
+vi.mock("modern-screenshot", () => ({ domToBlob: vi.fn(async () => new Blob(["x"], { type: "image/jpeg" })) }));
+
+describe("the default renderer", () => {
+  it("draws the full A4 sheet even when the phone shows it scaled down", async () => {
+    const { domToBlob } = await import("modern-screenshot");
+    await renderJpgs({ sheets: [{} as HTMLElement], slug: "ze" });
+    expect(domToBlob).toHaveBeenCalledWith(expect.anything(), expect.objectContaining({ width: 794, height: 1123, scale: 2.5 }));
   });
 });

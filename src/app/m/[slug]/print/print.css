@@ -21,7 +21,11 @@
     transform: none !important;
   }
 
+  /* 794 × 1123 px is half a pixel over A4 at 96 dpi; with no page margin
+     that half pixel would start a blank page after every sheet. */
   .print-page {
+    width: 210mm !important;
+    height: 297mm !important;
     break-after: page;
     -webkit-print-color-adjust: exact;
     print-color-adjust: exact;

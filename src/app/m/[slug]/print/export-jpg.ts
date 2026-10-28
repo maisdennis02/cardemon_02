@@ -1,3 +1,5 @@
+import { SHEET } from "./print-layout";
+
 // One JPG per printable sheet (spec 2026-10-28 §3). On a phone the files go
 // to the system share sheet in one go (save to the gallery, send on
 // WhatsApp); where files can't be shared they download one by one.
@@ -13,7 +15,15 @@ export function jpgFileName(slug: string, index: number, total: number): string 
 async function renderJpg(el: HTMLElement): Promise<Blob> {
   // Loaded on the click only: most visits never need it.
   const { domToBlob } = await import("modern-screenshot");
-  return domToBlob(el, { type: "image/jpeg", quality: JPG_QUALITY, scale: JPG_SCALE });
+  // The size is given, not read: on a phone the sheet is on screen scaled
+  // down, and the measured box would crop the image to its top-left corner.
+  return domToBlob(el, {
+    type: "image/jpeg",
+    quality: JPG_QUALITY,
+    scale: JPG_SCALE,
+    width: SHEET.width,
+    height: SHEET.height,
+  });
 }
 
 function downloadFile(file: File) {
