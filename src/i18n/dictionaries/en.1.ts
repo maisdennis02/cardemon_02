@@ -561,6 +561,7 @@ export const en = {
       building: "Laying out the menu…",
       jpgProgress: "Making page {n} of {total}…",
       jpgFailed: "Couldn't make the image. Use Download PDF.",
+      jpgReady: "Save the images",
       help: "On a phone, choose \"Save as PDF\" or \"Print\" on the screen that opens.",
       footerOrder: "Up-to-date prices and WhatsApp ordering: point your camera.",
       footerNoOrder: "Up-to-date prices: point your camera.",

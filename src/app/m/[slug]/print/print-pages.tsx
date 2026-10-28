@@ -4,10 +4,12 @@ import "./print.css";
 
 import { useEffect, useLayoutEffect, useMemo, useRef, useState } from "react";
 import { headerColors, menuFontFamilies, type Menu, type MenuTheme } from "@/lib/menu";
+import { format } from "@/i18n/config";
 import { capture } from "@/lib/posthog";
 import { absoluteUrl } from "@/lib/site";
 import { BuiltMenuHeader } from "../built-menu";
 import { SHEET, columnWidth, columnsFor, planLayout, type Block, type Sheet } from "./print-layout";
+import { deliverJpgs, renderJpgs, type JpgResult } from "./export-jpg";
 import { BLOCK_GAP, PrintBlockView, PrintSheet, menuBlocks, type PrintBlock } from "./print-sheet";
 import { waitForAssets } from "./wait-for-assets";
 
@@ -18,12 +20,18 @@ export type PrintLabels = {
   building: string;
   jpgProgress: string;
   jpgFailed: string;
+  jpgReady: string;
   footerOrder: string;
   footerNoOrder: string;
   madeWith: string;
 };
 
 type Plan = { columns: 1 | 2; scale: number; sheets: Sheet[] };
+type JpgState =
+  | { kind: "idle" }
+  | { kind: "running"; n: number; total: number }
+  | { kind: "needs-tap"; files: File[] }
+  | { kind: "failed" };
 
 const blockId = (b: { kind: string; key: string }) => `${b.kind}:${b.key}`;
 
@@ -58,6 +66,7 @@ export function PrintPages({
   const sheetsRef = useRef<HTMLDivElement>(null);
   const [plan, setPlan] = useState<Plan | null>(null);
   const fit = useScreenFit();
+  const [jpg, setJpg] = useState<JpgState>({ kind: "idle" });
 
   useEffect(() => {
     const box = measureRef.current;
@@ -94,6 +103,33 @@ export function PrintPages({
     window.print();
   }
 
+  function finished(result: JpgResult, files: File[]) {
+    if (result === "needs-tap") return setJpg({ kind: "needs-tap", files });
+    setJpg({ kind: "idle" });
+    if (result !== "cancelled") capture("menu_print_downloaded", { format: "jpg", pages: files.length });
+  }
+
+  function failed(e: unknown) {
+    setJpg({ kind: "failed" });
+    capture("menu_print_jpg_failed", { error: String((e as Error)?.name ?? e) });
+  }
+
+  async function saveJpg() {
+    if (jpg.kind === "needs-tap") {
+      // A fresh tap: hand the files already drawn to the share sheet.
+      const files = jpg.files;
+      return deliverJpgs(files).then((r) => finished(r, files), failed);
+    }
+    const sheets = Array.from(sheetsRef.current?.querySelectorAll<HTMLElement>(".print-page") ?? []);
+    if (!sheets.length) return;
+    try {
+      const files = await renderJpgs({ sheets, slug, onProgress: (n, total) => setJpg({ kind: "running", n, total }) });
+      finished(await deliverJpgs(files), files);
+    } catch (e) {
+      failed(e);
+    }
+  }
+
   return (
     <div className="print-root min-h-dvh bg-gray-200 text-gray-900">
       <div className="sticky top-0 z-10 flex flex-col items-center gap-2 bg-white px-4 py-3 text-center shadow print:hidden">
@@ -108,13 +144,23 @@ export function PrintPages({
           </button>
           <button
             type="button"
-            disabled
+            onClick={saveJpg}
+            disabled={!plan || jpg.kind === "running"}
             className="rounded-full border border-gray-900 px-5 py-2.5 text-sm font-bold text-gray-900 disabled:opacity-50"
           >
-            {labels.saveJpg}
+            {jpg.kind === "running"
+              ? format(labels.jpgProgress, { n: jpg.n, total: jpg.total })
+              : jpg.kind === "needs-tap"
+                ? labels.jpgReady
+                : labels.saveJpg}
           </button>
         </div>
         <p className="text-xs text-gray-500">{labels.help}</p>
+        {jpg.kind === "failed" && (
+          <p role="alert" className="text-sm font-semibold text-red-700">
+            {labels.jpgFailed}
+          </p>
+        )}
       </div>
 
       {!plan && <p className="py-10 text-center text-sm text-gray-600 print:hidden">{labels.building}</p>}
