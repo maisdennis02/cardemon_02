@@ -74,7 +74,7 @@ export function MenuItemBody({
             <span className="mt-0.5 line-clamp-2 text-[0.875em] leading-snug text-gray-500">{description}</span>
           )}
           {(price !== null || trailing) && (
-            <span className={`mt-auto flex ${priceLine} items-center justify-between gap-3 ${compact ? "pt-0.5" : "pt-[0.5em]"}`}>
+            <span className={`mt-auto flex ${priceLine} items-center justify-between gap-3 ${compact ? "pt-1" : "pt-[0.5em]"}`}>
               <span className="font-medium tabular-nums">{price}</span>
               {trailing}
             </span>
@@ -98,7 +98,7 @@ export function MenuItemBody({
       <span className="block font-semibold leading-snug">{name}</span>
       {description && <span className="mt-0.5 block text-[0.875em] leading-snug text-gray-500">{description}</span>}
       {(price !== null || trailing) && (
-        <span className={`${compact ? "mt-0.5" : "mt-[0.5em]"} flex ${priceLine} items-center justify-between gap-3`}>
+        <span className={`${compact ? "mt-1" : "mt-[0.5em]"} flex ${priceLine} items-center justify-between gap-3`}>
           <span className="font-medium tabular-nums">{price}</span>
           {trailing}
         </span>

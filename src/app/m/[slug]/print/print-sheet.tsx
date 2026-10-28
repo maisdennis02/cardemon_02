@@ -14,7 +14,7 @@ export type PrintBlock =
   | { kind: "item"; key: string; item: MenuItem };
 
 // Space between two blocks of a column; the page adds it to each measured height.
-export const BLOCK_GAP = 6;
+export const BLOCK_GAP = 8;
 
 export function menuBlocks(menu: Menu): PrintBlock[] {
   return menu.sections.flatMap((s) => [
@@ -35,9 +35,11 @@ export function PrintBlockView({
   titleFont: string;
 }) {
   if (block.kind === "title") {
-    // pt-2: a title sits further from the card above than from its own cards.
+    // mt-6 + the gap = 32 above, the gap alone (8) below: a title sits
+    // closer to its own cards than to the card above. In a flex column the
+    // margin doesn't collapse; the page adds it to the measured height.
     return (
-      <h2 className={`${MENU_SECTION_TITLE_CLASS} !mb-0 pt-2`} style={{ color: titleColor, fontFamily: titleFont }}>
+      <h2 className={`${MENU_SECTION_TITLE_CLASS} !mb-0 mt-6`} style={{ color: titleColor, fontFamily: titleFont }}>
         {block.title}
       </h2>
     );
@@ -131,7 +133,7 @@ export function PrintSheet({
         </div>
         <div className="text-sm leading-snug">
           <p className="font-bold">{footer.line}</p>
-          <p className="mt-1 text-xs text-gray-500">
+          <p className="mt-2 text-xs text-gray-500">
             {footer.madeWith} <span className="font-bold">menulala.com</span>
           </p>
         </div>

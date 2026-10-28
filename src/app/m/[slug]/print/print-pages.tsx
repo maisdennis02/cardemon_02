@@ -78,11 +78,11 @@ export function PrintPages({
       const column = box.querySelector<HTMLElement>("[data-measure=column]")!;
       const measureAt = (scale: number): Block[] => {
         column.style.width = `${columnWidth(columns) / scale}px`;
-        return Array.from(column.children as HTMLCollectionOf<HTMLElement>).map((el, i) => ({
-          kind: blocks[i].kind,
-          key: blocks[i].key,
-          height: (el.offsetHeight + BLOCK_GAP) * scale,
-        }));
+        return Array.from(column.children as HTMLCollectionOf<HTMLElement>).map((wrapper, i) => {
+          const el = wrapper.firstElementChild as HTMLElement;
+          const marginTop = parseFloat(getComputedStyle(el).marginTop) || 0;
+          return { kind: blocks[i].kind, key: blocks[i].key, height: (el.offsetHeight + marginTop + BLOCK_GAP) * scale };
+        });
       };
       // pt-3 above the columns belongs to the header's share of sheet 1.
       setPlan(planLayout({ itemCount: blocks.filter((b) => b.kind === "item").length, headerHeight: header.offsetHeight + 12, measureAt }));
@@ -132,7 +132,7 @@ export function PrintPages({
 
   return (
     <div className="print-root min-h-dvh bg-gray-200 text-gray-900">
-      <div className="sticky top-0 z-10 flex flex-col items-center gap-2 bg-white px-4 py-3 text-center shadow print:hidden">
+      <div className="sticky top-0 z-10 flex flex-col items-center gap-3 bg-white px-4 py-3 text-center shadow print:hidden">
         <div className="flex flex-wrap justify-center gap-2">
           <button
             type="button"

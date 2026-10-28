@@ -102,7 +102,7 @@ export function BuiltMenu({
           <p>
             {labels.cardapioDigital} · {name}
           </p>
-          <p className="mt-1">
+          <p className="mt-2">
             {labels.madeBy}{" "}
             {preview ? (
               <span className="font-bold">menulala.com</span>
