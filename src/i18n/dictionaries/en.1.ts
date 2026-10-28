@@ -238,6 +238,7 @@ export const en = {
       photosCountOne: "{n} photo",
       draft: "Draft — not published yet",
       edit: "Edit",
+      print: "Printable menu",
       continueMenu: "Continue my menu",
       havePhotos: "I have photos of my menu",
       whatsappTitle: "Get orders on WhatsApp",
@@ -466,7 +467,6 @@ export const en = {
       png: "PNG",
       svg: "SVG",
       open: "Open",
-      print: "Printable menu (PDF)",
     },
     stats: {
       title: "Menu views",

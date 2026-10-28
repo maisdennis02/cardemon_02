@@ -236,6 +236,7 @@ const ptBR: Dictionary = {
       photosCountOne: "{n} foto",
       draft: "Rascunho — ainda não publicado",
       edit: "Editar",
+      print: "Cardápio para imprimir",
       continueMenu: "Continuar meu cardápio",
       havePhotos: "Tenho fotos do cardápio",
       whatsappTitle: "Receba pedidos no WhatsApp",
@@ -464,7 +465,6 @@ const ptBR: Dictionary = {
       png: "PNG",
       svg: "SVG",
       open: "Abrir",
-      print: "Cardápio para imprimir (PDF)",
     },
     stats: {
       title: "Visualizações do cardápio",

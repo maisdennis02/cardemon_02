@@ -113,7 +113,7 @@ export default async function DashboardPage({
               t={t}
             />
             {hasMenu && (
-              <MenuQrCard slug={restaurant.slug} name={restaurant.name} printable={mode === "built"} />
+              <MenuQrCard slug={restaurant.slug} name={restaurant.name} />
             )}
             <MenuStatsCard stats={stats} restaurant={restaurant} t={t} />
           </div>

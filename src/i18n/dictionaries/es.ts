@@ -236,6 +236,7 @@ const es: Dictionary = {
       photosCountOne: "{n} foto",
       draft: "Borrador — aún no publicado",
       edit: "Editar",
+      print: "Menú para imprimir",
       continueMenu: "Continuar mi menú",
       havePhotos: "Tengo fotos del menú",
       whatsappTitle: "Recibe pedidos por WhatsApp",
@@ -464,7 +465,6 @@ const es: Dictionary = {
       png: "PNG",
       svg: "SVG",
       open: "Abrir",
-      print: "Menú para imprimir (PDF)",
     },
     stats: {
       title: "Vistas del menú",

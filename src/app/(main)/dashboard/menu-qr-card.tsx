@@ -4,7 +4,6 @@ import { useRef, useState, useSyncExternalStore } from "react";
 import { CheckIcon, CopyIcon, DownloadIcon, ExternalIcon } from "@/components/icons";
 import { useT } from "@/i18n/provider";
 import { format } from "@/i18n/config";
-import { capture } from "@/lib/posthog";
 import { BrandedQrCode } from "./branded-qr";
 
 const subscribe = () => () => {};
@@ -13,9 +12,7 @@ const getServerOrigin = () => "";
 
 const QR_EXPORT_SIZE = 1024; // PNG pixels on the long edge
 
-// `printable`: a text menu, which gets the link to its printable sheet
-// (spec 2026-10-26). A photo menu is already printable as it is.
-export function MenuQrCard({ slug, name, printable }: { slug: string; name: string; printable: boolean }) {
+export function MenuQrCard({ slug, name }: { slug: string; name: string }) {
   const t = useT();
   const origin = useSyncExternalStore(subscribe, getOrigin, getServerOrigin);
 
@@ -85,7 +82,8 @@ export function MenuQrCard({ slug, name, printable }: { slug: string; name: stri
           />
         </div>
 
-        <div className="flex flex-1 flex-col gap-3">
+        {/* min-w-0 lets the column shrink, so a long URL truncates instead of overflowing. */}
+        <div className="flex min-w-0 flex-1 flex-col gap-3">
           <div>
             <p className="mb-1 text-xs font-medium uppercase tracking-wide text-gray-500">
               {qr.publicUrl}
@@ -124,18 +122,6 @@ export function MenuQrCard({ slug, name, printable }: { slug: string; name: stri
               <DownloadIcon size={14} />
               {qr.svg}
             </button>
-            {printable && (
-              <a
-                href={`/m/${slug}/print`}
-                target="_blank"
-                rel="noopener noreferrer"
-                onClick={() => capture("menu_print_opened")}
-                className="btn btn-secondary btn-sm"
-              >
-                <DownloadIcon size={14} />
-                {qr.print}
-              </a>
-            )}
             <a
               href={url}
               target="_blank"
