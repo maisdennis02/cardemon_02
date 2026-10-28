@@ -556,7 +556,11 @@ const es: Dictionary = {
   },
   menu: {
     print: {
-      save: "Guardar PDF o imprimir",
+      savePdf: "Descargar PDF",
+      saveJpg: "Descargar imagen (JPG)",
+      building: "Armando el menú…",
+      jpgProgress: "Generando página {n} de {total}…",
+      jpgFailed: "No se pudo generar la imagen. Usa Descargar PDF.",
       help: "En el celular, elige \"Guardar como PDF\" o \"Imprimir\" en la pantalla que se abra.",
       footerOrder: "Precios actualizados y pedidos por WhatsApp: apunta la cámara.",
       footerNoOrder: "Precios actualizados: apunta la cámara.",

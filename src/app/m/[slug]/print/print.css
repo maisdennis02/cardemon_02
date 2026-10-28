@@ -1,40 +1,33 @@
-/* The printable menu (print-menu.tsx). The footer is fixed, so the browser
-   repeats it at the bottom of every page; the sheet's bottom padding is
-   cloned onto every page fragment so no item runs under it. Checked with
-   headless Chrome's print-to-pdf on a 4-page menu (2026-10-26): with a
-   negative bottom into the page margin instead, Chrome drew the footer at the
-   top of pages 2+ and dropped it from page 1. */
+/* The printable menu (print-pages.tsx). The sheets are laid out in the page,
+   at A4 size, so the PDF prints exactly the sheets the JPG captures: no
+   margins of its own, one sheet per page, and the screen-only scaling off. */
 @page {
   size: A4;
-  margin: 14mm;
+  margin: 0;
 }
 
 @media print {
-  .print-sheet {
+  .print-root {
+    background: none;
+    min-height: 0;
+  }
+
+  .print-fit {
+    width: auto !important;
+    height: auto !important;
+  }
+
+  .print-fit-inner {
+    transform: none !important;
+  }
+
+  .print-page {
+    break-after: page;
     -webkit-print-color-adjust: exact;
     print-color-adjust: exact;
   }
 
-  .print-flow {
-    margin: 0;
-    padding: 0 0 30mm;
-    max-width: none;
-    box-shadow: none;
-    -webkit-box-decoration-break: clone;
-    box-decoration-break: clone;
-  }
-
-  .print-footer {
-    position: fixed;
-    bottom: 0;
-    left: 0;
-    right: 0;
-    height: 26mm;
-    margin: 0;
-    background: white;
-  }
-
-  .print-keep-with-next {
-    break-after: avoid;
+  .print-fit:last-child .print-page {
+    break-after: auto;
   }
 }

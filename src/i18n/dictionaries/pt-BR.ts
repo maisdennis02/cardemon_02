@@ -557,7 +557,11 @@ const ptBR: Dictionary = {
   menu: {
     // The printable sheet at /m/<slug>/print (spec 2026-10-26).
     print: {
-      save: "Salvar PDF ou imprimir",
+      savePdf: "Baixar PDF",
+      saveJpg: "Baixar imagem (JPG)",
+      building: "Montando o cardápio…",
+      jpgProgress: "Gerando página {n} de {total}…",
+      jpgFailed: "Não deu para gerar a imagem. Use Baixar PDF.",
       help: "No celular, escolha \"Salvar como PDF\" ou \"Imprimir\" na tela que abrir.",
       footerOrder: "Preços atualizados e pedido pelo WhatsApp: aponte a câmera.",
       footerNoOrder: "Preços atualizados: aponte a câmera.",

@@ -5,7 +5,7 @@ import { printableMenu, readMenuTheme } from "@/lib/menu";
 import { isPro } from "@/lib/pricing";
 import { NOINDEX } from "@/lib/seo";
 import { getRestaurant } from "../data";
-import { PrintMenu } from "./print-menu";
+import { PrintPages } from "./print-pages";
 
 // The printable text menu (spec 2026-10-26). Cached like the menu itself;
 // out of the index, it is a copy of /m/<slug>.
@@ -43,7 +43,7 @@ export default async function PrintMenuPage({ params }: { params: Promise<{ slug
 
   const t = await getDictionary(localeForCountry(restaurant.country));
   return (
-    <PrintMenu
+    <PrintPages
       slug={slug}
       name={restaurant.name}
       country={restaurant.country}
