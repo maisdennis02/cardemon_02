@@ -3,7 +3,7 @@
 // the same sheets and the rules are testable without a browser.
 
 // An A4 sheet in CSS px (210 × 297 mm at 96 dpi) and what is reserved on it.
-export const SHEET = { width: 794, height: 1123, pad: 36, gap: 24, footer: 104, strip: 56, oneColumn: 480 } as const;
+export const SHEET = { width: 794, height: 1123, pad: 36, gap: 24, footer: 140, strip: 56, oneColumn: 480 } as const;
 export const SCALE_MIN = 0.8;
 export const SCALE_MAX = 1.6;
 // Measured heights round down; a 4 % margin keeps the last card off the footer.

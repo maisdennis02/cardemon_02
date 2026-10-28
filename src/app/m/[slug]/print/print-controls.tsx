@@ -18,5 +18,5 @@ export function PrintButton({ label }: { label: string }) {
 }
 
 export function PrintQr({ value }: { value: string }) {
-  return <QRCodeSVG value={value} size={84} marginSize={0} level="M" />;
+  return <QRCodeSVG value={value} size={88} marginSize={0} level="M" />;
 }

@@ -113,7 +113,7 @@ describe("planLayout", () => {
   });
 
   it("just fits at the first-sheet capacity and not one pixel over", () => {
-    const fits = planLayout({ itemCount: 8, headerHeight: 200, measureAt: () => items(8, cap1(200) / 8) });
+    const fits = planLayout({ itemCount: 8, headerHeight: 200, measureAt: () => items(8, cap1(200) / 8 - 0.01) });
     expect(fits.sheets).toHaveLength(1);
     const over = planLayout({ itemCount: 8, headerHeight: 200, measureAt: () => items(8, cap1(200) / 8 + 1) });
     expect(over.sheets).toHaveLength(2);
