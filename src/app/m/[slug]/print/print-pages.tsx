@@ -7,10 +7,9 @@ import { headerColors, menuFontFamilies, type Menu, type MenuTheme } from "@/lib
 import { format } from "@/i18n/config";
 import { capture } from "@/lib/posthog";
 import { absoluteUrl } from "@/lib/site";
-import { BuiltMenuHeader } from "../built-menu";
 import { SHEET, columnWidth, columnsFor, planLayout, type Block, type Sheet } from "./print-layout";
 import { deliverJpgs, renderJpgs, type JpgResult } from "./export-jpg";
-import { BLOCK_GAP, PrintBlockView, PrintSheet, menuBlocks, type PrintBlock } from "./print-sheet";
+import { PrintBand, PrintItemRow, PrintSheet, PrintTitle, menuBlocks, type PrintBlock } from "./print-sheet";
 import { waitForAssets } from "./wait-for-assets";
 
 export type PrintLabels = {
@@ -21,6 +20,7 @@ export type PrintLabels = {
   jpgProgress: string;
   jpgFailed: string;
   jpgReady: string;
+  kicker: string;
   footerOrder: string;
   footerNoOrder: string;
   madeWith: string;
@@ -59,7 +59,7 @@ export function PrintPages({
   const blocks = useMemo(() => menuBlocks(menu), [menu]);
   const byId = useMemo(() => new Map(blocks.map((b) => [blockId(b), b])), [blocks]);
   const columns = columnsFor(blocks.filter((b) => b.kind === "item").length);
-  const { title } = headerColors(theme.color);
+  const { accent, title } = headerColors(theme.color);
   const fonts = menuFontFamilies(theme.font);
 
   const measureRef = useRef<HTMLDivElement>(null);
@@ -80,12 +80,13 @@ export function PrintPages({
         column.style.width = `${columnWidth(columns) / scale}px`;
         return Array.from(column.children as HTMLCollectionOf<HTMLElement>).map((wrapper, i) => {
           const el = wrapper.firstElementChild as HTMLElement;
-          const marginTop = parseFloat(getComputedStyle(el).marginTop) || 0;
-          return { kind: blocks[i].kind, key: blocks[i].key, height: (el.offsetHeight + marginTop + BLOCK_GAP) * scale };
+          const style = getComputedStyle(el);
+          const margins = (parseFloat(style.marginTop) || 0) + (parseFloat(style.marginBottom) || 0);
+          return { kind: blocks[i].kind, key: blocks[i].key, height: (el.offsetHeight + margins) * scale };
         });
       };
-      // pt-3 above the columns belongs to the header's share of sheet 1.
-      setPlan(planLayout({ itemCount: blocks.filter((b) => b.kind === "item").length, headerHeight: header.offsetHeight + 12, measureAt }));
+      // pt-5 above the columns belongs to the header's share of sheet 1.
+      setPlan(planLayout({ itemCount: blocks.filter((b) => b.kind === "item").length, headerHeight: header.offsetHeight + 20, measureAt }));
     });
     return () => {
       cancelled = true;
@@ -168,13 +169,17 @@ export function PrintPages({
       {!plan && (
         // Off screen, at sheet width: where the blocks are measured.
         <div ref={measureRef} aria-hidden className="pointer-events-none absolute -left-[99999px] top-0" style={{ width: SHEET.width, fontFamily: fonts.body }}>
-          <div data-measure="header" className="pb-4">
-            <BuiltMenuHeader name={name} theme={theme} print />
+          <div data-measure="header">
+            <PrintBand name={name} theme={theme} kicker={labels.kicker} />
           </div>
           <div data-measure="column" className="flex flex-col">
             {blocks.map((b) => (
               <div key={blockId(b)}>
-                <PrintBlockView block={b} country={country} titleColor={title} titleFont={fonts.title} />
+                {b.kind === "title" ? (
+                  <PrintTitle title={b.title} accent={accent} titleFont={fonts.title} />
+                ) : (
+                  <PrintItemRow item={b.item} country={country} priceColor={title} />
+                )}
               </div>
             ))}
           </div>
@@ -195,6 +200,7 @@ export function PrintPages({
                   total={plan.sheets.length}
                   name={name}
                   theme={theme}
+                  kicker={labels.kicker}
                   country={country}
                   columns={plan.columns}
                   scale={plan.scale}

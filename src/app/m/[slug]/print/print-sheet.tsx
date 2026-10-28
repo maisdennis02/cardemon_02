@@ -1,62 +1,99 @@
-import { headerColors, menuFontFamilies, type Menu, type MenuItem, type MenuTheme } from "@/lib/menu";
+import { formatPrice, headerColors, menuFontFamilies, type Menu, type MenuItem, type MenuTheme } from "@/lib/menu";
 import { menuBackgroundStyle } from "@/lib/menu-background";
-import { BuiltMenuHeader } from "../built-menu";
-import { MENU_SECTION_TITLE_CLASS, MenuItemCard } from "../menu-item-card";
 import { PrintQr } from "./print-controls";
 import { SHEET, columnWidth } from "./print-layout";
 
-// One A4 sheet of the printable menu (spec 2026-10-28 §1): the phone menu's
-// header, background and cards, laid out by print-layout. No hooks: the
-// sheet is the same markup on screen, in the PDF and in the JPG.
+// One A4 sheet of the printable menu, in the "lanchonete" look the owner
+// picked on 28/10 over the phone cards: a colored band with the logo and the
+// name, section titles in pills, the items of a section in one white block
+// with dashed dividers, the price in the theme color. Laid out by
+// print-layout; no hooks, so it is the same markup on screen, in the PDF and
+// in the JPG.
 
 export type PrintBlock =
   | { kind: "title"; key: string; title: string }
-  | { kind: "item"; key: string; item: MenuItem };
-
-// Space between two blocks of a column; the page adds it to each measured height.
-export const BLOCK_GAP = 8;
+  | { kind: "item"; key: string; section: string; item: MenuItem };
 
 export function menuBlocks(menu: Menu): PrintBlock[] {
   return menu.sections.flatMap((s) => [
     ...(s.title ? [{ kind: "title" as const, key: s.id, title: s.title }] : []),
-    ...s.items.map((item) => ({ kind: "item" as const, key: item.id, item })),
+    ...s.items.map((item) => ({ kind: "item" as const, key: item.id, section: s.id, item })),
   ]);
 }
 
-export function PrintBlockView({
-  block,
-  country,
-  titleColor,
-  titleFont,
-}: {
-  block: PrintBlock;
-  country: string | null;
-  titleColor: string;
-  titleFont: string;
-}) {
-  if (block.kind === "title") {
-    // mt-6 + the gap = 32 above, the gap alone (8) below: a title sits
-    // closer to its own cards than to the card above. In a flex column the
-    // margin doesn't collapse; the page adds it to the measured height.
-    return (
-      <h2 className={`${MENU_SECTION_TITLE_CLASS} !mb-0 mt-6`} style={{ color: titleColor, fontFamily: titleFont }}>
-        {block.title}
-      </h2>
-    );
-  }
-  const { item } = block;
+// The page measures each block with its margins; items carry none, so the
+// rows of a section stack into one block.
+export function PrintTitle({ title, accent, titleFont }: { title: string; accent: string; titleFont: string }) {
   return (
-    <ul>
-      <MenuItemCard
-        name={item.name}
-        description={item.description}
-        priceCents={item.priceCents}
-        country={country}
-        photo={item.photo}
-        compact
-      />
-    </ul>
+    <h2
+      data-print="pill"
+      className="mb-2 mt-5 self-start rounded-full px-3.5 py-1 text-[1.05em] font-bold uppercase leading-tight tracking-wider text-white"
+      style={{ background: accent, fontFamily: titleFont }}
+    >
+      {title}
+    </h2>
   );
+}
+
+export function PrintItemRow({ item, country, priceColor }: { item: MenuItem; country: string | null; priceColor: string }) {
+  return (
+    <div className="flex items-center gap-2.5 border-b border-dashed border-gray-300 px-3.5 py-2 last:border-b-0">
+      {item.photo && (
+        /* eslint-disable-next-line @next/next/no-img-element */
+        <img src={item.photo.thumb} alt="" width={44} height={44} className="size-11 shrink-0 rounded-lg object-cover" />
+      )}
+      <div className="min-w-0 flex-1">
+        <p className="font-bold leading-snug">{item.name}</p>
+        {item.description && <p className="mt-0.5 text-[0.8em] leading-snug text-gray-500">{item.description}</p>}
+      </div>
+      {item.priceCents !== null && (
+        <span className="shrink-0 whitespace-nowrap font-extrabold tabular-nums" style={{ color: priceColor }}>
+          {formatPrice(item.priceCents, country)}
+        </span>
+      )}
+    </div>
+  );
+}
+
+// Sheet 1's header: the band, the logo on it, the name in white.
+export function PrintBand({ name, theme, kicker }: { name: string; theme: MenuTheme; kicker: string }) {
+  const { accent } = headerColors(theme.color);
+  const fonts = menuFontFamilies(theme.font);
+  return (
+    <div data-print="band" className="flex items-center gap-5 px-10 py-7 text-white" style={{ background: accent }}>
+      {theme.logoUrl && (
+        /* eslint-disable-next-line @next/next/no-img-element */
+        <img src={theme.logoUrl} alt={name} className="size-24 shrink-0 rounded-full border-4 border-white bg-white object-cover" />
+      )}
+      <div className="min-w-0">
+        <p className="text-[44px] font-extrabold leading-tight" style={{ fontFamily: fonts.title }}>
+          {name}
+        </p>
+        <p className="mt-3 text-sm uppercase tracking-[0.12em] opacity-90">{kicker}</p>
+      </div>
+    </div>
+  );
+}
+
+// A column's blocks as drawn: a title alone, a run of items of one section
+// in one white block.
+type Group = { kind: "title"; key: string; title: string } | { kind: "box"; key: string; items: MenuItem[] };
+
+function groups(column: PrintBlock[]): Group[] {
+  const out: Group[] = [];
+  let section: string | null = null;
+  for (const b of column) {
+    if (b.kind === "title") {
+      out.push(b);
+      section = null;
+      continue;
+    }
+    const last = out.at(-1);
+    if (last?.kind === "box" && section === b.section) last.items.push(b.item);
+    else out.push({ kind: "box", key: b.key, items: [b.item] });
+    section = b.section;
+  }
+  return out;
 }
 
 export function PrintSheet({
@@ -64,6 +101,7 @@ export function PrintSheet({
   total,
   name,
   theme,
+  kicker,
   country,
   columns,
   scale,
@@ -74,13 +112,14 @@ export function PrintSheet({
   total: number;
   name: string;
   theme: MenuTheme;
+  kicker: string;
   country: string | null;
   columns: 1 | 2;
   scale: number;
   blocks: PrintBlock[][]; // per column
   footer: { qrValue: string; line: string; madeWith: string };
 }) {
-  const { title } = headerColors(theme.color);
+  const { accent, title } = headerColors(theme.color);
   const fonts = menuFontFamilies(theme.font);
   const width = columnWidth(columns);
 
@@ -96,30 +135,31 @@ export function PrintSheet({
       aria-label={`${index + 1} / ${total}`}
     >
       {index === 0 ? (
-        <div className="pb-4">
-          <BuiltMenuHeader name={name} theme={theme} print />
-        </div>
+        <PrintBand name={name} theme={theme} kicker={kicker} />
       ) : (
         <p
-          className="mx-9 flex items-end justify-center border-b border-black/10 pb-2.5 text-lg font-bold"
-          style={{ height: SHEET.strip, color: title, fontFamily: fonts.title }}
+          data-print="strip"
+          className="flex items-center px-10 text-lg font-bold text-white"
+          style={{ height: SHEET.strip, background: accent, fontFamily: fonts.title }}
         >
           {name}
         </p>
       )}
 
-      <div className="flex justify-center pt-3" style={{ gap: SHEET.gap, paddingInline: SHEET.pad }}>
+      <div className="flex justify-center pt-5" style={{ gap: SHEET.gap, paddingInline: SHEET.pad }}>
         {blocks.map((column, c) => (
-          <div key={c} className="flex flex-col" style={{ width: width / scale, zoom: scale, gap: BLOCK_GAP }}>
-            {column.map((block) => (
-              <PrintBlockView
-                key={block.key}
-                block={block}
-                country={country}
-                titleColor={title}
-                titleFont={fonts.title}
-              />
-            ))}
+          <div key={c} className="flex flex-col" style={{ width: width / scale, zoom: scale }}>
+            {groups(column).map((g) =>
+              g.kind === "title" ? (
+                <PrintTitle key={g.key} title={g.title} accent={accent} titleFont={fonts.title} />
+              ) : (
+                <div key={g.key} data-print="box" className="overflow-hidden rounded-2xl bg-white">
+                  {g.items.map((item) => (
+                    <PrintItemRow key={item.id} item={item} country={country} priceColor={title} />
+                  ))}
+                </div>
+              ),
+            )}
           </div>
         ))}
       </div>

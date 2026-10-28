@@ -20,6 +20,14 @@ só na página 1; as páginas seguintes começam com uma faixa fina com o nome.
 reconhecidamente o mesmo cardápio; no iPhone e no Android os JPGs vão para a
 galeria ou o WhatsApp num toque.
 
+> **Atualização 28/10 (tarde):** depois de ver a folha com os cards do celular, o dono
+> pediu um visual de cardápio impresso de verdade e escolheu a direção **"lanchonete"**:
+> faixa na cor do tema com logo e nome em branco (e "Cardápio" embaixo); título de
+> seção numa pílula colorida; os itens de uma seção num bloco branco arredondado, com
+> divisórias tracejadas; preço em negrito na cor do título, na mesma linha do nome; foto
+> pequena (44 px) à esquerda só para Pro. Os cards e o cabeçalho do celular deixam de ser
+> reutilizados na folha. As regras de layout (§2) e o rodapé continuam.
+
 ## 1. A folha
 
 - Tamanho fixo A4: 210 × 297 mm (794 × 1123 px CSS). Cada página é um `div.print-page`.

@@ -119,9 +119,7 @@ export function BuiltMenu({
 }
 
 // Also the live preview in the builder's visual step.
-// `print`: the printable sheet (spec 2026-10-28), where the name must read
-// as the biggest thing on the page next to the band.
-export function BuiltMenuHeader({ name, theme, print = false }: { name: string; theme: MenuTheme; print?: boolean }) {
+export function BuiltMenuHeader({ name, theme }: { name: string; theme: MenuTheme }) {
   const { accent, title } = headerColors(theme.color);
   const band = theme.headerStyle === "band";
   return (
@@ -143,7 +141,7 @@ export function BuiltMenuHeader({ name, theme, print = false }: { name: string; 
         <img src={theme.logoUrl} alt={name} className="mx-auto mb-3 size-20 rounded-full object-cover" />
       )}
       <h1
-        className={`px-6 ${print ? "text-[44px]" : "text-3xl"} font-bold leading-tight ${band && !theme.logoUrl ? "-mt-6" : ""}`}
+        className={`px-6 text-3xl font-bold leading-tight ${band && !theme.logoUrl ? "-mt-6" : ""}`}
         style={{ color: title, fontFamily: menuFontFamilies(theme.font).title }}
       >
         {name}

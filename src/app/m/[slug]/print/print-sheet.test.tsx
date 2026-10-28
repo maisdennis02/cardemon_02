@@ -4,8 +4,9 @@ import ptBR from "@/i18n/dictionaries/pt-BR";
 import type { Menu, MenuTheme } from "@/lib/menu";
 import { PrintSheet, menuBlocks, type PrintBlock } from "./print-sheet";
 
-// One A4 sheet of the printable menu (spec 2026-10-28 §1): the phone header on
-// sheet 1, a name strip after, the phone cards, the QR footer on the right.
+// One A4 sheet of the printable menu, "lanchonete" look (owner, 28/10): a
+// colored band with logo and name, section pills, items in white blocks with
+// dashed dividers, the QR footer on the right.
 
 const blob = "https://abc.public.blob.vercel-storage.com";
 const theme: MenuTheme = { color: "#b4532a", headerStyle: "band", logoUrl: `${blob}/logos/ze.webp` };
@@ -31,13 +32,14 @@ const menu: Menu = {
 
 const footer = { qrValue: "https://menulala.com/m/ze", line: ptBR.menu.print.footerOrder, madeWith: ptBR.menu.print.madeWith };
 
-function sheet(index: number, blocks: PrintBlock[][] = [menuBlocks(menu)]) {
+function sheet(index: number, blocks: PrintBlock[][] = [menuBlocks(menu)], t: MenuTheme = theme) {
   return renderToStaticMarkup(
     <PrintSheet
       index={index}
       total={2}
       name="Lanchonete do Zé"
-      theme={theme}
+      theme={t}
+      kicker="Cardápio"
       country="BR"
       columns={1}
       scale={1.2}
@@ -48,23 +50,39 @@ function sheet(index: number, blocks: PrintBlock[][] = [menuBlocks(menu)]) {
 }
 
 describe("menuBlocks", () => {
-  it("lists titles and items in order, no block for an untitled section", () => {
+  it("lists titles and items in order, each item knowing its section, no block for an untitled section", () => {
     expect(menuBlocks(menu).map((b) => `${b.kind}:${b.key}`)).toEqual(["title:s1", "item:xb", "item:agua"]);
+    expect(menuBlocks(menu).filter((b) => b.kind === "item").map((b) => b.kind === "item" && b.section)).toEqual(["s1", "s2"]);
   });
 });
 
 describe("PrintSheet", () => {
-  it("opens sheet 1 with the phone header, name larger, logo kept", () => {
+  it("opens sheet 1 with the colored band: logo, name and the kicker", () => {
     const html = sheet(0);
-    expect(html).toContain("<header");
-    expect(html).toContain("text-[44px]");
+    expect(html).toContain('data-print="band"');
     expect(html).toContain(`src="${blob}/logos/ze.webp"`);
+    expect(html).toContain("Lanchonete do Zé");
+    expect(html).toContain("Cardápio");
   });
 
-  it("opens the next sheets with a strip carrying the name, no header", () => {
+  it("draws the band without a logo when there is none", () => {
+    const html = sheet(0, undefined, { ...theme, logoUrl: undefined });
+    expect(html).toContain('data-print="band"');
+    expect(html.match(/<img/g)).toHaveLength(1); // only the X-Burguer thumb
+  });
+
+  it("opens the next sheets with a thin band carrying the name", () => {
     const html = sheet(1);
-    expect(html).not.toContain("<header");
+    expect(html).not.toContain('data-print="band"');
+    expect(html).toContain('data-print="strip"');
     expect(html).toContain("Lanchonete do Zé");
+  });
+
+  it("puts a section title in a pill and the items of a section in one white block", () => {
+    const html = sheet(0);
+    expect(html).toContain('data-print="pill"');
+    // xb (s1) and agua (s2) are different sections: two blocks.
+    expect(html.match(/data-print="box"/g)).toHaveLength(2);
   });
 
   it("puts the QR and the menulala mark on every sheet, on the right", () => {
@@ -84,10 +102,14 @@ describe("PrintSheet", () => {
   });
 
   it("draws an item with no price and no description without empty lines or null", () => {
-    const html = sheet(0, [[{ kind: "item", key: "agua", item: menu.sections[1].items[0] }]]);
+    const html = sheet(0, [[{ kind: "item", key: "agua", section: "s2", item: menu.sections[1].items[0] }]]);
     expect(html).toContain("Água com gás");
     expect(html).not.toContain("null");
     expect(html).not.toContain("tabular-nums");
+  });
+
+  it("prints the description under the name", () => {
+    expect(sheet(0)).toContain("Pão brioche e maionese da casa");
   });
 
   it("has nothing to tap inside the sheet", () => {
@@ -96,7 +118,7 @@ describe("PrintSheet", () => {
     expect(html).not.toContain("<button");
   });
 
-  it("scales the columns, not the header", () => {
+  it("scales the columns, not the band", () => {
     const html = sheet(0);
     expect(html).toMatch(/zoom:1\.2/);
     expect(html).toContain('class="print-page');

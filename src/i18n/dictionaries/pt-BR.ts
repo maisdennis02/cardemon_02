@@ -564,6 +564,7 @@ const ptBR: Dictionary = {
       jpgFailed: "Não deu para gerar a imagem. Use Baixar PDF.",
       jpgReady: "Salvar as imagens",
       help: "No celular, escolha \"Salvar como PDF\" ou \"Imprimir\" na tela que abrir.",
+      kicker: "Cardápio",
       footerOrder: "Preços atualizados e pedido pelo WhatsApp: aponte a câmera.",
       footerNoOrder: "Preços atualizados: aponte a câmera.",
       madeWith: "Cardápio feito com",

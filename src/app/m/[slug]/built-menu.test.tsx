@@ -3,8 +3,7 @@ import { describe, expect, it } from "vitest";
 import en from "@/i18n/dictionaries/en";
 import { DictionaryProvider } from "@/i18n/provider";
 import { menuJsonLd, publicMenu, type Menu, type MenuTheme } from "@/lib/menu";
-import { BuiltMenu, BuiltMenuHeader } from "./built-menu";
-import { MENU_ITEM_CARD_CLASS, MENU_ITEM_CARD_COMPACT_CLASS, MenuItemCard } from "./menu-item-card";
+import { BuiltMenu } from "./built-menu";
 import { OrderableItem, OrderableMenu } from "./order/orderable-menu";
 
 // The text menu's layout (2026-10-22): each item is a card that reads name,
@@ -266,37 +265,3 @@ describe("item photos (2026-10-25)", () => {
   });
 });
 
-// The printable sheet (spec 2026-10-28) reuses the phone card and header:
-// a compact card, a static photo thumb, and a larger name on paper.
-describe("print variants", () => {
-  const blob = "https://abc.public.blob.vercel-storage.com";
-  const photo = { full: `${blob}/item-photos/c1/xb-full.webp`, thumb: `${blob}/item-photos/c1/xb-thumb.webp` };
-  const card = (props: Partial<Parameters<typeof MenuItemCard>[0]> = {}) =>
-    renderToStaticMarkup(<MenuItemCard name="X-Burguer" priceCents={2800} country="BR" {...props} />);
-
-  it("keeps today's card when no variant is asked", () => {
-    expect(card()).toContain(`class="${MENU_ITEM_CARD_CLASS}"`);
-  });
-
-  it("draws a compact card", () => {
-    expect(card({ compact: true })).toContain(`class="${MENU_ITEM_CARD_COMPACT_CLASS}"`);
-  });
-
-  it("shows a photo as a plain thumb, nothing to tap", () => {
-    const html = card({ photo, compact: true });
-    expect(html).toContain(`src="${photo.thumb}"`);
-    expect(html).toContain("size-16");
-    expect(html).not.toContain("<button");
-  });
-
-  it("prints the name larger and keeps the logo, band or centered", () => {
-    for (const headerStyle of ["band", "centered"] as const) {
-      const html = renderToStaticMarkup(
-        <BuiltMenuHeader name="Zé" theme={{ ...theme, headerStyle, logoUrl: `${blob}/logos/ze.webp` }} print />,
-      );
-      expect(html).toContain("text-[44px]");
-      expect(html).toContain(`src="${blob}/logos/ze.webp"`);
-    }
-    expect(renderToStaticMarkup(<BuiltMenuHeader name="Zé" theme={theme} />)).toContain("text-3xl");
-  });
-});

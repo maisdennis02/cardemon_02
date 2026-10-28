@@ -563,6 +563,7 @@ export const en = {
       jpgFailed: "Couldn't make the image. Use Download PDF.",
       jpgReady: "Save the images",
       help: "On a phone, choose \"Save as PDF\" or \"Print\" on the screen that opens.",
+      kicker: "Menu",
       footerOrder: "Up-to-date prices and WhatsApp ordering: point your camera.",
       footerNoOrder: "Up-to-date prices: point your camera.",
       madeWith: "Menu made with",

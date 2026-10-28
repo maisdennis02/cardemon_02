@@ -563,6 +563,7 @@ const es: Dictionary = {
       jpgFailed: "No se pudo generar la imagen. Usa Descargar PDF.",
       jpgReady: "Guardar las imágenes",
       help: "En el celular, elige \"Guardar como PDF\" o \"Imprimir\" en la pantalla que se abra.",
+      kicker: "Menú",
       footerOrder: "Precios actualizados y pedidos por WhatsApp: apunta la cámara.",
       footerNoOrder: "Precios actualizados: apunta la cámara.",
       madeWith: "Menú hecho con",
