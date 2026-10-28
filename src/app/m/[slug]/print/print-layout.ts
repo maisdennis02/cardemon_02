@@ -80,5 +80,13 @@ export function planLayout(input: {
     const sheets = paginate(input.measureAt(scale), columns, cap1, capN);
     if (sheets.length === 1) return { columns, scale, sheets };
   }
+  // Several sheets (owner, 28/10): as many as at 100 %, then the largest
+  // scale that still needs no more of them, so no sheet is left half empty.
+  const n = paginate(input.measureAt(1), columns, cap1, capN).length;
+  for (let step = Math.round(SCALE_MAX * 50); step > 50; step--) {
+    const scale = step / 50;
+    const blocks = input.measureAt(scale);
+    if (paginate(blocks, columns, cap1, capN).length <= n) return { columns, scale, sheets: balance(blocks, columns, cap1, capN) };
+  }
   return { columns, scale: 1, sheets: balance(input.measureAt(1), columns, cap1, capN) };
 }

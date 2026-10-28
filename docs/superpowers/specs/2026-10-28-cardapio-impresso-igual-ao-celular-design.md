@@ -60,9 +60,11 @@ navegador na hora de imprimir.
   2. **Escala para preencher a folha:** o conteúdo (cards e títulos de seção, não o
      header nem o rodapé) recebe a maior escala entre **80 % e 160 %** com a qual tudo
      cabe em uma folha. Cardápio curto é ampliado; longo, reduzido até 80 %.
-  3. **Folhas divididas por igual:** se não couber em uma folha a 80 %, a escala volta a
-     100 % e os blocos são distribuídos entre as folhas (o mínimo necessário) de modo
-     equilibrado, sem uma última folha quase vazia.
+  3. **Folhas cheias e divididas por igual:** se não couber em uma folha a 80 %, usa o
+     número de folhas que o cardápio pede a 100 % e a maior escala (até 160 %) que ainda
+     cabe nelas; os blocos são distribuídos entre as folhas de modo equilibrado, sem uma
+     folha quase vazia. (Decidido pelo dono em 28/10, depois de ver 2 folhas a 100 %
+     só 60 % cheias.)
   4. **Nome maior no papel** (ver §1).
   A escala e o número de colunas saem de uma função pura `planLayout(itemCount,
   measure)` ao lado de `paginate`, testada sozinha. A medição deixa 4 % de folga,

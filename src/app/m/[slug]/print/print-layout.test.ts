@@ -105,11 +105,23 @@ describe("planLayout", () => {
     expect(plan.scale).toBeLessThanOrEqual(0.84);
   });
 
-  it("goes back to 100 % on balanced sheets when 80 % is not enough", () => {
+  it("fills the sheets it needs when 80 % is not enough for one (owner, 28/10)", () => {
+    // 30 items of 80: too many for one sheet at 80 %, 2 sheets at 100 % that a larger scale can fill.
+    const plan = planLayout({ itemCount: 30, headerHeight: 200, measureAt: scaled(items(30, 80)) });
+    expect(plan.sheets).toHaveLength(2);
+    expect(plan.scale).toBeGreaterThan(1);
+    expect(plan.scale).toBeLessThanOrEqual(1.6);
+    // One step larger would need a third sheet.
+    const capN = (SHEET.height - SHEET.footer - SHEET.strip) * SLACK;
+    const next = Math.round((plan.scale + 0.02) * 100) / 100;
+    if (next <= 1.6) expect(paginate(scaled(items(30, 80))(next), 2, cap1(200), capN).length).toBeGreaterThan(2);
+    expect(plan.sheets.at(-1)!.flat().length).toBeGreaterThanOrEqual(8);
+  });
+
+  it("stays at 100 % when the sheets are already full", () => {
     const plan = planLayout({ itemCount: 60, headerHeight: 200, measureAt: scaled(items(60, 100)) });
-    expect(plan.scale).toBe(1);
     expect(plan.sheets.length).toBeGreaterThan(1);
-    expect(plan.sheets.at(-1)!.flat().length).toBeGreaterThanOrEqual(10);
+    expect(plan.scale).toBeGreaterThanOrEqual(1);
   });
 
   it("just fits at the first-sheet capacity and not one pixel over", () => {
