@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { useActionState } from "react";
+import { useActionState, useState } from "react";
 import { requestPasswordReset, type ActionResult } from "../actions";
 import { Logo } from "@/components/logo";
 import { useT } from "@/i18n/provider";
@@ -12,6 +12,8 @@ export default function ForgotPasswordPage() {
     requestPasswordReset,
     {},
   );
+  // Controlled, so an error answer does not wipe the e-mail.
+  const [email, setEmail] = useState("");
 
   return (
     <main className="flex min-h-screen flex-col items-center justify-center bg-gray-50/60 px-6 py-10">
@@ -39,6 +41,8 @@ export default function ForgotPasswordPage() {
                 placeholder={t.auth.emailPlaceholder}
                 className="input"
                 autoComplete="email"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
               />
             </label>
             <button type="submit" disabled={pending} className="btn btn-primary">

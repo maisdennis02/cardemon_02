@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { useActionState } from "react";
+import { useActionState, useState } from "react";
 import { signup, type ActionResult } from "../actions";
 import { GoogleAuth } from "../google-auth";
 import { Logo } from "@/components/logo";
@@ -11,6 +11,11 @@ import { useT } from "@/i18n/provider";
 export default function SignupPage() {
   const t = useT();
   const [state, formAction, pending] = useActionState<ActionResult, FormData>(signup, {});
+  // Controlled, so an error answer (e-mail taken, short password) does not
+  // wipe what was typed (React resets an uncontrolled form after every submit).
+  const [name, setName] = useState("");
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
 
   return (
     <main className="flex min-h-screen flex-col items-center justify-center bg-gray-50/60 px-6 py-10">
@@ -35,6 +40,8 @@ export default function SignupPage() {
               placeholder={t.auth.namePlaceholder}
               className="input"
               autoComplete="name"
+              value={name}
+              onChange={(e) => setName(e.target.value)}
             />
           </label>
           <label className="label">
@@ -46,10 +53,14 @@ export default function SignupPage() {
               placeholder={t.auth.emailPlaceholder}
               className="input"
               autoComplete="email"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
             />
           </label>
           <PasswordInput
             name="password"
+            value={password}
+            onChange={setPassword}
             label={t.auth.password}
             hint={<span className="label-hint">{t.auth.passwordHintMin}</span>}
             required
