@@ -23,6 +23,9 @@ import {
   readMenuTheme,
   readPublishedMenu,
   visibleMenu,
+  publicMenu,
+  printableMenu,
+  ITEM_PHOTO_MAX_BYTES,
   type Menu,
 } from "@/lib/menu";
 
@@ -392,5 +395,89 @@ describe("dropEmptySections", () => {
   it("returns the same menu when nothing is empty", () => {
     const menu = menuWith([2, 1]);
     expect(dropEmptySections(menu)).toBe(menu);
+  });
+});
+
+describe("item photos", () => {
+  const blob = "https://abc.public.blob.vercel-storage.com";
+  const photo = {
+    full: `${blob}/item-photos/ckabc123/i1-full-x1.webp`,
+    thumb: `${blob}/item-photos/ckabc123/i1-thumb-x1.webp`,
+  };
+
+  function menuWithPhotos(counts: number[]): Menu {
+    const menu = menuWith(counts);
+    return {
+      ...menu,
+      sections: menu.sections.map((s) => ({ ...s, items: s.items.map((i) => ({ ...i, photo })) })),
+    };
+  }
+
+  it("accepts an item photo on our Blob host", () => {
+    const parsed = MenuSchema.safeParse(withFirstItem({ photo }));
+    expect(parsed.success && parsed.data.sections[0].items[0].photo).toEqual(photo);
+  });
+
+  it("refuses a photo URL outside item-photos/", () => {
+    expect(ok(withFirstItem({ photo: { ...photo, full: `${blob}/logos/ckabc123/a.webp` } }))).toBe(false);
+    expect(ok(withFirstItem({ photo: { ...photo, thumb: "https://evil.example/x.webp" } }))).toBe(false);
+    expect(ok(withFirstItem({ photo: { full: photo.full } }))).toBe(false);
+  });
+
+  it("still accepts items with no photo", () => {
+    expect(ok(menuWith([3]))).toBe(true);
+  });
+
+  it("publicMenu strips photos for free owners and keeps them for Pro", () => {
+    const menu = menuWithPhotos([2, 1]);
+    const free = publicMenu(menu, false);
+    expect(free.sections.flatMap((s) => s.items).every((i) => i.photo === undefined)).toBe(true);
+    expect(publicMenu(menu, true)).toEqual(menu);
+  });
+
+  it("publicMenu still applies the free item cut", () => {
+    expect(countItems(publicMenu(menuWithPhotos([15, 10]), false))).toBe(20);
+    expect(countItems(publicMenu(menuWithPhotos([15, 10]), true))).toBe(25);
+  });
+
+  it("upload rules: item-photos/ in the restaurant's own folder, 512 KB, webp or jpeg", () => {
+    const rules = uploadRulesFor("item-photos/abc/i1-full.webp", "abc");
+    expect(rules?.maxBytes).toBe(512 * 1024);
+    expect(ITEM_PHOTO_MAX_BYTES).toBe(512 * 1024);
+    expect(rules?.types).toEqual(["image/webp", "image/jpeg"]);
+    expect(uploadRulesFor("item-photos/other/i1-full.webp", "abc")).toBeNull();
+    expect(uploadRulesFor("item-photos/abc/../other/x.webp", "abc")).toBeNull();
+  });
+});
+
+// What /m/<slug>/print may show (spec 2026-10-26): only a published text
+// menu, and the same items the public page shows.
+describe("printableMenu", () => {
+  const items = (n: number): Menu => ({
+    v: 1,
+    sections: [{ id: "s1", title: null, items: Array.from({ length: n }, (_, i) => ({ id: `i${i}`, name: `Item ${i}`, priceCents: 100 })) }],
+  });
+  const row = (over: Partial<{ menuMode: string; imageCount: number; menuPublished: unknown; pro: boolean }>) => ({
+    menuMode: "built",
+    imageCount: 0,
+    menuPublished: items(3),
+    pro: false,
+    ...over,
+  });
+
+  it("is null for a photo menu", () => {
+    expect(printableMenu(row({ menuMode: "photos", imageCount: 2 }), "x")).toBeNull();
+  });
+
+  it("is null when no text menu is published", () => {
+    expect(printableMenu(row({ menuPublished: null }), "x")).toBeNull();
+  });
+
+  it("cuts a free menu at the same 20 items as the public page", () => {
+    expect(countItems(printableMenu(row({ menuPublished: items(25) }), "x"))).toBe(20);
+  });
+
+  it("prints every item on Pro", () => {
+    expect(countItems(printableMenu(row({ menuPublished: items(25), pro: true }), "x"))).toBe(25);
   });
 });

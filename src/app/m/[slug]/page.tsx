@@ -15,7 +15,7 @@ import {
   menuJsonLd,
   readMenuTheme,
   readPublishedMenu,
-  visibleMenu,
+  publicMenu,
 } from "@/lib/menu";
 import { NOINDEX, SITE_NAME, isTestMenu, menuDescription, restaurantLd } from "@/lib/seo";
 import { getRestaurant } from "./data";
@@ -102,7 +102,7 @@ export default async function PublicMenuPage({
     publishedItemCount: countItems(published),
   });
   const visible =
-    mode === "built" && published ? visibleMenu(published, isPro(restaurant.owner)).menu : null;
+    mode === "built" && published ? publicMenu(published, isPro(restaurant.owner)) : null;
 
   // No Restaurant structured data for an example: it would tell search
   // engines that a business exists at this URL. A text menu goes in as a

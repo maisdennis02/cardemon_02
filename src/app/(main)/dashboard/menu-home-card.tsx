@@ -75,6 +75,19 @@ export function MenuHomeCard({
           >
             {h.edit}
           </Link>
+          {/* The printable sheet (spec 2026-10-26) exists for text menus only;
+              a photo menu is already its own printout. */}
+          {mode === "built" && (
+            <a
+              href={`/m/${slug}/print`}
+              target="_blank"
+              rel="noopener noreferrer"
+              onClick={() => capture("menu_print_opened")}
+              className="btn btn-secondary w-full py-3 text-base sm:w-auto"
+            >
+              {h.print}
+            </a>
+          )}
         </div>
       ) : (
         <div className="flex flex-col gap-3">

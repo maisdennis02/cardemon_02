@@ -4,13 +4,18 @@
 
 export type AutosaveStatus = "idle" | "pending" | "saving" | "saved" | "error";
 
+// The server answered and said no (photo cap, invalid menu): the same value
+// would be refused again, so it is not retried. The next edit is saved.
+export class RefusedSaveError extends Error {}
+
 export function createAutosaver<T>(opts: {
   save: (value: T) => Promise<void>;
   delayMs?: number;
   retryMs?: number;
   onStatus: (status: AutosaveStatus) => void;
+  onRefused?: (message: string) => void;
 }) {
-  const { save, delayMs = 2000, retryMs = 5000, onStatus } = opts;
+  const { save, delayMs = 2000, retryMs = 5000, onStatus, onRefused } = opts;
   let timer: ReturnType<typeof setTimeout> | null = null;
   let latest: { value: T } | null = null;
   let inFlight: Promise<void> | null = null;
@@ -36,8 +41,15 @@ export function createAutosaver<T>(opts: {
     try {
       await inFlight;
       if (!stopped && !latest) onStatus("saved");
-    } catch {
+    } catch (err) {
       if (stopped) return;
+      if (err instanceof RefusedSaveError) {
+        onStatus("error");
+        onRefused?.(err.message);
+        // An edit pushed while this one was in flight still gets its turn.
+        if (latest) schedule(delayMs);
+        return;
+      }
       latest ??= { value };
       onStatus("error");
       schedule(retryMs);

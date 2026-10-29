@@ -2,7 +2,7 @@ import { renderToStaticMarkup } from "react-dom/server";
 import { describe, expect, it } from "vitest";
 import en from "@/i18n/dictionaries/en";
 import { DictionaryProvider } from "@/i18n/provider";
-import type { Menu, MenuTheme } from "@/lib/menu";
+import { menuJsonLd, publicMenu, type Menu, type MenuTheme } from "@/lib/menu";
 import { BuiltMenu } from "./built-menu";
 import { OrderableItem, OrderableMenu } from "./order/orderable-menu";
 
@@ -169,3 +169,99 @@ describe("an item already in the order", () => {
     expect(li).not.toContain("−");
   });
 });
+
+describe("item photos (2026-10-25)", () => {
+  const blob = "https://abc.public.blob.vercel-storage.com/item-photos/ckr1";
+  const photo = { full: `${blob}/xb-full.webp`, thumb: `${blob}/xb-thumb.webp` };
+  const withPhotos: Menu = {
+    v: 1,
+    sections: [
+      section("lanches", "Lanches", [
+        { ...item("xb", "X-Burguer", 2590, "Pão, carne, queijo e salada."), photo },
+        item("bf", "Batata frita", 1890),
+      ]),
+    ],
+  };
+
+  const renderStaticWithProvider = (menu: Menu) =>
+    renderToStaticMarkup(
+      <DictionaryProvider locale="en" dictionary={en}>
+        <BuiltMenu
+          slug="x"
+          name="Seu Restaurante"
+          country="BR"
+          theme={theme}
+          menu={menu}
+          labels={{ cardapioDigital: "Cardápio Digital", madeBy: "feito por" }}
+          actions={null}
+        />
+      </DictionaryProvider>,
+    );
+
+  it("puts the thumb on the card, 96 px, lazy, named after the item", () => {
+    const li = listItem(renderStaticWithProvider(withPhotos), 0);
+    expect(li).toMatch(/<img[^>]*src="[^"]*xb-thumb\.webp"/);
+    expect(li).toMatch(/<img[^>]*alt="X-Burguer"/);
+    expect(li).toMatch(/<img[^>]*width="96"[^>]*height="96"/);
+    expect(li).toMatch(/<img[^>]*loading="lazy"/);
+  });
+
+  it("leaves a card without a photo exactly as before", () => {
+    expect(listItem(renderStaticWithProvider(withPhotos), 1)).not.toContain("<img");
+    expect(renderStatic(twoSections)).not.toContain("<img");
+  });
+
+  it("on the static page, only a card with a photo opens the sheet", () => {
+    const html = renderStaticWithProvider(withPhotos);
+    expect(listItem(html, 0)).toContain('aria-haspopup="dialog"');
+    expect(listItem(html, 1)).not.toContain("<button");
+  });
+
+  it("shows no photo, and no JSON-LD image, when the owner is not Pro", () => {
+    const free = publicMenu(withPhotos, false);
+    expect(renderStaticWithProvider(free)).not.toContain("<img");
+    expect(JSON.stringify(menuJsonLd(free, "BR"))).not.toContain('"image"');
+  });
+
+  it("puts the full photo in the JSON-LD on Pro", () => {
+    expect(JSON.stringify(menuJsonLd(publicMenu(withPhotos, true), "BR"))).toContain(photo.full);
+  });
+
+  it("with ordering on, the card opens the item and a separate + adds it", () => {
+    const li = listItem(renderOrdering(withPhotos), 0);
+    expect(li).toContain('aria-label="See X-Burguer"');
+    expect(li).toContain('aria-haspopup="dialog"');
+    expect(li).toContain('aria-label="Add X-Burguer to the order"');
+    // Two buttons side by side, never one inside the other.
+    expect(li).not.toMatch(/<button[^>]*>(?:(?!<\/button>)[\s\S])*<button/);
+  });
+
+  it("with ordering on, an item without a photo also opens the sheet and keeps its + on the price line", () => {
+    const li = listItem(renderOrdering(withPhotos), 1);
+    expect(li).toContain('aria-haspopup="dialog"');
+    // The "+" is its own button now, in the spot the ± control takes.
+    expect(li).toMatch(/<button[^>]*aria-label="Add Batata frita to the order"[^>]*class="absolute [^"]*bottom-3 right-4/);
+  });
+
+  // Review of 2026-10-25: next to a photo the text column is ~186 px on a
+  // 360 px phone, too narrow for the price plus the ± control.
+  it("puts the ± of a photo card in the order on its own row, not over the price", () => {
+    const li = renderToStaticMarkup(
+      <DictionaryProvider locale="en" dictionary={en}>
+        <OrderableItem
+          item={{ ...item("xb", "X-Burguer", 2590, "Pão, carne, queijo e salada."), photo }}
+          qty={2}
+          country="BR"
+          accent="#c84630"
+          onAdd={() => {}}
+          onQty={() => {}}
+        />
+      </DictionaryProvider>,
+    );
+    expect(li).not.toMatch(/right-\[7\.75rem\]/);
+    expect(li).not.toMatch(/w-\[7\.5rem\]/);
+    expect(li).toMatch(/class="mt-2 flex justify-end"/);
+    expect(li.match(/>2</g)).toHaveLength(1);
+  });
+});
+

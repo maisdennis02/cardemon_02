@@ -53,6 +53,29 @@ export function parseItemLine(line: string): { name: string; priceCents: number 
   return { name: text.slice(0, NAME_MAX), priceCents: null };
 }
 
+// Reads a price typed on its own with the same rule as an item line, so
+// "25,90", "R$ 25" and "25 e 90" all work. Blank is no price; anything else
+// that doesn't read as a price is "invalid", never a guess.
+export function parsePrice(text: string): number | null | "invalid" {
+  if (!text.trim()) return null;
+  return parseItemLine(`x ${text}`)?.priceCents ?? "invalid";
+}
+
+// The add row: a name field and a price field. With a price in its own field
+// the name is taken as typed; with the price field empty a dictated
+// "name price" line still splits as before.
+export function parseItemInput(
+  nameText: string,
+  priceText: string,
+): { name: string; priceCents: number | null } | "invalid" | null {
+  const name = nameText.replace(/\s+/g, " ").trim();
+  if (!name) return null;
+  const price = parsePrice(priceText);
+  if (price === "invalid") return "invalid";
+  if (price === null) return parseItemLine(name);
+  return { name: name.slice(0, NAME_MAX), priceCents: price };
+}
+
 // "Colar lista": one item per line. An unpriced line is a section title when
 // the next line has a price; otherwise it is an item still missing its price.
 export function parsePastedList(text: string, newId: () => string): MenuSection[] {

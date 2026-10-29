@@ -1,6 +1,7 @@
 "use server";
 
 import { revalidatePath } from "next/cache";
+import { revalidateMenu } from "@/lib/menu-cache";
 import { del } from "@vercel/blob";
 import { prisma } from "@/lib/prisma";
 import {
@@ -12,11 +13,26 @@ import {
   dropEmptySections,
   isOwnLogoUrl,
   readMenuTheme,
+  type Menu,
 } from "@/lib/menu";
+import { menuRev, photoSaveError, photosToDelete } from "@/lib/menu-photos";
+import { isPro } from "@/lib/pricing";
 import { normalizeWhatsapp } from "@/lib/whatsapp";
 import { COUNTRY_FOR_LOCALE } from "@/i18n/config";
 import { getLocale } from "@/i18n";
 import { dashT, requireOwnedRestaurant, requireUserId } from "./guards";
+
+// A stored menu for comparing photos: never throws, so bad data can't block a save.
+function storedMenu(raw: unknown): Menu | null {
+  return raw == null ? null : (MenuSchema.safeParse(raw).data ?? null);
+}
+
+// A failed delete is logged with its URL for a hand cleanup; the save stands.
+async function deletePhotos(urls: string[], where: string): Promise<void> {
+  for (const url of urls) {
+    await del(url).catch((err) => console.error(`[${where}] photo delete failed:`, url, err));
+  }
+}
 
 // Autosave target, called after every pause in editing. Two things it must
 // never do: revalidate (in Next 16 that reloads the visited pages on every
@@ -26,7 +42,8 @@ import { dashT, requireOwnedRestaurant, requireUserId } from "./guards";
 export async function saveMenuDraft(input: {
   restaurantId: string;
   menu: unknown;
-}): Promise<{ error?: string }> {
+  baseRev?: string;
+}): Promise<{ error?: string; rev?: string }> {
   const userId = await requireUserId();
   const envelope = SaveDraftInputSchema.safeParse(input);
   if (!envelope.success) {
@@ -39,6 +56,22 @@ export async function saveMenuDraft(input: {
     return { error: t.errors.invalidMenu };
   }
 
+  const before = await prisma.restaurant.findFirst({
+    where: { id: envelope.data.restaurantId, ownerId: userId },
+    select: { menuDraft: true, menuPublished: true, owner: { select: { proExpiresAt: true } } },
+  });
+  if (!before) {
+    const t = await dashT();
+    return { error: t.errors.restaurantNotFound };
+  }
+  const previousDraft = storedMenu(before.menuDraft);
+  const published = storedMenu(before.menuPublished);
+  const refused = photoSaveError(parsed.data, envelope.data.restaurantId, isPro(before.owner), [previousDraft, published]);
+  if (refused) {
+    const t = await dashT();
+    return { error: t.errors[refused] };
+  }
+
   const updated = await prisma.$executeRaw`
     UPDATE "Restaurant" SET "menuDraft" = ${JSON.stringify(parsed.data)}::jsonb
     WHERE "id" = ${envelope.data.restaurantId} AND "ownerId" = ${userId}`;
@@ -46,7 +79,12 @@ export async function saveMenuDraft(input: {
     const t = await dashT();
     return { error: t.errors.restaurantNotFound };
   }
-  return {};
+  // Another tab or device saved since this one last did: its photos may be in
+  // the draft this save replaces, so nothing is deleted (an orphan at worst).
+  if (envelope.data.baseRev === menuRev(previousDraft)) {
+    await deletePhotos(photosToDelete([previousDraft, published], [parsed.data, published]), "saveMenuDraft");
+  }
+  return { rev: menuRev(parsed.data) };
 }
 
 // The builder's first step. Country and theme are not drafted: they apply to
@@ -80,7 +118,7 @@ export async function saveMenuVisual(input: {
     );
   }
 
-  revalidatePath(`/m/${restaurant.slug}`);
+  revalidateMenu(restaurant.slug);
   return {};
 }
 
@@ -101,7 +139,7 @@ export async function chooseMenuPhotos(input: {
   if (images === 0) return { needsUpload: true };
 
   await prisma.restaurant.update({ where: { id: restaurant.id }, data: { menuMode: "photos" } });
-  revalidatePath(`/m/${restaurant.slug}`);
+  revalidateMenu(restaurant.slug);
   revalidatePath("/dashboard");
   return {};
 }
@@ -113,6 +151,7 @@ export async function publishMenu(input: {
   restaurantId: string;
   menu: unknown;
   whatsappNumber?: string;
+  baseRev?: string;
 }): Promise<{ error?: string }> {
   const userId = await requireUserId();
   const envelope = PublishMenuInputSchema.safeParse(input);
@@ -130,6 +169,14 @@ export async function publishMenu(input: {
   if (countItems(menu) === 0) {
     const t = await dashT();
     return { error: t.errors.invalidMenu };
+  }
+  const previousDraft = storedMenu(restaurant.menuDraft);
+  const previousPublished = storedMenu(restaurant.menuPublished);
+  const owner = await prisma.user.findUnique({ where: { id: userId }, select: { proExpiresAt: true } });
+  const refused = photoSaveError(menu, restaurant.id, isPro(owner), [previousDraft, previousPublished]);
+  if (refused) {
+    const t = await dashT();
+    return { error: t.errors[refused] };
   }
 
   // A blank field publishes without a number; anything typed must be valid,
@@ -149,8 +196,12 @@ export async function publishMenu(input: {
     where: { id: restaurant.id },
     data: { menuDraft: menu, menuPublished: menu, menuMode: "built", ...(whatsappNumber && { whatsappNumber }) },
   });
+  // As in saveMenuDraft: a publish from a stale tab deletes nothing.
+  if (envelope.data.baseRev === menuRev(previousDraft)) {
+    await deletePhotos(photosToDelete([previousPublished, previousDraft], [menu]), "publishMenu");
+  }
 
-  revalidatePath(`/m/${restaurant.slug}`);
+  revalidateMenu(restaurant.slug);
   revalidatePath("/dashboard");
   return {};
 }

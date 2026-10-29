@@ -6,7 +6,7 @@ import { useCallback, useEffect, useRef, useState } from "react";
 import { useT } from "@/i18n/provider";
 import type { Locale } from "@/i18n/config";
 import { capture } from "@/lib/posthog";
-import { createAutosaver, type AutosaveStatus } from "@/lib/autosave";
+import { RefusedSaveError, createAutosaver, type AutosaveStatus } from "@/lib/autosave";
 import type { Menu, MenuTheme } from "@/lib/menu";
 import { saveMenuDraft, saveMenuVisual } from "../menu-actions";
 import { StepVisual } from "./step-visual";
@@ -31,10 +31,13 @@ export function MenuBuilder({
   sectionSuggestions,
   defaultCountry,
   hasCountry,
+  draftRev,
 }: {
   restaurant: BuilderRestaurant;
   initialTheme: MenuTheme;
   initial: { menu: Menu; draftWasInvalid: boolean };
+  // menuRev of the stored draft when the page loaded (menu-photos.ts).
+  draftRev: string;
   hasPublished: boolean;
   isPro: boolean;
   sectionSuggestions: Record<Locale, string[]>;
@@ -59,14 +62,25 @@ export function MenuBuilder({
   const [status, setStatus] = useState<AutosaveStatus>("idle");
   const [showDraftNotice, setShowDraftNotice] = useState(initial.draftWasInvalid);
 
+  // Why the server refused the last save (photo cap…), shown in place of
+  // the generic error until a save goes through.
+  const [refusedMessage, setRefusedMessage] = useState<string | null>(null);
+  // The stored draft's revision as this tab last saw it: echoed on every
+  // save so a stale tab's save deletes no photo blob.
+  const draftRevRef = useRef(draftRev);
+
   const saver = useRef<ReturnType<typeof createAutosaver<Menu>> | null>(null);
   useEffect(() => {
     const s = createAutosaver<Menu>({
       save: async (value) => {
-        const res = await saveMenuDraft({ restaurantId: restaurant.id, menu: value });
-        if (res.error) throw new Error(res.error);
+        const res = await saveMenuDraft({ restaurantId: restaurant.id, menu: value, baseRev: draftRevRef.current });
+        // The server answered no: the same menu would be refused again.
+        if (res.error) throw new RefusedSaveError(res.error);
+        if (res.rev) draftRevRef.current = res.rev;
+        setRefusedMessage(null);
       },
       onStatus: setStatus,
+      onRefused: setRefusedMessage,
     });
     saver.current = s;
     // Leaving the builder inside the app (the Painel link, the Back button) is
@@ -162,7 +176,7 @@ export function MenuBuilder({
             className={`text-xs tabular-nums ${status === "error" ? "text-red-600" : "text-gray-500"}`}
             aria-live="polite"
           >
-            {status === "idle" ? "" : b.status[status]}
+            {status === "idle" ? "" : status === "error" && refusedMessage ? refusedMessage : b.status[status]}
           </span>
         </div>
         <nav className="mx-auto flex max-w-lg px-4" aria-label={b.title}>
@@ -227,6 +241,7 @@ export function MenuBuilder({
             country={country}
             isPro={isPro}
             settle={() => saver.current?.settle() ?? Promise.resolve()}
+            baseRev={() => draftRevRef.current}
           />
         )}
 

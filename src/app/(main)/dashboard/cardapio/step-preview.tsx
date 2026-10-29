@@ -21,6 +21,7 @@ export function StepPreview({
   country,
   isPro,
   settle,
+  baseRev,
 }: {
   restaurant: BuilderRestaurant;
   menu: Menu;
@@ -28,6 +29,7 @@ export function StepPreview({
   country: string;
   isPro: boolean;
   settle: () => Promise<void>;
+  baseRev: () => string;
 }) {
   const t = useT();
   const locale = useLocale();
@@ -48,6 +50,7 @@ export function StepPreview({
       const res = await publishMenu({
         restaurantId: restaurant.id,
         menu,
+        baseRev: baseRev(),
         ...(!restaurant.hasWhatsapp && { whatsappNumber: whatsapp }),
       });
       if (res.error) {

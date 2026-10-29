@@ -82,7 +82,8 @@ export function MenuQrCard({ slug, name }: { slug: string; name: string }) {
           />
         </div>
 
-        <div className="flex flex-1 flex-col gap-3">
+        {/* min-w-0 lets the column shrink, so a long URL truncates instead of overflowing. */}
+        <div className="flex min-w-0 flex-1 flex-col gap-3">
           <div>
             <p className="mb-1 text-xs font-medium uppercase tracking-wide text-gray-500">
               {qr.publicUrl}

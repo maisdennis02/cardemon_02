@@ -4,6 +4,7 @@ import { menuBackgroundStyle } from "@/lib/menu-background";
 import { MenuViewPing } from "./menu-actions";
 import { MENU_SECTION_LIST_CLASS, MENU_SECTION_TITLE_CLASS, MenuItemCard } from "./menu-item-card";
 import { OrderableMenu } from "./order/orderable-menu";
+import { PhotoItemCard } from "./item-sheet";
 
 // Text menu built in the dashboard (spec §2). No hooks and no "use client":
 // the public page renders it on the server, and the builder renders it as a
@@ -24,7 +25,7 @@ export function BuiltMenu({
   name: string;
   country: string | null;
   theme: MenuTheme;
-  menu: Menu; // already cut by visibleMenu
+  menu: Menu; // already cut: publicMenu on the public page, visibleMenu in the preview
   labels: { cardapioDigital: string; madeBy: string };
   actions: React.ReactNode;
   preview?: boolean;
@@ -78,15 +79,19 @@ export function BuiltMenu({
                   </h2>
                 )}
                 <ul className={MENU_SECTION_LIST_CLASS}>
-                  {section.items.map((item) => (
-                    <MenuItemCard
-                      key={item.id}
-                      name={item.name}
-                      description={item.description}
-                      priceCents={item.priceCents}
-                      country={country}
-                    />
-                  ))}
+                  {section.items.map((item) =>
+                    item.photo ? (
+                      <PhotoItemCard key={item.id} item={item} country={country} accent={accent} />
+                    ) : (
+                      <MenuItemCard
+                        key={item.id}
+                        name={item.name}
+                        description={item.description}
+                        priceCents={item.priceCents}
+                        country={country}
+                      />
+                    ),
+                  )}
                 </ul>
               </section>
             ))}
@@ -97,7 +102,7 @@ export function BuiltMenu({
           <p>
             {labels.cardapioDigital} · {name}
           </p>
-          <p className="mt-1">
+          <p className="mt-2">
             {labels.madeBy}{" "}
             {preview ? (
               <span className="font-bold">menulala.com</span>

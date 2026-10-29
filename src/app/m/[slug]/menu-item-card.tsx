@@ -1,5 +1,5 @@
 import type { ReactNode } from "react";
-import { formatPrice } from "@/lib/menu";
+import { formatPrice, type ItemPhoto } from "@/lib/menu";
 
 // One item of a text menu, as a card: name, description, then the price on
 // its own line — never a right-hand price column, which makes a diner read
@@ -30,21 +30,52 @@ export function MenuItemCard({
 }
 
 // The card's content, with room for a control (the ordering "+") on the
-// price line.
+// price line. With a photo (Pro, spec 2026-10-25) the text keeps the left and
+// a 96 px square thumb takes the right, as in the delivery apps.
 export function MenuItemBody({
   name,
   description,
   priceCents,
   country,
   trailing,
+  photo,
 }: {
   name: string;
   description?: string;
   priceCents: number | null;
   country: string | null;
   trailing?: ReactNode;
+  photo?: ItemPhoto;
 }) {
   const price = priceCents === null ? null : formatPrice(priceCents, country);
+  if (photo) {
+    return (
+      <span className="flex items-stretch gap-3">
+        <span className="flex min-w-0 flex-1 flex-col">
+          <span className="block font-semibold leading-snug">{name}</span>
+          {description && (
+            <span className="mt-0.5 line-clamp-2 text-[0.875em] leading-snug text-gray-500">{description}</span>
+          )}
+          {(price !== null || trailing) && (
+            <span className="mt-auto flex min-h-[2em] items-center justify-between gap-3 pt-[0.5em]">
+              <span className="font-medium tabular-nums">{price}</span>
+              {trailing}
+            </span>
+          )}
+        </span>
+        {/* eslint-disable-next-line @next/next/no-img-element */}
+        <img
+          src={photo.thumb}
+          alt={name}
+          width={96}
+          height={96}
+          loading="lazy"
+          decoding="async"
+          className="size-24 shrink-0 self-start rounded-xl bg-gray-100 object-cover"
+        />
+      </span>
+    );
+  }
   return (
     <>
       <span className="block font-semibold leading-snug">{name}</span>

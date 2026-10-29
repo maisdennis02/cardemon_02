@@ -9,8 +9,10 @@ import type { OrderDetails } from "@/lib/order";
 import { readCartRaw, subscribeCart, writeCartRaw } from "./cart-store";
 import { MENU_ITEM_CARD_CLASS, MENU_SECTION_LIST_CLASS, MENU_SECTION_TITLE_CLASS, MenuItemBody } from "../menu-item-card";
 import { OrderSheet } from "./order-sheet";
+import { QtyControl } from "./qty-control";
+import { ItemSheet } from "../item-sheet";
 
-// The text menu with ordering (spec §2): tap an item to add it, ± once it is
+// The text menu with ordering (spec §2): tap an item to open it, "+" to add, ± once it is
 // in the order, a bar at the bottom, and the order sheet. Rendered by
 // BuiltMenu only when the restaurant has a WhatsApp number.
 export function OrderableMenu({
@@ -122,9 +124,11 @@ export function OrderableMenu({
   );
 }
 
-// One item of the ordering list. Tapping the card adds it; once it is in the
-// order the ± control takes the place of the "+" on the price line — one
-// count on screen, not a badge plus a control under it (2026-10-23).
+// One item of the ordering list. Tapping the card opens the item sheet; the
+// "+" beside it adds one straight away (spec 2026-10-25 §4, the delivery-app
+// pattern). Once the item is in the order the ± control takes the place of
+// the "+" on the price line — one count on screen (2026-10-23). With a photo
+// the "+" sits on the photo's corner and the ± gets a row under the card.
 export function OrderableItem({
   item,
   qty,
@@ -142,34 +146,38 @@ export function OrderableItem({
 }) {
   const t = useT();
   const o = t.menu.order;
+  const [open, setOpen] = useState(false);
+  const photo = Boolean(item.photo);
   return (
     <li className={`${MENU_ITEM_CARD_CLASS} relative`}>
-      <button type="button" aria-label={format(o.add, { name: item.name })} onClick={onAdd} className="block w-full text-left">
+      <button
+        type="button"
+        aria-haspopup="dialog"
+        aria-label={format(o.open, { name: item.name })}
+        onClick={() => setOpen(true)}
+        className="block w-full text-left"
+      >
         <MenuItemBody
           name={item.name}
           description={item.description}
           priceCents={item.priceCents}
           country={country}
+          photo={item.photo}
           trailing={
-            qty > 0 ? (
+            qty > 0 && !photo ? (
               // Holds the ± control's width so the price line stays clear of it.
               <span aria-hidden className="h-8 w-[7.5rem] shrink-0" />
-            ) : (
-              /* The "+" every ordering app uses, so diners see the item can be added. */
-              <span
-                aria-hidden
-                className="flex size-8 shrink-0 items-center justify-center rounded-full text-lg font-bold text-white"
-                style={{ background: accent }}
-              >
-                +
-              </span>
+            ) : photo ? undefined : (
+              <span aria-hidden className="size-8 shrink-0" />
             )
           }
         />
       </button>
-      {qty > 0 && (
-        // Sits on the price line, inside the card's padding (px-4 pb-3).
-        <div className="absolute bottom-3 right-4">
+      {qty > 0 ? (
+        // Sits on the price line, inside the card's padding (px-4 pb-3). Next
+        // to a photo the text column is too narrow for price plus ± on a
+        // 360 px phone, so there it takes a row of its own under the card.
+        <div className={photo ? "mt-2 flex justify-end" : "absolute bottom-3 right-4"}>
           <QtyControl
             qty={qty}
             accent={accent}
@@ -179,47 +187,23 @@ export function OrderableItem({
             onChange={onQty}
           />
         </div>
+      ) : (
+        /* The "+" every ordering app uses, so diners see the item can be added. */
+        <button
+          type="button"
+          aria-label={format(o.add, { name: item.name })}
+          onClick={onAdd}
+          className={`absolute flex items-center justify-center rounded-full text-lg font-bold ${
+            photo ? "right-3 top-[4.875rem] size-9 bg-white shadow-md" : "bottom-3 right-4 size-8 text-white"
+          }`}
+          style={photo ? { color: accent } : { background: accent }}
+        >
+          +
+        </button>
+      )}
+      {open && (
+        <ItemSheet item={item} country={country} accent={accent} onClose={() => setOpen(false)} onAdd={(n) => onQty(qty + n)} />
       )}
     </li>
-  );
-}
-
-export function QtyControl({
-  qty,
-  accent,
-  label,
-  lessLabel,
-  moreLabel,
-  onChange,
-}: {
-  qty: number;
-  accent: string;
-  label: string;
-  lessLabel: string;
-  moreLabel: string;
-  onChange: (qty: number) => void;
-}) {
-  return (
-    <div className="flex items-center justify-end gap-4" aria-label={label}>
-      <button
-        type="button"
-        aria-label={lessLabel}
-        onClick={() => onChange(qty - 1)}
-        className="flex size-8 items-center justify-center rounded-full border-2 text-lg font-bold"
-        style={{ borderColor: accent, color: accent }}
-      >
-        −
-      </button>
-      <span className="min-w-6 text-center font-bold tabular-nums">{qty}</span>
-      <button
-        type="button"
-        aria-label={moreLabel}
-        onClick={() => onChange(qty + 1)}
-        className="flex size-8 items-center justify-center rounded-full text-lg font-bold text-white"
-        style={{ background: accent }}
-      >
-        +
-      </button>
-    </div>
   );
 }

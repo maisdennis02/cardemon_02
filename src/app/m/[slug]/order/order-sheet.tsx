@@ -7,7 +7,7 @@ import { buildOrderMessage, orderErrors, orderLabels, whatsappOrderUrl, type Ord
 import { speechLang } from "@/lib/speech";
 import { MicButton } from "@/components/voice/mic-button";
 import { pingMenuEvent } from "../menu-actions";
-import { QtyControl } from "./orderable-menu";
+import { QtyControl } from "./qty-control";
 
 // The order on one screen: lines, who and how, and the send button that opens
 // the restaurant's WhatsApp with the message ready (spec §2–3).
