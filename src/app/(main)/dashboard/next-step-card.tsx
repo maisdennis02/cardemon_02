@@ -9,11 +9,15 @@ import { WhatsappStep } from "./whatsapp-step";
 export function NextStepCard({
   state,
   restaurantId,
+  restaurantName,
+  country,
   slug,
   t,
 }: {
   state: NextStepState;
   restaurantId: string;
+  restaurantName: string;
+  country: string | null;
   slug: string;
   t: Dictionary;
 }) {
@@ -25,7 +29,7 @@ export function NextStepCard({
     case "share":
       return <MenuLiveCallout slug={slug} t={t} />;
     case "whatsapp":
-      return <WhatsappStep restaurantId={restaurantId} />;
+      return <WhatsappStep restaurantId={restaurantId} restaurantName={restaurantName} country={country} />;
     case "delivery":
       return <DeliverySetupCallout t={t} />;
     case null:

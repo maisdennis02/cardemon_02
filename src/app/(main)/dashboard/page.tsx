@@ -99,6 +99,7 @@ export default async function DashboardPage({
               itemCount={content ? content.publishedItemCount : 0}
               imageCount={restaurant.images.length}
               whatsappNumber={restaurant.whatsappNumber}
+              country={restaurant.country}
             />
             <NextStepCard
               state={{
@@ -109,6 +110,8 @@ export default async function DashboardPage({
                 hasDeliveryLink,
               }}
               restaurantId={restaurant.id}
+              restaurantName={restaurant.name}
+              country={restaurant.country}
               slug={restaurant.slug}
               t={t}
             />

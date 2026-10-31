@@ -6,6 +6,7 @@ import { slugify } from "@/lib/slug";
 import { useLocale, useT } from "@/i18n/provider";
 import { format } from "@/i18n/config";
 import { MicButton } from "@/components/voice/mic-button";
+import { WhatsappTestLink } from "./whatsapp-test-link";
 import {
   DELIVERY_APP_IDS,
   DELIVERY_APPS,
@@ -141,6 +142,7 @@ export function RestaurantSettingsForm({ restaurant }: { restaurant: Restaurant 
               label={t.dashboard.home.whatsappMic}
             />
           </span>
+          <WhatsappTestLink number={whatsapp} country={country || null} restaurantName={name} hint />
         </label>
 
         <label className="label">

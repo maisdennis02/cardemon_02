@@ -8,6 +8,7 @@ import { countItems, visibleMenu, type Menu, type MenuTheme } from "@/lib/menu";
 import { BuiltMenu } from "@/app/m/[slug]/built-menu";
 import { MicButton } from "@/components/voice/mic-button";
 import { publishMenu } from "../menu-actions";
+import { WhatsappTestLink } from "../whatsapp-test-link";
 import type { BuilderRestaurant } from "./menu-builder";
 
 // Step 3: the menu exactly as diners will see it on the current plan, and the
@@ -113,6 +114,7 @@ export function StepPreview({
           <p className="text-sm text-gray-500">
             {whatsapp.trim() ? t.dashboard.home.whatsappLead : p.noWhatsapp}
           </p>
+          <WhatsappTestLink number={whatsapp} country={country} restaurantName={restaurant.name} hint />
         </div>
       )}
       {error && <p className="rounded-lg bg-red-50 px-3 py-2 text-sm text-red-700">{error}</p>}
