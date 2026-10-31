@@ -5,6 +5,7 @@ import { useT } from "@/i18n/provider";
 import { format } from "@/i18n/config";
 import { capture } from "@/lib/posthog";
 import { ExternalIcon } from "@/components/icons";
+import { WhatsappTestLink } from "./whatsapp-test-link";
 
 // Top of the dashboard home (spec §3.1): what the menu is, whether diners can
 // see it, and the one or two buttons an owner reaches for from a phone.
@@ -16,6 +17,7 @@ export function MenuHomeCard({
   itemCount,
   imageCount,
   whatsappNumber,
+  country,
 }: {
   name: string;
   slug: string;
@@ -24,6 +26,7 @@ export function MenuHomeCard({
   itemCount: number;
   imageCount: number;
   whatsappNumber: string | null;
+  country: string | null;
 }) {
   const t = useT();
   const h = t.dashboard.home;
@@ -53,7 +56,8 @@ export function MenuHomeCard({
               className="font-semibold text-[color:var(--color-brand)] hover:text-[color:var(--color-brand-600)]"
             >
               {h.edit}
-            </Link>
+            </Link>{" "}
+            · <WhatsappTestLink number={whatsappNumber} country={country} restaurantName={name} />
           </p>
         )}
       </div>

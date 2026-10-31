@@ -4,11 +4,20 @@ import { useActionState, useState } from "react";
 import { saveWhatsappNumber, type ActionState } from "./actions";
 import { useLocale, useT } from "@/i18n/provider";
 import { MicButton } from "@/components/voice/mic-button";
+import { WhatsappTestLink } from "./whatsapp-test-link";
 
 // The "whatsapp" next step: the number is saved right here, without the
 // settings form (which also wants name and address). The action normalizes
 // dictated numbers like "11 91234-5678".
-export function WhatsappStep({ restaurantId }: { restaurantId: string }) {
+export function WhatsappStep({
+  restaurantId,
+  restaurantName,
+  country,
+}: {
+  restaurantId: string;
+  restaurantName: string;
+  country: string | null;
+}) {
   const t = useT();
   const locale = useLocale();
   const h = t.dashboard.home;
@@ -58,6 +67,7 @@ export function WhatsappStep({ restaurantId }: { restaurantId: string }) {
           {h.save}
         </button>
       </form>
+      <WhatsappTestLink number={number} country={country} restaurantName={restaurantName} hint />
 
       {state.ok && !pending && (
         <p role="status" className="text-sm font-semibold text-green-700">

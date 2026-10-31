@@ -25,6 +25,7 @@ const homeCard = (mode: "built" | "photos") =>
       itemCount={3}
       imageCount={1}
       whatsappNumber={null}
+      country="BR"
     />,
   );
 
