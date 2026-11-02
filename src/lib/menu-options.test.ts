@@ -7,7 +7,9 @@ import {
   hasGroups,
   normalizeOpts,
   selectionCents,
+  firstMissingGroup,
   selectionSummary,
+  toggleOption,
   validSelection,
 } from "@/lib/menu-options";
 
@@ -155,5 +157,36 @@ describe("choiceHint", () => {
     });
     expect(choiceHint({ ...extra, min: 1, max: 2 }).kind).toBe("range");
     expect(choiceHint({ ...extra, min: 2, max: 2 }).kind).toBe("exactly");
+  });
+});
+
+describe("toggleOption", () => {
+  it("replaces the choice in a max-1 group", () => {
+    expect(toggleOption(burger, ["s"], "size", "d")).toEqual(["d"]);
+    expect(toggleOption(burger, ["s", "b"], "size", "d")).toEqual(["b", "d"]);
+  });
+  it("toggles in a multi group and respects the max", () => {
+    expect(toggleOption(burger, [], "extra", "b")).toEqual(["b"]);
+    expect(toggleOption(burger, ["b"], "extra", "b")).toEqual([]);
+    const cap = { ...burger, groups: [{ ...extra, max: 1 + 1 }] };
+    expect(toggleOption(cap, ["b", "c"], "extra", "b")).toEqual(["c"]);
+    const two = {
+      ...burger,
+      groups: [{ ...extra, max: 2, options: [...extra.options, { id: "e", name: "E", priceCents: 1 }] }],
+    };
+    expect(toggleOption(two, ["b", "c"], "extra", "e")).toEqual(["b", "c"]);
+  });
+  it("treats a group with one option as effective max 1", () => {
+    const one = { ...burger, groups: [{ ...extra, options: opts(1) }] };
+    const id = one.groups[0].options[0].id;
+    expect(toggleOption(one, [], "extra", id)).toEqual([id]);
+  });
+});
+
+describe("firstMissingGroup", () => {
+  it("returns the first group below its min", () => {
+    expect(firstMissingGroup(burger, [])).toBe("size");
+    expect(firstMissingGroup(burger, ["s"])).toBeNull();
+    expect(firstMissingGroup({ id: "x", name: "X", priceCents: 1 }, [])).toBeNull();
   });
 });

@@ -17,10 +17,10 @@ const xb: MenuItem = {
   photo: { full: `${blob}/xb-full.webp`, thumb: `${blob}/xb-thumb.webp` },
 };
 
-const render = (item: MenuItem, onAdd?: (qty: number) => void) =>
+const render = (item: MenuItem, onAdd?: (qty: number, opts: string[]) => void, initialOpts?: string[]) =>
   renderToStaticMarkup(
     <DictionaryProvider locale="pt-BR" dictionary={ptBR}>
-      <ItemSheet item={item} country="BR" accent="#b4532a" onClose={() => {}} onAdd={onAdd} />
+      <ItemSheet item={item} country="BR" accent="#b4532a" onClose={() => {}} onAdd={onAdd} initialOpts={initialOpts} />
     </DictionaryProvider>,
   );
 
@@ -49,5 +49,30 @@ describe("ItemSheet", () => {
 
   it("opens for an item without a photo, with no image", () => {
     expect(render({ ...xb, photo: undefined }, () => {})).not.toContain("<img");
+  });
+
+  describe("with option groups", () => {
+    const burger: MenuItem = {
+      id: "bg",
+      name: "Burger",
+      priceCents: 2000,
+      groups: [
+        { id: "size", title: "Tamanho", min: 1, max: 1, options: [{ id: "a", name: "Simples", priceCents: 0 }, { id: "b", name: "Duplo", priceCents: 800 }] },
+        { id: "extra", title: "Extras", min: 0, max: 3, options: [{ id: "c", name: "Cheddar", priceCents: 250 }, { id: "d", name: "Bacon", priceCents: 300 }] },
+      ],
+    };
+
+    it("shows the pickers and the live total on the add button", () => {
+      const html = render(burger, () => {}, ["b", "d"]);
+      expect(html).toContain("Tamanho");
+      expect(html).toContain('type="radio"');
+      expect(html).toMatch(/R\$\s31,00/);
+    });
+
+    it("without ordering, lists the groups with no inputs", () => {
+      const html = render(burger);
+      expect(html).toContain("Duplo");
+      expect(html).not.toContain("<input");
+    });
   });
 });

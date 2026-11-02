@@ -85,3 +85,31 @@ export function choiceHint(group: OptionGroup): {
           : "range";
   return { kind, min, max };
 }
+
+function countIn(group: OptionGroup, opts: string[]): number {
+  const chosen = new Set(opts);
+  return group.options.filter((o) => chosen.has(o.id)).length;
+}
+
+// A tap on an option: a one-choice group swaps its choice, a multi group
+// toggles it, and nothing is added past the group's (effective) max.
+export function toggleOption(
+  item: MenuItem,
+  opts: string[],
+  groupId: string,
+  optionId: string,
+): string[] {
+  const group = item.groups?.find((g) => g.id === groupId);
+  if (!group) return opts;
+  const max = Math.min(group.max, group.options.length);
+  const ids = new Set(group.options.map((o) => o.id));
+  if (opts.includes(optionId)) return normalizeOpts(opts.filter((id) => id !== optionId));
+  if (max === 1) return normalizeOpts([...opts.filter((id) => !ids.has(id)), optionId]);
+  if (countIn(group, opts) >= max) return opts;
+  return normalizeOpts([...opts, optionId]);
+}
+
+// The first group (in order) that still needs a choice, or null.
+export function firstMissingGroup(item: MenuItem, opts: string[]): string | null {
+  return (item.groups ?? []).find((g) => countIn(g, opts) < g.min)?.id ?? null;
+}
