@@ -28,8 +28,13 @@ export function setRequired(g: OptionGroup, on: boolean): OptionGroup {
   return { ...g, min: on ? 1 : 0, max: on ? Math.max(g.max, 1) : g.max };
 }
 
+// 1..MAX_OPTIONS_PER_GROUP: a group never offers more choices than it can hold.
+function clampMax(max: number): number {
+  return Math.min(MAX_OPTIONS_PER_GROUP, Math.max(1, Math.floor(Number.isFinite(max) ? max : 1)));
+}
+
 export function setMax(g: OptionGroup, max: number): OptionGroup {
-  const m = Math.max(1, Math.floor(Number.isFinite(max) ? max : 1));
+  const m = clampMax(max);
   return { ...g, max: m, min: Math.min(g.min, m) };
 }
 
@@ -100,7 +105,7 @@ export function cleanGroups(groups: OptionGroup[]): OptionGroup[] | undefined {
       seen.delete(gid);
       continue;
     }
-    const max = Math.max(1, Math.floor(Number.isFinite(g.max) ? g.max : 1));
+    const max = clampMax(g.max);
     const min = Math.max(0, Math.min(Math.floor(Number.isFinite(g.min) ? g.min : 0), max, options.length));
     out.push({ id: gid, title, min, max, options });
   }

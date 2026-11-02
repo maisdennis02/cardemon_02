@@ -42,6 +42,15 @@ describe("setRequired / setMax", () => {
     expect(setMax(g, 1).min).toBe(1);
     expect(setMax(g, 5)).toMatchObject({ min: 2, max: 5 });
   });
+  it("setMax caps at MAX_OPTIONS_PER_GROUP (a mistyped 32 or 1e9 is 15)", () => {
+    const g = newGroup("extras", "E");
+    expect(setMax(g, 32).max).toBe(MAX_OPTIONS_PER_GROUP);
+    expect(setMax(g, 1e9).max).toBe(MAX_OPTIONS_PER_GROUP);
+    expect(setMax(g, 15).max).toBe(15);
+  });
+  it("cleanGroups caps a stored huge max too", () => {
+    expect(cleanGroups([{ ...filled("extras", "E"), max: 1e9 }])![0].max).toBe(MAX_OPTIONS_PER_GROUP);
+  });
 });
 
 describe("options", () => {

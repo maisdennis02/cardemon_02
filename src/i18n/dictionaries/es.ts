@@ -374,6 +374,8 @@ const es: Dictionary = {
         groupTitleLabel: "Nombre del grupo",
         requiredLabel: "Obligatorio",
         maxLabel: "Máximo de elecciones",
+        maxLess: "Una elección menos",
+        maxMore: "Una elección más",
         optionNameLabel: "Opción",
         optionPriceLabel: "Precio",
         optionFree: "sin costo",

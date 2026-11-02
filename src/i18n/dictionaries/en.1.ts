@@ -376,6 +376,8 @@ export const en = {
         groupTitleLabel: "Group name",
         requiredLabel: "Required",
         maxLabel: "Max choices",
+        maxLess: "One fewer choice",
+        maxMore: "One more choice",
         optionNameLabel: "Option",
         optionPriceLabel: "Price",
         optionFree: "no charge",

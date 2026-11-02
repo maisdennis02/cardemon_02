@@ -55,7 +55,7 @@ describe("OptionGroupsEditor", () => {
   it("shows a required group with the checkbox checked and the max", () => {
     const html = render([group("g", { min: 1, max: 2 })]);
     expect(html).toMatch(/type="checkbox"[^>]*checked/);
-    expect(html).toMatch(/type="number"[^>]*value="2"/);
+    expect(html).toMatch(/data-max-value="g"[^>]*>2</);
     expect(html).toContain(e.requiredLabel);
   });
 
@@ -81,5 +81,23 @@ describe("OptionGroupsEditor", () => {
 
   it("hides the copy picker when no other item has groups", () => {
     expect(render(undefined)).not.toContain(e.copyFrom);
+  });
+
+  // Final review #4: a −/+ counter, not a number field a phone can't edit.
+  describe("max choices counter", () => {
+    const btn = (html: string, label: string) => html.match(new RegExp(`<button[^>]*aria-label="${label}"[^>]*>`))?.[0] ?? "";
+    it("shows the value with − disabled at 1", () => {
+      const html = render([group("g", { max: 1 })]);
+      expect(html).not.toContain('type="number"');
+      expect(html).toMatch(/data-max-value="g"[^>]*>1</);
+      expect(btn(html, e.maxLess)).toContain('disabled=""');
+      expect(btn(html, e.maxMore)).not.toContain('disabled=""');
+    });
+    it("disables + at 15", () => {
+      const html = render([group("g", { max: MAX_OPTIONS_PER_GROUP })]);
+      expect(html).toMatch(/data-max-value="g"[^>]*>15</);
+      expect(btn(html, e.maxMore)).toContain('disabled=""');
+      expect(btn(html, e.maxLess)).not.toContain('disabled=""');
+    });
   });
 });

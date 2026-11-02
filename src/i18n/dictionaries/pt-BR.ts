@@ -374,6 +374,8 @@ const ptBR: Dictionary = {
         groupTitleLabel: "Nome do grupo",
         requiredLabel: "Obrigatório",
         maxLabel: "Máximo de escolhas",
+        maxLess: "Menos uma escolha",
+        maxMore: "Mais uma escolha",
         optionNameLabel: "Opção",
         optionPriceLabel: "Preço",
         optionFree: "sem custo",

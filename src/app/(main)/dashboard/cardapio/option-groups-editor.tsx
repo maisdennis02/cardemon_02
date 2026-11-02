@@ -75,18 +75,15 @@ export function OptionGroupsEditor({
               />
               {e.requiredLabel}
             </label>
-            <label className="flex items-center gap-2 text-sm font-medium">
-              {e.maxLabel}
-              <input
-                type="number"
-                inputMode="numeric"
-                className="input w-16 tabular-nums"
-                min={1}
-                max={MAX_OPTIONS_PER_GROUP}
-                value={g.max}
-                onChange={(ev) => ev.target.value !== "" && patchGroup(g.id, (x) => setMax(x, Number(ev.target.value)))}
-              />
-            </label>
+            {/* A −/+ counter: a number field can't be cleared and retyped on a phone. */}
+            <MaxCounter
+              value={g.max}
+              label={e.maxLabel}
+              lessLabel={e.maxLess}
+              moreLabel={e.maxMore}
+              id={g.id}
+              onChange={(n) => patchGroup(g.id, (x) => setMax(x, n))}
+            />
             <span className="ml-auto flex">
               <IconButton label="↑" disabled={gi === 0} onClick={() => commit(moveGroup(draft, g.id, -1))}>↑</IconButton>
               <IconButton label="↓" disabled={gi === draft.length - 1} onClick={() => commit(moveGroup(draft, g.id, 1))}>↓</IconButton>
@@ -151,6 +148,28 @@ export function OptionGroupsEditor({
         </select>
       )}
     </fieldset>
+  );
+}
+
+// "Máximo de escolhas" as a counter, 1..MAX_OPTIONS_PER_GROUP.
+function MaxCounter({
+  value, label, lessLabel, moreLabel, id, onChange,
+}: {
+  value: number;
+  label: string;
+  lessLabel: string;
+  moreLabel: string;
+  id: string;
+  onChange: (n: number) => void;
+}) {
+  const n = Math.min(Math.max(value, 1), MAX_OPTIONS_PER_GROUP);
+  return (
+    <div role="group" aria-label={label} className="flex items-center gap-1 text-sm font-medium">
+      <span className="mr-1">{label}</span>
+      <IconButton label={lessLabel} disabled={n <= 1} onClick={() => onChange(n - 1)}>−</IconButton>
+      <span data-max-value={id} aria-live="polite" className="min-w-6 text-center font-bold tabular-nums">{n}</span>
+      <IconButton label={moreLabel} disabled={n >= MAX_OPTIONS_PER_GROUP} onClick={() => onChange(n + 1)}>+</IconButton>
+    </div>
   );
 }
 
