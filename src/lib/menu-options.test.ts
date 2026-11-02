@@ -176,6 +176,11 @@ describe("toggleOption", () => {
     };
     expect(toggleOption(two, ["b", "c"], "extra", "e")).toEqual(["b", "c"]);
   });
+  it("re-tap: optional max-1 group unselects, required keeps", () => {
+    const optional = { ...burger, groups: [{ ...size, min: 0 }] };
+    expect(toggleOption(optional, ["s"], "size", "s")).toEqual([]);
+    expect(toggleOption(burger, ["s"], "size", "s")).toEqual(["s"]);
+  });
   it("treats a group with one option as effective max 1", () => {
     const one = { ...burger, groups: [{ ...extra, options: opts(1) }] };
     const id = one.groups[0].options[0].id;

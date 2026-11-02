@@ -86,6 +86,8 @@ export function OptionPicker({
                     checked={on}
                     disabled={disabled}
                     onChange={() => onChange?.(group.id, opt.id)}
+                    // A checked radio fires no change event on re-tap; click does.
+                    onClick={single && on ? () => onChange?.(group.id, opt.id) : undefined}
                     className="size-5"
                     style={{ accentColor: accent }}
                   />

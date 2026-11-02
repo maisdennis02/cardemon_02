@@ -103,7 +103,11 @@ export function toggleOption(
   if (!group) return opts;
   const max = Math.min(group.max, group.options.length);
   const ids = new Set(group.options.map((o) => o.id));
-  if (opts.includes(optionId)) return normalizeOpts(opts.filter((id) => id !== optionId));
+  if (opts.includes(optionId)) {
+    // Re-tapping the only choice of a required one-choice group keeps it.
+    if (max === 1 && group.min >= 1) return opts;
+    return normalizeOpts(opts.filter((id) => id !== optionId));
+  }
   if (max === 1) return normalizeOpts([...opts.filter((id) => !ids.has(id)), optionId]);
   if (countIn(group, opts) >= max) return opts;
   return normalizeOpts([...opts, optionId]);
