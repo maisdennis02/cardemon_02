@@ -2,7 +2,9 @@
 
 import { useEffect, useRef, useState, type Dispatch, type SetStateAction } from "react";
 import { useLocale, useT } from "@/i18n/provider";
-import { formatPrice, type MenuItem } from "@/lib/menu";
+import { formatPrice } from "@/lib/menu";
+import type { ResolvedLine } from "@/lib/cart";
+import { selectionCents, selectionSummary } from "@/lib/menu-options";
 import { buildOrderMessage, orderErrors, orderLabels, whatsappOrderUrl, type OrderDetails } from "@/lib/order";
 import { speechLang } from "@/lib/speech";
 import { MicButton } from "@/components/voice/mic-button";
@@ -33,14 +35,15 @@ export function OrderSheet({
   country: string | null;
   whatsappNumber: string;
   demo: boolean;
-  lines: { item: MenuItem; qty: number }[];
+  lines: ResolvedLine[];
   totalText: string;
   details: OrderDetails;
   setDetails: Dispatch<SetStateAction<OrderDetails>>;
   tried: boolean;
   setTried: (tried: boolean) => void;
   accent: string;
-  onQty: (id: string, qty: number) => void;
+  // By line key: the same item with other choices is another line.
+  onQty: (key: string, qty: number) => void;
   onClear: () => void;
   onClose: () => void;
 }) {
@@ -139,21 +142,28 @@ export function OrderSheet({
         ) : (
           <>
             <ul className="divide-y divide-gray-100">
-              {lines.map(({ item, qty }) => (
-                <li key={item.id} className="py-2.5">
+              {lines.map(({ key, item, opts, qty }) => (
+                <li key={key} className="py-2.5">
                   <div className="flex items-baseline gap-3">
                     <span className="flex-1 font-medium">{item.name}</span>
                     <span className="whitespace-nowrap font-bold tabular-nums">
-                      {item.priceCents === null ? o.toArrange : formatPrice(item.priceCents * qty, country)}
+                      {item.priceCents === null
+                        ? o.toArrange
+                        : formatPrice((item.priceCents + selectionCents(item, opts)) * qty, country)}
                     </span>
                   </div>
+                  {selectionSummary(item, opts).map((s) => (
+                    <p key={s.title} className="text-sm text-gray-500">
+                      {s.title}: {s.names.join(", ")}
+                    </p>
+                  ))}
                   <QtyControl
                     qty={qty}
                     accent={accent}
                     label={item.name}
                     lessLabel={o.less}
                     moreLabel={o.more}
-                    onChange={(n) => onQty(item.id, n)}
+                    onChange={(n) => onQty(key, n)}
                   />
                 </li>
               ))}

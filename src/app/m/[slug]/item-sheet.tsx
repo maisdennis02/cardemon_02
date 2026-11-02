@@ -6,7 +6,7 @@ import { format } from "@/i18n/config";
 import { formatPrice, type MenuItem } from "@/lib/menu";
 import { firstMissingGroup, fromPrice, hasGroups, normalizeOpts, selectionCents, toggleOption } from "@/lib/menu-options";
 import { OptionPicker, groupDomId } from "./option-picker";
-import { MENU_ITEM_CARD_CLASS, MenuItemBody } from "./menu-item-card";
+import { MENU_ITEM_CARD_CLASS, MenuItemBody, cardPrice } from "./menu-item-card";
 import { QtyControl } from "./order/qty-control";
 
 // The sheet a tap on an item opens, as in the delivery apps (spec 2026-10-25
@@ -161,7 +161,8 @@ export function PhotoItemCard({ item, country, accent }: { item: MenuItem; count
         <MenuItemBody
           name={item.name}
           description={item.description}
-          priceCents={item.priceCents}
+          {...cardPrice(item)}
+          fromTemplate={t.menu.order.fromPrice}
           country={country}
           photo={item.photo}
         />

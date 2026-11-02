@@ -77,7 +77,7 @@ export function StepPreview({
           country={country}
           theme={theme}
           menu={shown}
-          labels={{ cardapioDigital: t.menu.cardapioDigital, madeBy: t.menu.madeBy }}
+          labels={{ cardapioDigital: t.menu.cardapioDigital, madeBy: t.menu.madeBy, fromPrice: t.menu.order.fromPrice }}
           actions={null}
         />
         {hidden > 0 && (
