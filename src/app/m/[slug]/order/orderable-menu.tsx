@@ -5,7 +5,7 @@ import { useT } from "@/i18n/provider";
 import { format } from "@/i18n/config";
 import { formatPrice, type Menu } from "@/lib/menu";
 import { hasGroups } from "@/lib/menu-options";
-import { addToCart, cartTotals, emptyCart, qtyOfItem, readCart, resolveCart, setQty, type Cart } from "@/lib/cart";
+import { addToCart, cartTotals, emptyCart, pruneCart, qtyOfItem, readCart, resolveCart, setQty, type Cart } from "@/lib/cart";
 import type { OrderDetails } from "@/lib/order";
 import { readCartRaw, subscribeCart, writeCartRaw } from "./cart-store";
 import { MENU_ITEM_CARD_CLASS, MENU_SECTION_LIST_CLASS, MENU_SECTION_TITLE_CLASS, MenuItemBody, cardPrice } from "../menu-item-card";
@@ -41,7 +41,9 @@ export function OrderableMenu({
   const key = `cart:${slug}`;
   const raw = useSyncExternalStore(subscribeCart, () => readCartRaw(key), () => null);
   const [openedAt] = useState(() => Date.now());
-  const cart = readCart(raw, openedAt);
+  // Only lines the order can show: a line the owner's edits made invalid is
+  // neither counted on a card nor kept in storage on the next save.
+  const cart = pruneCart(readCart(raw, openedAt), menu);
   const lines = resolveCart(cart, menu);
   const totals = cartTotals(lines);
   const [sheetOpen, setSheetOpen] = useState(false);
@@ -50,7 +52,7 @@ export function OrderableMenu({
   const [details, setDetails] = useState<OrderDetails>({ name: "", mode: null, address: "", table: "", notes: "" });
   const [tried, setTried] = useState(false);
 
-  const save = (next: Cart) => writeCartRaw(key, JSON.stringify(next));
+  const save = (next: Cart) => writeCartRaw(key, JSON.stringify(pruneCart(next, menu)));
   const totalText =
     totals.cents === 0 && totals.hasUnpriced
       ? o.toArrange
@@ -73,7 +75,7 @@ export function OrderableMenu({
                 <OrderableItem
                   key={item.id}
                   item={item}
-                  qty={qtyOfItem(cart, item.id)}
+                  qty={qtyOfItem(lines, item.id)}
                   country={country}
                   accent={accent}
                   onAdd={(opts, n) => save(addToCart(cart, item.id, Date.now(), opts, n))}

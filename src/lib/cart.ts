@@ -57,11 +57,13 @@ export function addToCart(cart: Cart, id: string, now: number, opts: string[] = 
   return setQty(cart, key, current + qty, now);
 }
 
-export function qtyOfItem(cart: Cart, itemId: string): number {
-  return cart.lines.reduce((n, l) => n + (l.id === itemId ? l.qty : 0), 0);
-}
-
 export type ResolvedLine = { key: string; item: MenuItem; opts: string[]; qty: number };
+
+// How many of an item the order holds, counted from the RESOLVED lines, so the
+// card always agrees with the order sheet and the bar.
+export function qtyOfItem(lines: ResolvedLine[], itemId: string): number {
+  return lines.reduce((n, l) => n + (l.item.id === itemId ? l.qty : 0), 0);
+}
 
 // Lines whose item left the menu (deleted, or now past the free-plan cut) are
 // dropped: the diner can only order what the page shows. Same for a selection
@@ -74,6 +76,20 @@ export function resolveCart(cart: Cart, menu: Menu): ResolvedLine[] {
     if (!item || !validSelection(item, opts)) return [];
     return [{ key: lineKey(l.id, opts), item, opts, qty: l.qty }];
   });
+}
+
+// The cart as it should be stored: only the lines resolveCart keeps, in
+// canonical form (sorted opts, none when empty), equal selections merged.
+// Written on every save so a line the owner's edits made invalid never
+// lingers, hidden, under a card's count.
+export function pruneCart(cart: Cart, menu: Menu): Cart {
+  const lines: CartLine[] = [];
+  for (const r of resolveCart(cart, menu)) {
+    const same = lines.find((l) => lineKey(l.id, l.opts) === r.key);
+    if (same) same.qty = Math.min(same.qty + r.qty, MAX_QTY);
+    else lines.push(r.opts.length ? { id: r.item.id, opts: r.opts, qty: r.qty } : { id: r.item.id, qty: r.qty });
+  }
+  return { lines, savedAt: cart.savedAt };
 }
 
 // An unpriced item ("a combinar") stays unpriced even with paid options.

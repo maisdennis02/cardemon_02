@@ -6,6 +6,7 @@ import {
   cartTotals,
   emptyCart,
   lineKey,
+  pruneCart,
   qtyOfItem,
   readCart,
   resolveCart,
@@ -121,7 +122,7 @@ describe("cart with options", () => {
     expect(cart.lines).toEqual([{ id: "burger", opts: ["b", "d"], qty: 3 }]);
     cart = addToCart(cart, "burger", NOW, ["s"]);
     expect(cart.lines).toHaveLength(2);
-    expect(qtyOfItem(cart, "burger")).toBe(4);
+    expect(qtyOfItem(resolveCart(cart, burger({ min: 0 })), "burger")).toBe(4);
   });
 
   it("sets or removes one line by key only", () => {
@@ -152,5 +153,63 @@ describe("cart with options", () => {
   it("keeps an unpriced item unpriced even with paid options", () => {
     const item = { id: "x", name: "X", priceCents: null, groups: burger({ min: 0 }).sections[0].items[0].groups };
     expect(cartTotals([{ item, opts: ["b"], qty: 1 }])).toEqual({ count: 1, cents: 0, hasUnpriced: true });
+  });
+});
+
+// Final review #1: the card count must agree with the order sheet, which only
+// shows lines resolveCart keeps; and what is stored never keeps a dead line.
+describe("cart after the owner edits the menu", () => {
+  const plain: Menu = { v: 1, sections: [{ id: "s1", title: null, items: [{ id: "burger", name: "Burger", priceCents: 2000 }] }] };
+
+  it("counts an item from the resolved lines only", () => {
+    let cart = addToCart(emptyCart(NOW), "burger", NOW, ["b"], 2);
+    cart = addToCart(cart, "burger", NOW, [], 1);
+    // Owner removed every group: the line with options is gone from the order.
+    expect(qtyOfItem(resolveCart(cart, plain), "burger")).toBe(1);
+    expect(cartTotals(resolveCart(cart, plain)).count).toBe(1);
+  });
+
+  it("prunes lines the order would drop, so the card's + and the order agree", () => {
+    const stale = addToCart(emptyCart(NOW), "burger", NOW, ["b"], 2);
+    const pruned = pruneCart(stale, plain);
+    expect(pruned.lines).toEqual([]);
+    const next = setQty(pruned, "burger", qtyOfItem(resolveCart(pruned, plain), "burger") + 1, NOW);
+    expect(qtyOfItem(resolveCart(next, plain), "burger")).toBe(1);
+    expect(cartTotals(resolveCart(next, plain)).count).toBe(1);
+    expect(next.lines).toEqual([{ id: "burger", qty: 1 }]);
+  });
+
+  it("drops a line whose chosen option was deleted and keeps the rest", () => {
+    let cart = addToCart(emptyCart(NOW), "burger", NOW, ["d"]);
+    cart = addToCart(cart, "burger", NOW, ["s"], 2);
+    const noD: Menu = JSON.parse(JSON.stringify(burger({ min: 0 })));
+    noD.sections[0].items[0].groups![0].options.splice(1, 1);
+    expect(pruneCart(cart, noD).lines).toEqual([{ id: "burger", opts: ["s"], qty: 2 }]);
+    expect(qtyOfItem(resolveCart(cart, noD), "burger")).toBe(2);
+  });
+
+  it("stores lines canonically: no empty opts, no bad ids, equal selections merged", () => {
+    const cart = {
+      lines: [
+        { id: "a", opts: [] as string[], qty: 2 },
+        { id: "a", opts: [""], qty: 1 },
+        { id: "burger", opts: ["d", "b"], qty: 1 },
+        { id: "burger", opts: ["b", "d"], qty: 2 },
+      ],
+      savedAt: NOW,
+    };
+    const both: Menu = { v: 1, sections: [{ ...burger({ min: 0 }).sections[0], items: [...burger({ min: 0 }).sections[0].items, ...menu.sections[0].items] }] };
+    expect(pruneCart(cart, both)).toEqual({
+      lines: [
+        { id: "a", qty: 2 },
+        { id: "burger", opts: ["b", "d"], qty: 3 },
+      ],
+      savedAt: NOW,
+    });
+  });
+
+  it("leaves a cart from before option groups as it was", () => {
+    const old = { lines: [{ id: "a", qty: 2 }, { id: "b", qty: 1 }], savedAt: NOW };
+    expect(pruneCart(old, menu)).toEqual(old);
   });
 });
