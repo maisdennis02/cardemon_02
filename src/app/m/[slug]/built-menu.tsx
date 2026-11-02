@@ -1,6 +1,7 @@
 import "./built-menu.css";
 import { headerColors, menuFontFamilies, type Menu, type MenuTheme } from "@/lib/menu";
 import { menuBackgroundStyle } from "@/lib/menu-background";
+import { groupInfoLines } from "@/lib/menu-options";
 import { MenuViewPing } from "./menu-actions";
 import { MENU_SECTION_LIST_CLASS, MENU_SECTION_TITLE_CLASS, MenuItemCard, cardPrice } from "./menu-item-card";
 import { OrderableMenu } from "./order/orderable-menu";
@@ -90,6 +91,7 @@ export function BuiltMenu({
                         {...cardPrice(item)}
                         fromTemplate={labels.fromPrice}
                         country={country}
+                        groupLines={groupInfoLines(item, country)}
                       />
                     ),
                   )}

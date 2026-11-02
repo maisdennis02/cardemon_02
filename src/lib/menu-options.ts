@@ -2,7 +2,7 @@
 // the public page, the cart and the builder. A selection is a list of option ids.
 // Design: docs/superpowers/specs/2026-11-02-adicionais-design.md
 
-import type { MenuItem, OptionGroup } from "@/lib/menu";
+import { formatPrice, type MenuItem, type OptionGroup } from "@/lib/menu";
 
 export function hasGroups(item: MenuItem): boolean {
   return (item.groups?.length ?? 0) > 0;
@@ -116,4 +116,16 @@ export function toggleOption(
 // The first group (in order) that still needs a choice, or null.
 export function firstMissingGroup(item: MenuItem, opts: string[]): string | null {
   return (item.groups ?? []).find((g) => countIn(g, opts) < g.min)?.id ?? null;
+}
+
+// The groups as read-only information, one line per group: "Tamanho: Simples ·
+// Duplo +R$ 8,00". Shared by the printed menu and the static card (no
+// ordering), so the two always say the same.
+export function groupInfoLines(item: MenuItem, country: string | null): string[] {
+  return (item.groups ?? []).map(
+    (g) =>
+      `${g.title}: ${g.options
+        .map((o) => (o.priceCents > 0 ? `${o.name} +${formatPrice(o.priceCents, country)}` : o.name))
+        .join(" · ")}`,
+  );
 }

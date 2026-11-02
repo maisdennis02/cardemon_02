@@ -36,6 +36,7 @@ export function MenuItemCard({
   from,
   fromTemplate,
   country,
+  groupLines,
 }: {
   name: string;
   description?: string;
@@ -43,6 +44,8 @@ export function MenuItemCard({
   from?: boolean;
   fromTemplate?: string;
   country: string | null;
+  // groupInfoLines(item): a page without ordering lists the options as information.
+  groupLines?: string[];
 }) {
   return (
     <li className={MENU_ITEM_CARD_CLASS}>
@@ -53,6 +56,7 @@ export function MenuItemCard({
         from={from}
         fromTemplate={fromTemplate}
         country={country}
+        groupLines={groupLines}
       />
     </li>
   );
@@ -70,6 +74,7 @@ export function MenuItemBody({
   country,
   trailing,
   photo,
+  groupLines,
 }: {
   name: string;
   description?: string;
@@ -80,6 +85,7 @@ export function MenuItemBody({
   country: string | null;
   trailing?: ReactNode;
   photo?: ItemPhoto;
+  groupLines?: string[];
 }) {
   const formatted = priceCents === null ? null : formatPrice(priceCents, country);
   const price = formatted !== null && from && fromTemplate ? format(fromTemplate, { price: formatted }) : formatted;
@@ -115,6 +121,11 @@ export function MenuItemBody({
     <>
       <span className="block font-semibold leading-snug">{name}</span>
       {description && <span className="mt-0.5 block text-[0.875em] leading-snug text-gray-500">{description}</span>}
+      {groupLines?.map((line, i) => (
+        <span key={i} className="mt-0.5 block break-words text-[0.8em] leading-snug text-gray-500">
+          {line}
+        </span>
+      ))}
       {(price !== null || trailing) && (
         <span className="mt-[0.5em] flex min-h-[2em] items-center justify-between gap-3">
           <span className="font-medium tabular-nums">{price}</span>

@@ -8,6 +8,7 @@ import {
   normalizeOpts,
   selectionCents,
   firstMissingGroup,
+  groupInfoLines,
   selectionSummary,
   toggleOption,
   validSelection,
@@ -193,5 +194,21 @@ describe("firstMissingGroup", () => {
     expect(firstMissingGroup(burger, [])).toBe("size");
     expect(firstMissingGroup(burger, ["s"])).toBeNull();
     expect(firstMissingGroup({ id: "x", name: "X", priceCents: 1 }, [])).toBeNull();
+  });
+});
+
+// Final review #3: one formatter for the read-only group lines (PDF and the
+// static card), so the two can't drift.
+describe("groupInfoLines", () => {
+  const nb = (xs: string[]) => xs.map((x) => x.replace(/\u00a0/g, " "));
+  it("lists each group's options, priced ones with +price, in group order", () => {
+    const item: MenuItem = { id: "x", name: "X", priceCents: 2000, groups: [size, extra] };
+    expect(nb(groupInfoLines(item, "BR"))).toEqual([
+      "Tamanho: Simples · Duplo +R$ 8,00",
+      `Extras: ${extra.options.map((o) => (o.priceCents > 0 ? `${o.name} +R$ ${(o.priceCents / 100).toFixed(2).replace(".", ",")}` : o.name)).join(" · ")}`,
+    ]);
+  });
+  it("is empty for an item without groups", () => {
+    expect(groupInfoLines({ id: "x", name: "X", priceCents: 100 }, "BR")).toEqual([]);
   });
 });

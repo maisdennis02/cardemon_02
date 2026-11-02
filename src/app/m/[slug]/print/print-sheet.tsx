@@ -1,5 +1,6 @@
-import { formatPrice, headerColors, menuFontFamilies, type Menu, type MenuItem, type MenuTheme } from "@/lib/menu";
+import { headerColors, menuFontFamilies, type Menu, type MenuItem, type MenuTheme } from "@/lib/menu";
 import { menuBackgroundStyle } from "@/lib/menu-background";
+import { groupInfoLines } from "@/lib/menu-options";
 import { cardPriceText } from "../menu-item-card";
 import { PrintQr } from "./print-controls";
 import { SHEET, columnWidth } from "./print-layout";
@@ -58,9 +59,9 @@ export function PrintItemRow({
       <div className="min-w-0 flex-1">
         <p className="font-bold leading-snug">{item.name}</p>
         {item.description && <p className="mt-0.5 text-[0.8em] leading-snug text-gray-500">{item.description}</p>}
-        {item.groups?.map((g) => (
-          <p key={g.id} className="mt-0.5 break-words text-[0.8em] leading-snug text-gray-500">
-            {`${g.title}: ${g.options.map((o) => (o.priceCents > 0 ? `${o.name} +${formatPrice(o.priceCents, country)}` : o.name)).join(" · ")}`}
+        {groupInfoLines(item, country).map((line, i) => (
+          <p key={i} className="mt-0.5 break-words text-[0.8em] leading-snug text-gray-500">
+            {line}
           </p>
         ))}
       </div>

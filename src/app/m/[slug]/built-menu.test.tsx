@@ -315,6 +315,33 @@ describe("items with option groups", () => {
     expect(html.match(/a partir de/g)).toHaveLength(2);
   });
 
+  // Final review #3: read-only menus list the groups as information (spec §2).
+  const staticMenu = (preview: boolean) =>
+    renderToStaticMarkup(
+      <DictionaryProvider locale="pt-BR" dictionary={ptBR}>
+        <BuiltMenu
+          slug="x"
+          name="R"
+          country="BR"
+          theme={theme}
+          menu={{ v: 1, sections: [section("a", "A", [grouped([sizes, extras]), item("agua", "Água", 500)])] }}
+          labels={{ cardapioDigital: "C", madeBy: "m", fromPrice: ptBR.menu.order.fromPrice }}
+          actions={null}
+          preview={preview}
+        />
+      </DictionaryProvider>,
+    ).replace(/&nbsp;|\u00a0/g, " ");
+
+  it("lists the groups on a static page without WhatsApp", () => {
+    const html = staticMenu(false);
+    readsTopToBottom(listItem(html, 0), "X-Burguer", "Tamanho: Simples · Duplo +R$ 6,00", "Extras: Bacon +R$ 3,00", "a partir de R$");
+    expect(listItem(html, 1)).not.toContain(":");
+  });
+
+  it("lists the groups in the dashboard preview too", () => {
+    expect(listItem(staticMenu(true), 0)).toContain("Tamanho: Simples · Duplo +R$ 6,00");
+  });
+
   it("opens the sheet from the + instead of adding, and counts instead of ±", () => {
     const html = plain(grouped([sizes]), 3);
     // The card and the + both open the dialog.
