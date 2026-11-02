@@ -1,8 +1,8 @@
 import { renderToStaticMarkup } from "react-dom/server";
 import { describe, expect, it } from "vitest";
 import ptBR from "@/i18n/dictionaries/pt-BR";
-import type { Menu, MenuTheme } from "@/lib/menu";
-import { PrintSheet, menuBlocks, type PrintBlock } from "./print-sheet";
+import type { Menu, MenuItem, MenuTheme } from "@/lib/menu";
+import { PrintItemRow, PrintSheet, menuBlocks, type PrintBlock } from "./print-sheet";
 
 // One A4 sheet of the printable menu, "lanchonete" look (owner, 28/10): a
 // colored band with logo and name, section pills, items in white blocks with
@@ -122,5 +122,30 @@ describe("PrintSheet", () => {
     const html = sheet(0);
     expect(html).toMatch(/zoom:1\.2/);
     expect(html).toContain('class="print-page');
+  });
+});
+
+describe("PrintItemRow options", () => {
+  const burger: MenuItem = {
+    id: "bg",
+    name: "Burger",
+    priceCents: 2000,
+    groups: [
+      { id: "g1", title: "Tamanho", min: 1, max: 1, options: [{ id: "s", name: "Simples", priceCents: 0 }, { id: "d", name: "Duplo", priceCents: 800 }] },
+      { id: "g2", title: "Extras", min: 0, max: 3, options: [{ id: "b", name: "Bacon", priceCents: 300 }, { id: "c", name: "Cheddar", priceCents: 250 }] },
+    ],
+  };
+  const row = (item: MenuItem) => renderToStaticMarkup(<PrintItemRow item={item} country="BR" priceColor="#000" />).replace(/&nbsp;|\u00a0/g, " ");
+
+  it("lists every option of each group with its extra price", () => {
+    const html = row(burger);
+    expect(html).toContain("Tamanho: Simples · Duplo +R$ 8,00");
+    expect(html).toContain("Extras: Bacon +R$ 3,00 · Cheddar +R$ 2,50");
+  });
+
+  it("renders an item without groups as before", () => {
+    const html = row({ id: "x", name: "Água", priceCents: 500 });
+    expect(html).not.toContain("·");
+    expect(html.match(/<p/g)).toHaveLength(1);
   });
 });

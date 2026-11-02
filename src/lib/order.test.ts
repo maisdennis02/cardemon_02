@@ -29,7 +29,7 @@ const details = (patch: Partial<OrderDetails>): OrderDetails => ({
   ...patch,
 });
 
-const message = (lines: { item: MenuItem; qty: number }[], d: OrderDetails) =>
+const message = (lines: { item: MenuItem; opts?: string[]; qty: number }[], d: OrderDetails) =>
   buildOrderMessage({ restaurantName: "Lanchonete Teste", slug: "lanchonete-teste", country: "BR", lines, details: d, labels });
 
 // Intl puts a no-break space between "R$" and the amount.
@@ -102,5 +102,45 @@ describe("whatsappOrderUrl", () => {
 
   it("keeps only the digits of the number", () => {
     expect(whatsappOrderUrl("+55 (11) 99999-9999", "x")).toBe("https://wa.me/5511999999999?text=x");
+  });
+});
+
+describe("buildOrderMessage with options", () => {
+  const xb: MenuItem = {
+    id: "xb",
+    name: "X-Burguer",
+    priceCents: 2000,
+    groups: [
+      { id: "g1", title: "Tamanho", min: 1, max: 1, options: [{ id: "s", name: "Simples", priceCents: 0 }, { id: "d", name: "Duplo", priceCents: 800 }] },
+      { id: "g2", title: "Extras", min: 0, max: 3, options: [{ id: "b", name: "Bacon", priceCents: 300 }, { id: "c", name: "Cheddar", priceCents: 250 }] },
+      { id: "g3", title: "Molho", min: 0, max: 1, options: [{ id: "m", name: "Maionese", priceCents: 0 }] },
+    ],
+  };
+  const cola: MenuItem = { id: "b", name: "Coca-Cola lata", priceCents: 790 };
+
+  it("lists the chosen options under the line and adds them to the price", () => {
+    const text = nb(message([{ item: xb, opts: ["d", "b"], qty: 2 }, { item: cola, qty: 1 }], details({})));
+    const lines = text.split("\n");
+    const i = lines.indexOf(nb("2x X-Burguer — R$ 62,00"));
+    expect(i).toBeGreaterThan(-1);
+    expect(lines.slice(i, i + 4)).toEqual([
+      nb("2x X-Burguer — R$ 62,00"),
+      "   Tamanho: Duplo",
+      "   Extras: Bacon",
+      nb("1x Coca-Cola lata — R$ 7,90"),
+    ]);
+    expect(text).toContain(nb("*Total: R$ 69,90*"));
+    expect(text).not.toContain("Molho");
+  });
+
+  it("joins several options of a group with commas", () => {
+    const text = message([{ item: xb, opts: ["d", "b", "c"], qty: 1 }], details({}));
+    expect(text).toContain("   Extras: Bacon, Cheddar");
+  });
+
+  it("keeps an unpriced item to arrange", () => {
+    const text = message([{ item: { ...xb, priceCents: null }, opts: ["s"], qty: 1 }], details({}));
+    expect(text).toContain("1x X-Burguer — a combinar");
+    expect(text).toContain("   Tamanho: Simples");
   });
 });

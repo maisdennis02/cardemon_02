@@ -45,6 +45,11 @@ export function PrintItemRow({ item, country, priceColor }: { item: MenuItem; co
       <div className="min-w-0 flex-1">
         <p className="font-bold leading-snug">{item.name}</p>
         {item.description && <p className="mt-0.5 text-[0.8em] leading-snug text-gray-500">{item.description}</p>}
+        {item.groups?.map((g) => (
+          <p key={g.id} className="mt-0.5 text-[0.8em] leading-snug text-gray-500">
+            {`${g.title}: ${g.options.map((o) => (o.priceCents > 0 ? `${o.name} +${formatPrice(o.priceCents, country)}` : o.name)).join(" · ")}`}
+          </p>
+        ))}
       </div>
       {item.priceCents !== null && (
         <span className="shrink-0 whitespace-nowrap font-extrabold tabular-nums" style={{ color: priceColor }}>

@@ -6,6 +6,7 @@
 import { format } from "@/i18n/config";
 import type { Dictionary } from "@/i18n/dictionaries/en";
 import { formatPrice, type MenuItem } from "@/lib/menu";
+import { selectionCents, selectionSummary } from "@/lib/menu-options";
 
 export type OrderDetails = {
   name: string;
@@ -66,12 +67,12 @@ export function buildOrderMessage({
   restaurantName: string;
   slug: string;
   country: string | null;
-  lines: { item: MenuItem; qty: number }[];
+  lines: { item: MenuItem; opts?: string[]; qty: number }[];
   details: OrderDetails;
   labels: OrderLabels;
 }): string {
   const priced = lines.filter((l) => l.item.priceCents !== null);
-  const cents = priced.reduce((sum, l) => sum + (l.item.priceCents ?? 0) * l.qty, 0);
+  const cents = priced.reduce((sum, l) => sum + ((l.item.priceCents ?? 0) + selectionCents(l.item, l.opts ?? [])) * l.qty, 0);
   const hasUnpriced = priced.length < lines.length;
   const total =
     priced.length === 0
@@ -94,9 +95,10 @@ export function buildOrderMessage({
     // which previews the first line.
     `🛎️🛎️🛎️ *${format(labels.title, { name: restaurantName })}*`,
     "",
-    ...lines.map(({ item, qty }) =>
-      `${qty}x ${item.name} — ${item.priceCents === null ? labels.toArrange : formatPrice(item.priceCents * qty, country)}`,
-    ),
+    ...lines.flatMap(({ item, opts = [], qty }) => [
+      `${qty}x ${item.name} — ${item.priceCents === null ? labels.toArrange : formatPrice((item.priceCents + selectionCents(item, opts)) * qty, country)}`,
+      ...selectionSummary(item, opts).map((s) => `   ${s.title}: ${s.names.join(", ")}`),
+    ]),
     "",
     `*${format(labels.total, { total })}*`,
     "",
