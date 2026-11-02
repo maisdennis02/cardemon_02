@@ -13,6 +13,7 @@ import { effectiveMode, isPublished, publishedItemCount } from "@/lib/menu";
 import { DashboardTelemetry } from "./dashboard-telemetry";
 import { MenuHomeCard } from "./menu-home-card";
 import { NextStepCard } from "./next-step-card";
+import { FeedbackCard } from "./feedback-card";
 
 export default async function DashboardPage({
   searchParams,
@@ -86,7 +87,10 @@ export default async function DashboardPage({
 
       <main className="mx-auto w-full max-w-4xl flex-1 px-4 py-6 sm:px-6 sm:py-10">
         {!restaurant ? (
-          <OnboardingForm />
+          <div className="flex flex-col gap-5 sm:gap-6">
+            <OnboardingForm />
+            <FeedbackCard />
+          </div>
         ) : (
           // Spec §3: menu, one next step, QR, numbers. Everything else
           // (details, delivery apps, photos, account) lives in Ajustes/Fotos.
@@ -119,6 +123,7 @@ export default async function DashboardPage({
               <MenuQrCard slug={restaurant.slug} name={restaurant.name} />
             )}
             <MenuStatsCard stats={stats} restaurant={restaurant} t={t} />
+            <FeedbackCard />
           </div>
         )}
       </main>

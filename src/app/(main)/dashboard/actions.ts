@@ -24,9 +24,12 @@ import {
   type DeliveryUrlColumn,
 } from "@/lib/delivery-apps";
 import { FREE_IMAGE_LIMIT, PRO_IMAGE_LIMIT, imageLimitFor, isPro } from "@/lib/pricing";
-import { MenuSchema, readMenuTheme } from "@/lib/menu";
+import { MenuSchema, publishedItemCount, readMenuTheme } from "@/lib/menu";
 import { photoUrls } from "@/lib/menu-photos";
 import { normalizeWhatsapp } from "@/lib/whatsapp";
+import { parseFeedbackMessage } from "@/lib/feedback";
+import { FEEDBACK_MAX_LENGTH } from "@/lib/feedback-limits";
+import { sendFeedbackEmail } from "@/lib/email";
 import { dashT, requireOwnedRestaurant, requireUserId } from "./guards";
 
 async function requireOwnedImage(userId: string, imageId: string) {
@@ -501,6 +504,68 @@ export async function changePassword(_p: ActionState, formData: FormData): Promi
   await prisma.user.update({ where: { id: userId }, data: { passwordHash } });
   changeFailures.delete(userId);
   track("password_changed").catch(() => {});
+
+  return { ok: true };
+}
+
+/**
+ * "Sugestões e dúvidas": store the message (the owner's reviews read it from
+ * /api/admin/feedback) and e-mail it to us. The e-mail is best effort — the
+ * row is the record, so a provider hiccup must not turn into "não conseguimos
+ * enviar" for the restaurant.
+ */
+export async function sendFeedback(_p: ActionState, formData: FormData): Promise<ActionState> {
+  const userId = await requireUserId();
+  const t = await dashT();
+
+  const parsed = parseFeedbackMessage(formData.get("message"));
+  if (!parsed.ok) {
+    return {
+      error:
+        parsed.error === "too_long"
+          ? format(t.feedback.errorTooLong, { max: FEEDBACK_MAX_LENGTH })
+          : t.feedback.errorEmpty,
+    };
+  }
+
+  const locale = await getLocale();
+  const user = await prisma.user.findUnique({
+    where: { id: userId },
+    select: {
+      email: true,
+      restaurants: {
+        take: 1,
+        orderBy: { createdAt: "asc" },
+        select: { id: true, name: true, slug: true, menuMode: true, whatsappNumber: true, menuPublished: true },
+      },
+    },
+  });
+  if (!user) return { error: t.feedback.errorGeneric };
+  const r = user.restaurants[0] ?? null;
+
+  await prisma.feedback.create({
+    data: { userId, restaurantId: r?.id ?? null, message: parsed.message, locale },
+  });
+  track("feedback_sent").catch(() => {});
+
+  const sent = await sendFeedbackEmail({
+    message: parsed.message,
+    fromEmail: user.email ?? "",
+    locale,
+    restaurant: r
+      ? {
+          name: r.name,
+          slug: r.slug,
+          menuMode: r.menuMode,
+          items: publishedItemCount(r.menuPublished),
+          hasWhatsapp: !!r.whatsappNumber,
+        }
+      : null,
+  }).catch((err: unknown) => {
+    console.error("[feedback] e-mail failed:", err);
+    return false;
+  });
+  if (!sent) console.error("[feedback] e-mail not sent; message stored for the admin review");
 
   return { ok: true };
 }
