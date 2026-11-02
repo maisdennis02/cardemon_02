@@ -69,6 +69,27 @@ describe("ItemSheet", () => {
       expect(html).toMatch(/R\$\s31,00/);
     });
 
+    // Final review #5: no bare base price on the button before a required choice.
+    const pizza: MenuItem = {
+      id: "pz",
+      name: "Pizza",
+      priceCents: 0,
+      groups: [{ id: "size", title: "Tamanho", min: 1, max: 1, options: [{ id: "m", name: "Média", priceCents: 2000 }, { id: "g", name: "Grande", priceCents: 2800 }] }],
+    };
+    const addButton = (html: string) => html.match(/<button[^>]*><span>Adicionar<\/span>[\s\S]*?<\/button>/)?.[0] ?? "";
+
+    it("shows no amount on the add button until the required choice is made", () => {
+      const html = render(pizza, () => {}, []);
+      expect(addButton(html)).not.toBe("");
+      expect(addButton(html)).not.toContain("R$");
+      expect(html).not.toMatch(/R\$\s0,00/);
+    });
+
+    it("shows the exact total once the selection is valid", () => {
+      expect(addButton(render(pizza, () => {}, ["g"]))).toMatch(/R\$\s28,00/);
+      expect(addButton(render(burger, () => {}, ["a"]))).toMatch(/R\$\s20,00/);
+    });
+
     it("without ordering, lists the groups with no inputs", () => {
       const html = render(burger);
       expect(html).toContain("Duplo");

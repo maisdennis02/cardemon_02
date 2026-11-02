@@ -4,9 +4,9 @@ import { useEffect, useRef, useState } from "react";
 import { useT } from "@/i18n/provider";
 import { format } from "@/i18n/config";
 import { formatPrice, type MenuItem } from "@/lib/menu";
-import { firstMissingGroup, hasGroups, normalizeOpts, selectionCents, toggleOption } from "@/lib/menu-options";
+import { firstMissingGroup, hasGroups, normalizeOpts, selectionCents, toggleOption, validSelection } from "@/lib/menu-options";
 import { OptionPicker, groupDomId } from "./option-picker";
-import { MENU_ITEM_CARD_CLASS, MenuItemBody, cardPrice } from "./menu-item-card";
+import { MENU_ITEM_CARD_CLASS, MenuItemBody, cardPrice, cardPriceText } from "./menu-item-card";
 import { QtyControl } from "./order/qty-control";
 
 // The sheet a tap on an item opens, as in the delivery apps (spec 2026-10-25
@@ -38,16 +38,14 @@ export function ItemSheet({
   const closeRef = useRef<HTMLButtonElement>(null);
   const grouped = hasGroups(item);
   // The button shows the live total: base plus chosen options, times quantity.
+  // Until the choice is valid (a required group still open) it shows no
+  // amount, never the bare base price under a "a partir de" headline.
   const total =
-    item.priceCents === null ? null : formatPrice((item.priceCents + selectionCents(item, opts)) * qty, country);
-  // Same price as the card: base plus the cheapest valid choice.
-  const cp = cardPrice(item);
-  const headline =
-    cp.priceCents === null
+    item.priceCents === null || !validSelection(item, opts)
       ? null
-      : cp.from
-        ? format(o.fromPrice, { price: formatPrice(cp.priceCents, country) })
-        : formatPrice(cp.priceCents, country);
+      : formatPrice((item.priceCents + selectionCents(item, opts)) * qty, country);
+  // Same price as the card: base plus the cheapest valid choice.
+  const headline = cardPriceText(item, country, o.fromPrice);
 
   // The parent passes a new onClose on every render; the open/close effect
   // must run once, or the focus would jump back to the X on each tap of ±.
