@@ -42,6 +42,17 @@ describe.each([
     expect(new Set(items.map((i) => i.id)).size).toBe(items.length);
   });
 
+  it("shows option groups: a required size with a paid option, extras, and a free required flavour", () => {
+    const first = built?.menu.sections[0].items[0];
+    const required = first?.groups?.find((g) => g.min === 1 && g.max === 1 && g.options.some((o) => o.priceCents > 0));
+    expect(required, "size group").toBeDefined();
+    expect(required?.options.some((o) => o.priceCents === 0)).toBe(true);
+    const extras = first?.groups?.find((g) => g.min === 0 && g.max === 3);
+    expect(extras?.options.length).toBeGreaterThanOrEqual(3);
+    const flavour = items.find((i) => i.groups?.some((g) => g.min === 1 && g.max === 1 && g.options.length >= 3 && g.options.every((o) => o.priceCents === 0)));
+    expect(flavour, "drink with a free required flavour").toBeDefined();
+  });
+
   it("stays within what the free plan builds", () => {
     expect(items.length).toBeLessThanOrEqual(FREE_ITEM_LIMIT);
   });

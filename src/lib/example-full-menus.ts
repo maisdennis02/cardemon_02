@@ -11,16 +11,33 @@
 // readExampleMenuTheme (src/lib/menu.ts), never with readMenuTheme.
 
 import type { Locale } from "@/i18n/config";
-import type { Menu, MenuTheme } from "@/lib/menu";
+import type { Menu, MenuTheme, OptionGroup } from "@/lib/menu";
 
-type ExampleItem = [name: string, priceCents: number, description: string];
+type ExampleItem = [name: string, priceCents: number, description: string, groups?: OptionGroup[]];
+
+// An option group from [name, extra price] pairs. Required = pick exactly one
+// (min 1, max 1); extras = pick none up to `max`. Option ids are prefixed with
+// the group id because they must be unique across the whole item.
+const group = (id: string, title: string, min: number, max: number, options: [string, number][]): OptionGroup => ({
+  id,
+  title,
+  min,
+  max,
+  options: options.map(([name, priceCents], i) => ({ id: `${id}-${i}`, name, priceCents })),
+});
 
 const exampleMenu = (sections: [string, ExampleItem[]][]): Menu => ({
   v: 1,
   sections: sections.map(([title, items], s) => ({
     id: `s${s}`,
     title,
-    items: items.map(([name, priceCents, description], i) => ({ id: `s${s}i${i}`, name, priceCents, description })),
+    items: items.map(([name, priceCents, description, groups], i) => ({
+      id: `s${s}i${i}`,
+      name,
+      priceCents,
+      description,
+      ...(groups && { groups }),
+    })),
   })),
 });
 
@@ -39,7 +56,15 @@ export const FULL_EXAMPLE_MENUS: Record<Locale, { slug: string; menu: Menu; them
       [
         "Lanches",
         [
-          ["X-Burguer", 2590, "Pão brioche, hambúrguer de 150 g, queijo prato e maionese da casa."],
+          [
+            "X-Burguer",
+            2590,
+            "Pão brioche, hambúrguer de 150 g, queijo prato e maionese da casa.",
+            [
+              group("tamanho", "Tamanho", 1, 1, [["Simples", 0], ["Duplo", 800]]),
+              group("turbine", "Turbine seu lanche", 0, 3, [["Bacon", 300], ["Cheddar", 250], ["Ovo", 200]]),
+            ],
+          ],
           ["X-Salada", 2790, "Hambúrguer de 150 g, queijo prato, alface, tomate e maionese da casa."],
           ["X-Bacon", 3190, "Hambúrguer de 150 g, queijo prato, bacon crocante e cebola caramelizada."],
           ["X-Tudo", 3690, "Dois hambúrgueres, queijo, presunto, bacon, ovo, alface e tomate."],
@@ -66,7 +91,12 @@ export const FULL_EXAMPLE_MENUS: Record<Locale, { slug: string; menu: Menu; them
         [
           ["Coca-Cola lata", 790, "350 ml, bem gelada."],
           ["Guaraná lata", 690, "350 ml, bem gelado."],
-          ["Suco natural", 990, "Laranja, limão ou maracujá. Copo de 400 ml."],
+          [
+            "Suco natural",
+            990,
+            "Feito na hora. Copo de 400 ml.",
+            [group("sabor", "Sabor", 1, 1, [["Laranja", 0], ["Limão", 0], ["Maracujá", 0]])],
+          ],
           ["Água mineral", 450, "500 ml, com ou sem gás."],
         ],
       ],
@@ -86,7 +116,15 @@ export const FULL_EXAMPLE_MENUS: Record<Locale, { slug: string; menu: Menu; them
       [
         "Tacos",
         [
-          ["Tacos al pastor", 8500, "Orden de tres, con piña, cebolla y cilantro. Tortilla de maíz hecha a mano."],
+          [
+            "Tacos al pastor",
+            8500,
+            "Con piña, cebolla y cilantro. Tortilla de maíz hecha a mano.",
+            [
+              group("orden", "Orden", 1, 1, [["3 tacos", 0], ["5 tacos", 5000]]),
+              group("extras", "Agrega", 0, 3, [["Queso", 1500], ["Aguacate", 2000], ["Cebollitas", 1000]]),
+            ],
+          ],
           ["Tacos de suadero", 8500, "Orden de tres, con cebolla, cilantro y salsa verde."],
           ["Tacos de bistec", 9000, "Orden de tres, bistec a la plancha con cebolla asada."],
           ["Campechanos", 9500, "Orden de tres, bistec y longaniza con chicharrón."],
@@ -111,8 +149,12 @@ export const FULL_EXAMPLE_MENUS: Record<Locale, { slug: string; menu: Menu; them
       [
         "Bebidas",
         [
-          ["Agua de horchata", 3500, "Vaso de 500 ml, hecha en casa."],
-          ["Agua de jamaica", 3500, "Vaso de 500 ml, hecha en casa."],
+          [
+            "Agua fresca",
+            3500,
+            "Vaso de 500 ml, hecha en casa.",
+            [group("sabor", "Sabor", 1, 1, [["Horchata", 0], ["Jamaica", 0], ["Tamarindo", 0]])],
+          ],
           ["Refresco", 3000, "Botella de vidrio de 355 ml."],
           ["Agua mineral", 2500, "Botella de 600 ml."],
         ],
@@ -133,7 +175,15 @@ export const FULL_EXAMPLE_MENUS: Record<Locale, { slug: string; menu: Menu; them
       [
         "Burgers",
         [
-          ["Classic cheeseburger", 1250, "Quarter-pound patty, American cheese, pickles, onion and house sauce."],
+          [
+            "Classic cheeseburger",
+            1250,
+            "Quarter-pound patty, American cheese, pickles, onion and house sauce.",
+            [
+              group("size", "Size", 1, 1, [["Single", 0], ["Double", 400]]),
+              group("addons", "Add-ons", 0, 3, [["Bacon", 200], ["Extra cheese", 100], ["Fried egg", 150]]),
+            ],
+          ],
           ["Bacon BBQ burger", 1450, "Cheddar, crispy bacon, onion rings and smoky barbecue sauce."],
           ["Double smash", 1550, "Two smashed patties, double cheese, grilled onions."],
           ["Veggie burger", 1150, "Black bean patty, pepper jack, avocado and chipotle mayo."],
@@ -160,7 +210,12 @@ export const FULL_EXAMPLE_MENUS: Record<Locale, { slug: string; menu: Menu; them
           ["Fresh lemonade", 350, "16 oz, squeezed every morning."],
           ["Iced tea", 300, "16 oz, sweet or unsweetened. Free refills."],
           ["Soda", 275, "Coke, Diet Coke or Sprite."],
-          ["Milkshake", 650, "Vanilla, chocolate or strawberry, with whipped cream."],
+          [
+            "Milkshake",
+            650,
+            "Thick and cold, with whipped cream.",
+            [group("flavor", "Flavor", 1, 1, [["Vanilla", 0], ["Chocolate", 0], ["Strawberry", 0]])],
+          ],
         ],
       ],
       [
