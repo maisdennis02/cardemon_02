@@ -352,6 +352,10 @@ function SectionBlock({
                     restaurantId={restaurantId}
                     isPro={isPro}
                     photoCount={photoCount}
+                    otherItems={sections
+                      .flatMap((sec) => sec.items)
+                      .filter((i) => i.id !== item.id && i.groups?.length)
+                      .map((i) => ({ id: i.id, name: i.name, groups: i.groups ?? [] }))}
                   />
                 </li>
               );
@@ -372,6 +376,13 @@ function SectionBlock({
                   )}
                   <span className="flex-1">
                     <span className="font-medium">{item.name}</span>
+                    {item.groups && item.groups.length > 0 && (
+                      <span className="block text-xs text-gray-500">
+                        {item.groups.length === 1
+                          ? t.dashboard.builder.editor.groupsTagOne
+                          : format(t.dashboard.builder.editor.groupsTag, { n: item.groups.length })}
+                      </span>
+                    )}
                     {!visible && <span className="block text-xs text-amber-700">{it.overLimit}</span>}
                   </span>
                   {item.priceCents === null ? (

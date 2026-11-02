@@ -1,7 +1,7 @@
 import { describe, expect, it } from "vitest";
 import { MAX_GROUPS_PER_ITEM, MAX_OPTIONS_PER_GROUP, MenuSchema, type OptionGroup } from "@/lib/menu";
 import {
-  addOption, cleanGroups, copyGroups, moveGroup, newGroup, removeGroup, removeOption, setMax, setRequired, updateOption,
+  addOption, cleanGroups, copyGroups, moveGroup, newGroup, optionPriceCents, optionPriceText, removeGroup, removeOption, setMax, setRequired, updateOption,
 } from "@/lib/option-groups-edit";
 
 const menuWith = (groups: OptionGroup[] | undefined) => ({
@@ -127,5 +127,28 @@ describe("cleanGroups", () => {
     expect(out).toHaveLength(MAX_GROUPS_PER_ITEM);
     expect(out[0].options).toHaveLength(MAX_OPTIONS_PER_GROUP);
     expect(valid(out)).toBe(true);
+  });
+});
+
+describe("editor draft -> onChange payload", () => {
+  it("typing a name into the fresh required group's empty option is schema-valid", () => {
+    const g = newGroup("required", "Tamanho");
+    expect(cleanGroups([g])).toBeUndefined();
+    const typed = updateOption(g, g.options[0].id, { name: "Simples" });
+    const out = cleanGroups([typed]);
+    expect(out).toHaveLength(1);
+    expect(valid(out)).toBe(true);
+  });
+});
+
+describe("optionPriceCents", () => {
+  it("blank is 0, 8,00 is 800, junk is null", () => {
+    expect(optionPriceCents("")).toBe(0);
+    expect(optionPriceCents("8,00")).toBe(800);
+    expect(optionPriceCents("abc")).toBeNull();
+  });
+  it("round-trips through the text", () => {
+    expect(optionPriceText(0)).toBe("");
+    expect(optionPriceText(850)).toBe("8,50");
   });
 });

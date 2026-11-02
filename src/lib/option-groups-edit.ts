@@ -9,6 +9,7 @@ import {
   type OptionGroup,
 } from "@/lib/menu";
 import { newId } from "@/lib/menu-edit";
+import { parsePrice } from "@/lib/menu-parse";
 
 const ID_RE = /^[a-z0-9_-]{1,32}$/;
 const TEXT_MAX = 60;
@@ -104,4 +105,17 @@ export function cleanGroups(groups: OptionGroup[]): OptionGroup[] | undefined {
     out.push({ id: gid, title, min, max, options });
   }
   return out.length ? out : undefined;
+}
+
+// The text of an option's price field: blank is "sem custo" (0); something that
+// doesn't read as a price is null, so the field keeps the last good value.
+export function optionPriceCents(text: string): number | null {
+  const p = parsePrice(text);
+  if (p === "invalid") return null;
+  return p ?? 0;
+}
+
+// Text for an option's price field: free options show empty (the placeholder says "sem custo").
+export function optionPriceText(cents: number): string {
+  return cents > 0 ? (cents / 100).toFixed(2).replace(".", ",") : "";
 }

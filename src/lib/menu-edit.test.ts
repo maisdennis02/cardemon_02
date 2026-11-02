@@ -146,6 +146,14 @@ describe("items", () => {
     expect(menu.sections[0].items[0]).not.toHaveProperty("description");
   });
 
+  it("removes the groups field when groups become undefined", () => {
+    const g = { id: "g", title: "T", min: 0, max: 1, options: [{ id: "o", name: "A", priceCents: 0 }] };
+    let menu = updateItem(menuOf(["s1", ["a"]]), "a", { groups: [g] });
+    expect(menu.sections[0].items[0].groups).toHaveLength(1);
+    menu = updateItem(menu, "a", { groups: undefined });
+    expect(menu.sections[0].items[0]).not.toHaveProperty("groups");
+  });
+
   it("ignores an unknown id and a move past either end", () => {
     const menu = menuOf(["s1", ["a", "b"]]);
     expect(moveItem(menu, "a", -1)).toBe(menu);
