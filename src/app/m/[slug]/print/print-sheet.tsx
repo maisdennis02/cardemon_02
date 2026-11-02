@@ -1,5 +1,6 @@
 import { formatPrice, headerColors, menuFontFamilies, type Menu, type MenuItem, type MenuTheme } from "@/lib/menu";
 import { menuBackgroundStyle } from "@/lib/menu-background";
+import { cardPriceText } from "../menu-item-card";
 import { PrintQr } from "./print-controls";
 import { SHEET, columnWidth } from "./print-layout";
 
@@ -35,7 +36,19 @@ export function PrintTitle({ title, accent, titleFont }: { title: string; accent
   );
 }
 
-export function PrintItemRow({ item, country, priceColor }: { item: MenuItem; country: string | null; priceColor: string }) {
+export function PrintItemRow({
+  item,
+  country,
+  priceColor,
+  fromTemplate,
+}: {
+  item: MenuItem;
+  country: string | null;
+  priceColor: string;
+  // The dictionary's "a partir de {price}", so the sheet prints the card's price.
+  fromTemplate: string;
+}) {
+  const price = cardPriceText(item, country, fromTemplate);
   return (
     <div className="flex items-center gap-2.5 border-b border-dashed border-gray-300 px-3.5 py-2 last:border-b-0">
       {item.photo && (
@@ -46,14 +59,14 @@ export function PrintItemRow({ item, country, priceColor }: { item: MenuItem; co
         <p className="font-bold leading-snug">{item.name}</p>
         {item.description && <p className="mt-0.5 text-[0.8em] leading-snug text-gray-500">{item.description}</p>}
         {item.groups?.map((g) => (
-          <p key={g.id} className="mt-0.5 text-[0.8em] leading-snug text-gray-500">
+          <p key={g.id} className="mt-0.5 break-words text-[0.8em] leading-snug text-gray-500">
             {`${g.title}: ${g.options.map((o) => (o.priceCents > 0 ? `${o.name} +${formatPrice(o.priceCents, country)}` : o.name)).join(" · ")}`}
           </p>
         ))}
       </div>
-      {item.priceCents !== null && (
+      {price !== null && (
         <span className="shrink-0 whitespace-nowrap font-extrabold tabular-nums" style={{ color: priceColor }}>
-          {formatPrice(item.priceCents, country)}
+          {price}
         </span>
       )}
     </div>
@@ -112,6 +125,7 @@ export function PrintSheet({
   scale,
   blocks,
   footer,
+  fromTemplate,
 }: {
   index: number;
   total: number;
@@ -123,6 +137,7 @@ export function PrintSheet({
   scale: number;
   blocks: PrintBlock[][]; // per column
   footer: { qrValue: string; line: string; madeWith: string };
+  fromTemplate: string;
 }) {
   const { accent, title } = headerColors(theme.color);
   const fonts = menuFontFamilies(theme.font);
@@ -160,7 +175,7 @@ export function PrintSheet({
               ) : (
                 <div key={g.key} data-print="box" className="overflow-hidden rounded-2xl bg-white">
                   {g.items.map((item) => (
-                    <PrintItemRow key={item.id} item={item} country={country} priceColor={title} />
+                    <PrintItemRow key={item.id} item={item} country={country} priceColor={title} fromTemplate={fromTemplate} />
                   ))}
                 </div>
               ),

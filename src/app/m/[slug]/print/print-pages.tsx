@@ -24,6 +24,8 @@ export type PrintLabels = {
   footerOrder: string;
   footerNoOrder: string;
   madeWith: string;
+  // menu.order.fromPrice: the printed price matches the card's.
+  fromPrice: string;
 };
 
 type Plan = { columns: 1 | 2; scale: number; sheets: Sheet[] };
@@ -178,7 +180,7 @@ export function PrintPages({
                 {b.kind === "title" ? (
                   <PrintTitle title={b.title} accent={accent} titleFont={fonts.title} />
                 ) : (
-                  <PrintItemRow item={b.item} country={country} priceColor={title} />
+                  <PrintItemRow item={b.item} country={country} priceColor={title} fromTemplate={labels.fromPrice} />
                 )}
               </div>
             ))}
@@ -206,6 +208,7 @@ export function PrintPages({
                   scale={plan.scale}
                   blocks={sheet.map((col) => col.map((b) => byId.get(blockId(b)) as PrintBlock))}
                   footer={footer}
+                  fromTemplate={labels.fromPrice}
                 />
               </div>
             </div>

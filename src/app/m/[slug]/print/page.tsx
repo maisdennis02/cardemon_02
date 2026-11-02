@@ -50,7 +50,7 @@ export default async function PrintMenuPage({ params }: { params: Promise<{ slug
       theme={(restaurant.example ? readExampleMenuTheme : readMenuTheme)(restaurant.menuTheme)}
       menu={menu}
       hasWhatsapp={!!restaurant.whatsappNumber}
-      labels={t.menu.print}
+      labels={{ ...t.menu.print, fromPrice: t.menu.order.fromPrice }}
     />
   );
 }

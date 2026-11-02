@@ -20,6 +20,15 @@ export function cardPrice(item: MenuItem): { priceCents: number | null; from: bo
   return { priceCents: p.cents, from: p.from };
 }
 
+// cardPrice as text, as the card, the item sheet and the printed menu show it:
+// "a partir de R$ 20,00" (fromTemplate) or the plain price; null when unpriced.
+export function cardPriceText(item: MenuItem, country: string | null, fromTemplate: string): string | null {
+  const { priceCents, from } = cardPrice(item);
+  if (priceCents === null) return null;
+  const formatted = formatPrice(priceCents, country);
+  return from ? format(fromTemplate, { price: formatted }) : formatted;
+}
+
 export function MenuItemCard({
   name,
   description,

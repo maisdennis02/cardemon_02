@@ -45,6 +45,7 @@ function sheet(index: number, blocks: PrintBlock[][] = [menuBlocks(menu)], t: Me
       scale={1.2}
       blocks={blocks}
       footer={footer}
+      fromTemplate={ptBR.menu.order.fromPrice}
     />,
   );
 }
@@ -135,12 +136,42 @@ describe("PrintItemRow options", () => {
       { id: "g2", title: "Extras", min: 0, max: 3, options: [{ id: "b", name: "Bacon", priceCents: 300 }, { id: "c", name: "Cheddar", priceCents: 250 }] },
     ],
   };
-  const row = (item: MenuItem) => renderToStaticMarkup(<PrintItemRow item={item} country="BR" priceColor="#000" />).replace(/&nbsp;|\u00a0/g, " ");
+  const row = (item: MenuItem) =>
+    renderToStaticMarkup(<PrintItemRow item={item} country="BR" priceColor="#000" fromTemplate={ptBR.menu.order.fromPrice} />).replace(/&nbsp;|\u00a0/g, " ");
 
   it("lists every option of each group with its extra price", () => {
     const html = row(burger);
     expect(html).toContain("Tamanho: Simples · Duplo +R$ 8,00");
     expect(html).toContain("Extras: Bacon +R$ 3,00 · Cheddar +R$ 2,50");
+  });
+
+  // Final review #2: the sheet shows the same price as the card.
+  it("prints the card's 'a partir de' price for a base-0 item with priced required sizes", () => {
+    const pizza: MenuItem = {
+      id: "pz",
+      name: "Pizza",
+      priceCents: 0,
+      groups: [{ id: "g1", title: "Tamanho", min: 1, max: 1, options: [{ id: "m", name: "Média", priceCents: 2000 }, { id: "g", name: "Grande", priceCents: 2800 }] }],
+    };
+    const html = row(pizza);
+    expect(html).toContain("a partir de R$ 20,00");
+    expect(html).not.toContain("R$ 0,00");
+  });
+
+  it("prints the plain total when every required choice costs the same", () => {
+    const suco: MenuItem = {
+      id: "sc",
+      name: "Suco",
+      priceCents: 0,
+      groups: [{ id: "g1", title: "Sabor", min: 1, max: 1, options: [{ id: "l", name: "Laranja", priceCents: 900 }, { id: "u", name: "Uva", priceCents: 900 }] }],
+    };
+    const html = row(suco);
+    expect(html).toContain(">R$ 9,00<");
+    expect(html).not.toContain("a partir de");
+  });
+
+  it("lets a long group line wrap inside the column", () => {
+    expect(row(burger)).toMatch(/<p[^>]*break-words[^>]*>Tamanho:/);
   });
 
   it("renders an item without groups as before", () => {
