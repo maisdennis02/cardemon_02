@@ -1,0 +1,10 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 160 160">
+  <rect width="160" height="160" fill="#2f7d4f"/>
+  <circle cx="80" cy="80" r="66" fill="none" stroke="#fdf3e6" stroke-width="2"/>
+  <g fill="none" stroke="#fdf3e6" stroke-width="3" stroke-linecap="round">
+    <path d="M66 30v10M71 30v10M76 30v10M66 40q5 6 10 0M71 44v16"/>
+  </g>
+  <path d="M88 30q9 8 4 20v10h-4z" fill="#fdf3e6"/>
+  <text x="80" y="104" text-anchor="middle" font-family="Georgia, 'Times New Roman', serif" font-size="42" font-weight="700" fill="#fdf3e6">TR</text>
+  <text x="80" y="124" text-anchor="middle" font-family="Georgia, 'Times New Roman', serif" font-size="9.5" letter-spacing="2.5" fill="#fdf3e6">TAQUERÍA</text>
+</svg>
