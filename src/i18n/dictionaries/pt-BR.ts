@@ -385,7 +385,7 @@ const ptBR: Dictionary = {
         copyFrom: "Copiar de outro item",
         limitGroups: "Até {n} grupos por item",
         limitOptions: "Até {n} opções por grupo",
-        groupsPriceHint: "Pode deixar 0 aqui e pôr o valor em cada tamanho.",
+        groupsPriceHint: "Pode deixar 0 (não em branco) aqui e pôr o valor em cada tamanho.",
         groupsTagOne: "1 grupo",
         groupsTag: "{n} grupos",
       },

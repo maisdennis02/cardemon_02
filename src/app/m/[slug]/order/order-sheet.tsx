@@ -2,7 +2,7 @@
 
 import { useEffect, useRef, useState, type Dispatch, type SetStateAction } from "react";
 import { useLocale, useT } from "@/i18n/provider";
-import { formatPrice } from "@/lib/menu";
+import { formatPrice, type MenuItem } from "@/lib/menu";
 import type { ResolvedLine } from "@/lib/cart";
 import { selectionCents, selectionSummary } from "@/lib/menu-options";
 import { buildOrderMessage, orderErrors, orderLabels, whatsappOrderUrl, type OrderDetails } from "@/lib/order";
@@ -152,15 +152,15 @@ export function OrderSheet({
                         : formatPrice((item.priceCents + selectionCents(item, opts)) * qty, country)}
                     </span>
                   </div>
-                  {selectionSummary(item, opts).map((s) => (
-                    <p key={s.title} className="text-sm text-gray-500">
+                  {selectionSummary(item, opts).map((s, i) => (
+                    <p key={i} className="text-sm text-gray-500">
                       {s.title}: {s.names.join(", ")}
                     </p>
                   ))}
                   <QtyControl
                     qty={qty}
                     accent={accent}
-                    label={item.name}
+                    label={lineLabel(item, opts)}
                     lessLabel={o.less}
                     moreLabel={o.more}
                     onChange={(n) => onQty(key, n)}
@@ -299,4 +299,11 @@ function Field({
       {error && <span className="text-sm font-normal text-red-600">{error}</span>}
     </label>
   );
+}
+
+// The quantity control's name: the item plus its choices, so two lines of the
+// same item read differently ("X-Burguer — Tamanho: Duplo").
+function lineLabel(item: MenuItem, opts: string[]): string {
+  const choices = selectionSummary(item, opts).map((s) => `${s.title}: ${s.names.join(", ")}`);
+  return choices.length ? `${item.name} — ${choices.join("; ")}` : item.name;
 }

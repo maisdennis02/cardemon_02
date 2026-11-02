@@ -385,7 +385,7 @@ const es: Dictionary = {
         copyFrom: "Copiar de otro ítem",
         limitGroups: "Hasta {n} grupos por ítem",
         limitOptions: "Hasta {n} opciones por grupo",
-        groupsPriceHint: "Puedes dejar 0 aquí y poner el valor en cada tamaño.",
+        groupsPriceHint: "Puedes dejar 0 (no en blanco) aquí y poner el valor en cada tamaño.",
         groupsTagOne: "1 grupo",
         groupsTag: "{n} grupos",
       },

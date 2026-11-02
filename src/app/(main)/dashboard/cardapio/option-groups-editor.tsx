@@ -24,7 +24,9 @@ export function OptionGroupsEditor({
   otherItems: OtherItem[];
   onChange: (next: OptionGroup[] | undefined) => void;
 }) {
-  const e = useT().dashboard.builder.editor;
+  const t = useT();
+  const e = t.dashboard.builder.editor;
+  const it = t.dashboard.builder.items;
   // Seeded once: the parent re-renders with the cleaned groups, which must not
   // overwrite the raw draft in progress.
   const [draft, setDraft] = useState<OptionGroup[]>(groups ?? []);
@@ -85,8 +87,8 @@ export function OptionGroupsEditor({
               onChange={(n) => patchGroup(g.id, (x) => setMax(x, n))}
             />
             <span className="ml-auto flex">
-              <IconButton label="↑" disabled={gi === 0} onClick={() => commit(moveGroup(draft, g.id, -1))}>↑</IconButton>
-              <IconButton label="↓" disabled={gi === draft.length - 1} onClick={() => commit(moveGroup(draft, g.id, 1))}>↓</IconButton>
+              <IconButton label={it.moveUp} disabled={gi === 0} onClick={() => commit(moveGroup(draft, g.id, -1))}>↑</IconButton>
+              <IconButton label={it.moveDown} disabled={gi === draft.length - 1} onClick={() => commit(moveGroup(draft, g.id, 1))}>↓</IconButton>
             </span>
           </div>
           {g.options.map((o) => (
@@ -135,6 +137,7 @@ export function OptionGroupsEditor({
         <select
           className="input"
           aria-label={e.copyFrom}
+          disabled={full}
           value=""
           onChange={(ev) => {
             const from = otherItems.find((i) => i.id === ev.target.value);

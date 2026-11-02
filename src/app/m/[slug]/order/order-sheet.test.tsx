@@ -58,4 +58,10 @@ describe("OrderSheet lines", () => {
     expect(html).toMatch(/R\$\s52,00/);
     expect(html.match(/<li /g)).toHaveLength(2);
   });
+
+  it("names each line's quantity control with its choices, so two lines of one item differ", () => {
+    const html = render();
+    expect(html).toContain('aria-label="X-Burguer"');
+    expect(html).toContain('aria-label="X-Burguer — Tamanho: Duplo"');
+  });
 });

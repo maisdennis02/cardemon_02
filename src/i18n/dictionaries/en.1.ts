@@ -387,7 +387,7 @@ export const en = {
         copyFrom: "Copy from another item",
         limitGroups: "Up to {n} groups per item",
         limitOptions: "Up to {n} options per group",
-        groupsPriceHint: "You can leave 0 here and set the price on each size.",
+        groupsPriceHint: "You can put 0 here (not blank) and set the price on each size.",
         groupsTagOne: "1 group",
         groupsTag: "{n} groups",
       },

@@ -95,6 +95,8 @@ describe("ItemEditor groups", () => {
     expect(render({ ...plain, groups: [sizes(0, 1)] })).not.toContain(e.groupsPriceHint);
     expect(render({ ...plain, groups: [sizes(500, 0)] })).not.toContain(e.groupsPriceHint);
     expect(render(plain)).not.toContain(e.groupsPriceHint);
+    // A blank price is "a combinar" and would drop the option prices: say 0, not blank.
+    expect(e.groupsPriceHint).toContain("não em branco");
   });
   it("shows the groups editor", () => {
     expect(render(plain)).toContain(e.groupsTitle);

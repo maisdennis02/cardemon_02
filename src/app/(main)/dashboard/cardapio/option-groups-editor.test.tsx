@@ -79,6 +79,20 @@ describe("OptionGroupsEditor", () => {
     expect(html).toContain("Pizza Grande");
   });
 
+  it("disables the copy picker at 5 groups", () => {
+    const other = [{ id: "x", name: "Pizza Grande", groups: [group("z")] }];
+    expect(render(["a", "b", "c", "d", "e"].map((id) => group(id)), other)).toMatch(/<select[^>]*disabled=""/);
+    expect(render([group("a")], other)).not.toMatch(/<select[^>]*disabled=""/);
+  });
+
+  it("labels the move buttons with words, not arrows", () => {
+    const html = render([group("a"), group("b")]);
+    const it_ = ptBR.dashboard.builder.items;
+    expect(html).toContain(`aria-label="${it_.moveUp}"`);
+    expect(html).toContain(`aria-label="${it_.moveDown}"`);
+    expect(html).not.toContain('aria-label="↑"');
+  });
+
   it("hides the copy picker when no other item has groups", () => {
     expect(render(undefined)).not.toContain(e.copyFrom);
   });
