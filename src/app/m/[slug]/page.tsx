@@ -13,6 +13,7 @@ import {
   isPublished,
   publishedItemCount,
   menuJsonLd,
+  readExampleMenuTheme,
   readMenuTheme,
   readPublishedMenu,
   publicMenu,
@@ -136,7 +137,7 @@ export default async function PublicMenuPage({
           slug={slug}
           name={restaurant.name}
           country={restaurant.country}
-          theme={readMenuTheme(restaurant.menuTheme)}
+          theme={(restaurant.example ? readExampleMenuTheme : readMenuTheme)(restaurant.menuTheme)}
           menu={visible}
           labels={{ cardapioDigital: t.menu.cardapioDigital, madeBy: t.menu.madeBy, fromPrice: t.menu.order.fromPrice }}
           // An example has no WhatsApp: its cart runs in demo mode and shows

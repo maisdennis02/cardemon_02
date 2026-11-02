@@ -204,6 +204,17 @@ export function readMenuTheme(raw: unknown): MenuTheme {
   return parsed.success ? parsed.data : DEFAULT_MENU_THEME;
 }
 
+// Example menus (src/lib/example-full-menus.ts) ship their logos with the
+// code, in public/demo-menus/<slug>/logo.svg — a path no owner can set, since
+// MenuThemeSchema only takes Blob-hosted logos. Only the example branch of the
+// menu pages calls this; a restaurant's stored theme never goes through it.
+const DEMO_LOGO_RE = /^\/demo-menus\/[a-z0-9-]+\/logo\.svg$/;
+export function readExampleMenuTheme(raw: unknown): MenuTheme {
+  const logo = (raw as { logoUrl?: unknown } | null)?.logoUrl;
+  if (typeof logo !== "string" || !DEMO_LOGO_RE.test(logo)) return readMenuTheme(raw);
+  return { ...readMenuTheme({ ...(raw as object), logoUrl: undefined }), logoUrl: logo };
+}
+
 export function countItems(menu: Menu | null): number {
   return menu ? menu.sections.reduce((n, s) => n + s.items.length, 0) : 0;
 }

@@ -21,6 +21,7 @@
 import type { Locale } from "@/i18n/config";
 import type { Menu, MenuTheme } from "@/lib/menu";
 import { LANDING_DEMO } from "@/lib/landing-demo";
+import { FULL_EXAMPLE_MENUS } from "@/lib/example-full-menus";
 
 export type ExampleMenu = {
   slug: string;
@@ -32,27 +33,23 @@ export type ExampleMenu = {
   country: string;
   // Paths under public/, in page order.
   images: readonly string[];
-  // A text menu instead of pages: the landing's own example, where a visitor
-  // can try the cart. Ordering runs in demo mode (no WhatsApp is opened).
+  // A text menu instead of pages (src/lib/example-full-menus.ts), where a
+  // visitor can try the cart. Ordering runs in demo mode (no WhatsApp is opened).
   built?: { menu: Menu; theme: MenuTheme };
 };
 
-const builtExample = (slug: string, name: string, locale: Locale): ExampleMenu => ({
-  slug,
-  name,
-  locale,
-  country: LANDING_DEMO[locale].country,
-  images: [],
-  built: { menu: LANDING_DEMO[locale].menu, theme: { color: "#c84630", headerStyle: "band", background: "plain" } },
-});
+const builtExample = (locale: Locale, name: string): ExampleMenu => {
+  const { slug, menu, theme } = FULL_EXAMPLE_MENUS[locale];
+  return { slug, name, locale, country: LANDING_DEMO[locale].country, images: [], built: { menu, theme } };
+};
 
 const pages = (slug: string) =>
   ["01", "02", "03"].map((n) => `/demo-menus/${slug}/${n}.webp`);
 
 export const EXAMPLE_MENUS: readonly ExampleMenu[] = [
-  builtExample("seu-restaurante", "Seu Restaurante", "pt-BR"),
-  builtExample("tu-restaurante", "Tu Restaurante", "es"),
-  builtExample("your-restaurant", "Your Restaurant", "en"),
+  builtExample("pt-BR", "Seu Restaurante"),
+  builtExample("es", "Tu Restaurante"),
+  builtExample("en", "Your Restaurant"),
   {
     slug: "maple-street-diner",
     name: "Maple Street Diner",
