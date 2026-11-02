@@ -4,7 +4,7 @@ import { useEffect, useRef, useState } from "react";
 import { useT } from "@/i18n/provider";
 import { format } from "@/i18n/config";
 import { formatPrice, type MenuItem } from "@/lib/menu";
-import { firstMissingGroup, fromPrice, hasGroups, normalizeOpts, selectionCents, toggleOption } from "@/lib/menu-options";
+import { firstMissingGroup, hasGroups, normalizeOpts, selectionCents, toggleOption } from "@/lib/menu-options";
 import { OptionPicker, groupDomId } from "./option-picker";
 import { MENU_ITEM_CARD_CLASS, MenuItemBody, cardPrice } from "./menu-item-card";
 import { QtyControl } from "./order/qty-control";
@@ -36,14 +36,18 @@ export function ItemSheet({
   const [opts, setOpts] = useState<string[]>(initialOpts ?? []);
   const [missing, setMissing] = useState<string | null>(null);
   const closeRef = useRef<HTMLButtonElement>(null);
-  const price = item.priceCents === null ? null : formatPrice(item.priceCents, country);
   const grouped = hasGroups(item);
   // The button shows the live total: base plus chosen options, times quantity.
   const total =
     item.priceCents === null ? null : formatPrice((item.priceCents + selectionCents(item, opts)) * qty, country);
-  const from = grouped ? fromPrice(item) : null;
+  // Same price as the card: base plus the cheapest valid choice.
+  const cp = cardPrice(item);
   const headline =
-    from && from.from && from.cents !== null ? format(o.fromPrice, { price: formatPrice(from.cents, country) }) : price;
+    cp.priceCents === null
+      ? null
+      : cp.from
+        ? format(o.fromPrice, { price: formatPrice(cp.priceCents, country) })
+        : formatPrice(cp.priceCents, country);
 
   // The parent passes a new onClose on every render; the open/close effect
   // must run once, or the focus would jump back to the X on each tap of ±.

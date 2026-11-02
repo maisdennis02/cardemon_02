@@ -76,3 +76,27 @@ describe("ItemSheet", () => {
     });
   });
 });
+
+describe("ItemSheet headline", () => {
+  it("matches the card: base plus the required choice when all options cost the same", () => {
+    const item: MenuItem = {
+      id: "p",
+      name: "Pizza",
+      priceCents: 2000,
+      groups: [
+        {
+          id: "g",
+          title: "Borda",
+          min: 1,
+          max: 1,
+          options: [
+            { id: "a", name: "Catupiry", priceCents: 300 },
+            { id: "b", name: "Cheddar", priceCents: 300 },
+          ],
+        },
+      ],
+    };
+    const html = render(item, () => {});
+    expect(html).toMatch(/text-lg font-semibold tabular-nums">R\$\s23,00</);
+  });
+});
