@@ -31,6 +31,7 @@ function render(item: MenuItem, opts: { isPro?: boolean; photoCount?: number } =
         restaurantId="ckr1"
         isPro={opts.isPro ?? false}
         photoCount={opts.photoCount ?? (item.photo ? 1 : 0)}
+        otherItems={[]}
       />
     </DictionaryProvider>,
   );
@@ -81,5 +82,23 @@ describe("ItemEditor photo slot", () => {
     const html = render(withPhoto, { photoCount: 20 });
     expect(html).toContain(e.photoChange);
     expect(html).not.toContain(e.photoLimit);
+  });
+});
+
+describe("ItemEditor groups", () => {
+  const sizes = (priceCents: number, min: number) => ({
+    id: "g1", title: "Tamanho", min, max: 1,
+    options: [{ id: "o1", name: "Grande", priceCents }],
+  });
+  it("hints to leave the price at 0 only with a paid required group", () => {
+    expect(render({ ...plain, groups: [sizes(500, 1)] })).toContain(e.groupsPriceHint);
+    expect(render({ ...plain, groups: [sizes(0, 1)] })).not.toContain(e.groupsPriceHint);
+    expect(render({ ...plain, groups: [sizes(500, 0)] })).not.toContain(e.groupsPriceHint);
+    expect(render(plain)).not.toContain(e.groupsPriceHint);
+    // A blank price is "a combinar" and would drop the option prices: say 0, not blank.
+    expect(e.groupsPriceHint).toContain("não em branco");
+  });
+  it("shows the groups editor", () => {
+    expect(render(plain)).toContain(e.groupsTitle);
   });
 });

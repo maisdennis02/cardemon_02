@@ -4,16 +4,17 @@ import Link from "next/link";
 import { useEffect, useRef, useState } from "react";
 import { useT } from "@/i18n/provider";
 import { format } from "@/i18n/config";
-import type { ItemPhoto, MenuItem, MenuSection } from "@/lib/menu";
+import type { ItemPhoto, MenuItem, MenuSection, OptionGroup } from "@/lib/menu";
 import { parsePrice } from "@/lib/menu-parse";
 import { PhotoError, uploadItemPhoto } from "@/lib/item-photo";
 import { FREE_PHOTO_LIMIT } from "@/lib/pricing";
 import { capture } from "@/lib/posthog";
 import { MicButton } from "@/components/voice/mic-button";
 import { IconButton } from "./step-items";
+import { OptionGroupsEditor, type GroupTitles } from "./option-groups-editor";
 
-// `photo: undefined` removes the photo.
-type Patch = { name?: string; description?: string; priceCents?: number | null; photo?: ItemPhoto | undefined };
+// `photo: undefined` removes the photo; `groups: undefined` removes the option groups.
+type Patch = { name?: string; description?: string; priceCents?: number | null; photo?: ItemPhoto | undefined; groups?: OptionGroup[] | undefined };
 
 function priceText(cents: number | null): string {
   return cents === null ? "" : (cents / 100).toFixed(2).replace(".", ",");
@@ -32,15 +33,21 @@ export function ItemEditor({
   onRemove,
   onDone,
   lang,
+  defaultGroupTitles,
   restaurantId,
   isPro,
   photoCount,
+  otherItems,
 }: {
   lang: string;
+  // Titles for a new option group, in the menu's language.
+  defaultGroupTitles?: GroupTitles;
   restaurantId: string;
   isPro: boolean;
   // Photos in the whole menu, for the free cap.
   photoCount: number;
+  // Other items that have option groups, for "copy from".
+  otherItems: { id: string; name: string; groups: OptionGroup[] }[];
   item: MenuItem;
   sectionId: string;
   sections: MenuSection[];
@@ -58,6 +65,7 @@ export function ItemEditor({
   const [name, setName] = useState(item.name);
   const [price, setPrice] = useState(priceText(item.priceCents));
   const parsedPrice = parsePrice(price);
+  const paidRequired = (item.groups ?? []).some((g) => g.min >= 1 && g.options.some((o) => o.priceCents > 0));
   const mic = t.menu.order.mic;
   const changeName = (value: string) => {
     setName(value);
@@ -101,9 +109,11 @@ export function ItemEditor({
           <MicButton value="" onChange={changePrice} lang={lang} label={mic} />
         </span>
         {parsedPrice === "invalid" && <span className="text-xs font-normal text-red-600">{e.invalidPrice}</span>}
+        {paidRequired && <span className="text-xs font-normal text-gray-600">{e.groupsPriceHint}</span>}
       </label>
         </div>
       </div>
+      <OptionGroupsEditor groups={item.groups} otherItems={otherItems} defaultTitles={defaultGroupTitles} onChange={(groups) => onChange({ groups })} />
       <label className="label">
         {e.description}
         <span className="flex items-start gap-2">

@@ -1,8 +1,9 @@
 import "./built-menu.css";
 import { headerColors, menuFontFamilies, type Menu, type MenuTheme } from "@/lib/menu";
 import { menuBackgroundStyle } from "@/lib/menu-background";
+import { groupInfoLines } from "@/lib/menu-options";
 import { MenuViewPing } from "./menu-actions";
-import { MENU_SECTION_LIST_CLASS, MENU_SECTION_TITLE_CLASS, MenuItemCard } from "./menu-item-card";
+import { MENU_SECTION_LIST_CLASS, MENU_SECTION_TITLE_CLASS, MenuItemCard, cardPrice } from "./menu-item-card";
 import { OrderableMenu } from "./order/orderable-menu";
 import { PhotoItemCard } from "./item-sheet";
 
@@ -26,7 +27,7 @@ export function BuiltMenu({
   country: string | null;
   theme: MenuTheme;
   menu: Menu; // already cut: publicMenu on the public page, visibleMenu in the preview
-  labels: { cardapioDigital: string; madeBy: string };
+  labels: { cardapioDigital: string; madeBy: string; fromPrice: string };
   actions: React.ReactNode;
   preview?: boolean;
   // Diners can order to this WhatsApp number (spec 2026-10-10). Unset: the
@@ -87,8 +88,10 @@ export function BuiltMenu({
                         key={item.id}
                         name={item.name}
                         description={item.description}
-                        priceCents={item.priceCents}
+                        {...cardPrice(item)}
+                        fromTemplate={labels.fromPrice}
                         country={country}
+                        groupLines={groupInfoLines(item, country)}
                       />
                     ),
                   )}

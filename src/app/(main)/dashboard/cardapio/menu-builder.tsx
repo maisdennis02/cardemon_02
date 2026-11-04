@@ -4,14 +4,15 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useCallback, useEffect, useRef, useState } from "react";
 import { useT } from "@/i18n/provider";
-import type { Locale } from "@/i18n/config";
+import { localeForCountry, type Locale } from "@/i18n/config";
 import { capture } from "@/lib/posthog";
 import { RefusedSaveError, createAutosaver, type AutosaveStatus } from "@/lib/autosave";
 import type { Menu, MenuTheme } from "@/lib/menu";
 import { saveMenuDraft, saveMenuVisual } from "../menu-actions";
 import { StepVisual } from "./step-visual";
 import { StepItems } from "./step-items";
-import { StepPreview } from "./step-preview";
+import type { GroupTitles } from "./option-groups-editor";
+import { StepPreview, type PreviewLabels } from "./step-preview";
 
 export type BuilderStep = "visual" | "items" | "preview";
 const STEPS: BuilderStep[] = ["visual", "items", "preview"];
@@ -29,6 +30,8 @@ export function MenuBuilder({
   hasPublished,
   isPro,
   sectionSuggestions,
+  groupTitles,
+  previewLabels,
   defaultCountry,
   hasCountry,
   draftRev,
@@ -41,6 +44,8 @@ export function MenuBuilder({
   hasPublished: boolean;
   isPro: boolean;
   sectionSuggestions: Record<Locale, string[]>;
+  groupTitles: Record<Locale, GroupTitles>;
+  previewLabels: Record<Locale, PreviewLabels>;
   defaultCountry: string;
   hasCountry: boolean;
 }) {
@@ -230,6 +235,7 @@ export function MenuBuilder({
             isPro={isPro}
             country={country}
             sectionSuggestions={sectionSuggestions}
+            groupTitles={groupTitles}
             onLeaveToPhotos={() => void leaveTo("/dashboard/fotos")}
           />
         )}
@@ -239,6 +245,7 @@ export function MenuBuilder({
             menu={menu}
             theme={theme}
             country={country}
+            labels={previewLabels[localeForCountry(country)]}
             isPro={isPro}
             settle={() => saver.current?.settle() ?? Promise.resolve()}
             baseRev={() => draftRevRef.current}

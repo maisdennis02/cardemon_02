@@ -1,6 +1,7 @@
 import { renderToStaticMarkup } from "react-dom/server";
 import { describe, expect, it } from "vitest";
 import en from "@/i18n/dictionaries/en";
+import ptBR from "@/i18n/dictionaries/pt-BR";
 import { DictionaryProvider } from "@/i18n/provider";
 import { menuJsonLd, publicMenu, type Menu, type MenuTheme } from "@/lib/menu";
 import { BuiltMenu } from "./built-menu";
@@ -47,7 +48,7 @@ function renderStatic(menu: Menu): string {
       country="BR"
       theme={theme}
       menu={menu}
-      labels={{ cardapioDigital: "Cardápio Digital", madeBy: "feito por" }}
+      labels={{ cardapioDigital: "Cardápio Digital", madeBy: "feito por", fromPrice: "a partir de {price}" }}
       actions={null}
     />,
   );
@@ -122,7 +123,7 @@ describe("section chips", () => {
           country="BR"
           theme={theme}
           menu={fourSections}
-          labels={{ cardapioDigital: "Cardápio Digital", madeBy: "feito por" }}
+          labels={{ cardapioDigital: "Cardápio Digital", madeBy: "feito por", fromPrice: "a partir de {price}" }}
           actions={null}
           ordering={{ whatsappNumber: "5511999999999", demo: true }}
         />
@@ -192,7 +193,7 @@ describe("item photos (2026-10-25)", () => {
           country="BR"
           theme={theme}
           menu={menu}
-          labels={{ cardapioDigital: "Cardápio Digital", madeBy: "feito por" }}
+          labels={{ cardapioDigital: "Cardápio Digital", madeBy: "feito por", fromPrice: "a partir de {price}" }}
           actions={null}
         />
       </DictionaryProvider>,
@@ -265,3 +266,94 @@ describe("item photos (2026-10-25)", () => {
   });
 });
 
+
+// Option groups (2026-11-02): the card shows the cheapest valid price, the "+"
+// opens the sheet, and the count replaces the ±.
+describe("items with option groups", () => {
+  const opt = (id: string, name: string, priceCents: number) => ({ id, name, priceCents });
+  const sizes = {
+    id: "g1",
+    title: "Tamanho",
+    min: 1,
+    max: 1,
+    options: [opt("s", "Simples", 0), opt("d", "Duplo", 600)],
+  };
+  const extras = { id: "g2", title: "Extras", min: 0, max: 3, options: [opt("b", "Bacon", 300)] };
+  const grouped = (groups: NonNullable<Menu["sections"][number]["items"][number]["groups"]>) => ({
+    ...item("xb", "X-Burguer", 2000),
+    groups,
+  });
+  const plain = (x: Menu["sections"][number]["items"][number], qty = 0) =>
+    renderToStaticMarkup(
+      <DictionaryProvider locale="pt-BR" dictionary={ptBR}>
+        <OrderableItem item={x} qty={qty} country="BR" accent="#c84630" onAdd={() => {}} onQty={() => {}} />
+      </DictionaryProvider>,
+    );
+
+  it("says 'a partir de' only when a required group can change the price", () => {
+    expect(plain(grouped([sizes]))).toContain("a partir de R$");
+    expect(plain(grouped([extras]))).not.toContain("a partir de");
+    expect(plain(grouped([extras]))).toMatch(/R\$\s20,00/);
+  });
+
+  it("uses the from-price on the static page too, plain and with a photo", () => {
+    const photo = { full: "https://x.public.blob.vercel-storage.com/a-full.webp", thumb: "https://x.public.blob.vercel-storage.com/a-thumb.webp" };
+    const menu: Menu = { v: 1, sections: [section("a", "A", [grouped([sizes]), { ...grouped([sizes]), id: "p", photo }])] };
+    const html = renderToStaticMarkup(
+      <DictionaryProvider locale="pt-BR" dictionary={ptBR}>
+        <BuiltMenu
+          slug="x"
+          name="R"
+          country="BR"
+          theme={theme}
+          menu={menu}
+          labels={{ cardapioDigital: "C", madeBy: "m", fromPrice: ptBR.menu.order.fromPrice }}
+          actions={null}
+        />
+      </DictionaryProvider>,
+    );
+    expect(html.match(/a partir de/g)).toHaveLength(2);
+  });
+
+  // Final review #3: read-only menus list the groups as information (spec §2).
+  const staticMenu = (preview: boolean) =>
+    renderToStaticMarkup(
+      <DictionaryProvider locale="pt-BR" dictionary={ptBR}>
+        <BuiltMenu
+          slug="x"
+          name="R"
+          country="BR"
+          theme={theme}
+          menu={{ v: 1, sections: [section("a", "A", [grouped([sizes, extras]), item("agua", "Água", 500)])] }}
+          labels={{ cardapioDigital: "C", madeBy: "m", fromPrice: ptBR.menu.order.fromPrice }}
+          actions={null}
+          preview={preview}
+        />
+      </DictionaryProvider>,
+    ).replace(/&nbsp;|\u00a0/g, " ");
+
+  it("lists the groups on a static page without WhatsApp", () => {
+    const html = staticMenu(false);
+    readsTopToBottom(listItem(html, 0), "X-Burguer", "Tamanho: Simples · Duplo +R$ 6,00", "Extras: Bacon +R$ 3,00", "a partir de R$");
+    expect(listItem(html, 1)).not.toContain(":");
+  });
+
+  it("lists the groups in the dashboard preview too", () => {
+    expect(listItem(staticMenu(true), 0)).toContain("Tamanho: Simples · Duplo +R$ 6,00");
+  });
+
+  it("opens the sheet from the + instead of adding, and counts instead of ±", () => {
+    const html = plain(grouped([sizes]), 3);
+    // The card and the + both open the dialog.
+    expect(html.match(/aria-haspopup="dialog"/g)).toHaveLength(2);
+    expect(html).toContain("3 no pedido");
+    expect(html).not.toContain("−");
+  });
+
+  it("keeps the direct + and ± for items without groups", () => {
+    expect(plain(item("a", "A", 100)).match(/aria-haspopup="dialog"/g)).toHaveLength(1);
+    const html = plain(item("a", "A", 100), 2);
+    expect(html).toContain("−");
+    expect(html).not.toMatch(/>2 no pedido</);
+  });
+});

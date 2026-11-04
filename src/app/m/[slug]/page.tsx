@@ -139,7 +139,7 @@ export default async function PublicMenuPage({
           country={restaurant.country}
           theme={(restaurant.example ? readExampleMenuTheme : readMenuTheme)(restaurant.menuTheme)}
           menu={visible}
-          labels={{ cardapioDigital: t.menu.cardapioDigital, madeBy: t.menu.madeBy }}
+          labels={{ cardapioDigital: t.menu.cardapioDigital, madeBy: t.menu.madeBy, fromPrice: t.menu.order.fromPrice }}
           // An example has no WhatsApp: its cart runs in demo mode and shows
           // the message instead of sending it.
           ordering={

@@ -18,7 +18,7 @@ function render(locale: "pt-BR" | "es" = "pt-BR") {
   const dict = locale === "es" ? es : ptBR;
   return renderToStaticMarkup(
     <DictionaryProvider locale={locale} dictionary={dict}>
-      <PrintPages slug="ze" name="Lanchonete do Zé" country="BR" theme={theme} menu={menu} hasWhatsapp labels={dict.menu.print} />
+      <PrintPages slug="ze" name="Lanchonete do Zé" country="BR" theme={theme} menu={menu} hasWhatsapp labels={{ ...dict.menu.print, fromPrice: dict.menu.order.fromPrice }} />
     </DictionaryProvider>,
   );
 }

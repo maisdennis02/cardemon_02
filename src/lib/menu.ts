@@ -11,7 +11,20 @@ import { FREE_ITEM_LIMIT } from "@/lib/pricing";
 // A photo of the item, uploaded by the owner as two squares: the card's
 // thumb and the sheet's full size. Shown to diners only on Pro (publicMenu).
 export type ItemPhoto = { full: string; thumb: string };
-export type MenuItem = { id: string; name: string; description?: string; priceCents: number | null; photo?: ItemPhoto };
+// Choices the diner makes on an item (size, extras...). priceCents is what the
+// option adds to the item's price; 0 means free, never null.
+export type MenuOption = { id: string; name: string; priceCents: number };
+// min/max = how many options of the group the diner must/may pick. max may
+// exceed options.length (the owner adds options later); min may not.
+export type OptionGroup = { id: string; title: string; min: number; max: number; options: MenuOption[] };
+export type MenuItem = {
+  id: string;
+  name: string;
+  description?: string;
+  priceCents: number | null;
+  photo?: ItemPhoto;
+  groups?: OptionGroup[];
+};
 export type MenuSection = { id: string; title: string | null; items: MenuItem[] };
 export type Menu = { v: 1; sections: MenuSection[] };
 export const MENU_FONTS = ["default", "modern", "elegant", "casual"] as const;
@@ -30,6 +43,8 @@ export type MenuMode = "photos" | "built";
 
 export const MENU_MAX_SECTIONS = 30;
 export const MENU_MAX_ITEMS = 300;
+export const MAX_GROUPS_PER_ITEM = 5;
+export const MAX_OPTIONS_PER_GROUP = 15;
 
 // Item photos are uploaded by the builder to item-photos/<restaurantId>/;
 // the actions check the folder is the restaurant's own (menu-photos.ts).
@@ -40,15 +55,41 @@ export const ITEM_PHOTO_MAX_BYTES = 512 * 1024;
 // short, predictable and unique across the whole menu.
 const Id = z.string().regex(/^[a-z0-9_-]{1,32}$/);
 
-const ItemSchema = z.object({
+const OptionSchema = z.object({
   id: Id,
-  name: z.string().trim().min(1).max(80),
-  description: z.string().trim().max(200).optional(),
-  priceCents: z.number().int().min(0).nullable(),
-  photo: z
-    .object({ full: z.string().regex(ITEM_PHOTO_URL_RE), thumb: z.string().regex(ITEM_PHOTO_URL_RE) })
-    .optional(),
+  name: z.string().trim().min(1).max(60),
+  priceCents: z.number().int().min(0),
 });
+
+const GroupSchema = z
+  .object({
+    id: Id,
+    title: z.string().trim().min(1).max(60),
+    min: z.number().int().min(0),
+    max: z.number().int().min(1),
+    options: z.array(OptionSchema).min(1).max(MAX_OPTIONS_PER_GROUP),
+  })
+  .refine((g) => g.min <= g.max && g.min <= g.options.length, { message: "min must be <= max and <= options" });
+
+const ItemSchema = z
+  .object({
+    id: Id,
+    name: z.string().trim().min(1).max(80),
+    description: z.string().trim().max(200).optional(),
+    priceCents: z.number().int().min(0).nullable(),
+    photo: z
+      .object({ full: z.string().regex(ITEM_PHOTO_URL_RE), thumb: z.string().regex(ITEM_PHOTO_URL_RE) })
+      .optional(),
+    groups: z.array(GroupSchema).max(MAX_GROUPS_PER_ITEM).optional(),
+  })
+  .superRefine((item, ctx) => {
+    // Group and option ids are React keys and selection keys: unique per item.
+    const seen = new Set<string>();
+    for (const id of (item.groups ?? []).flatMap((g) => [g.id, ...g.options.map((o) => o.id)])) {
+      if (seen.has(id)) ctx.addIssue({ code: "custom", message: `duplicate id ${id}` });
+      seen.add(id);
+    }
+  });
 
 const SectionSchema = z.object({
   id: Id,

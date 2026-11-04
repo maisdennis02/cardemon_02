@@ -4,7 +4,9 @@ import { useEffect, useRef, useState } from "react";
 import { useT } from "@/i18n/provider";
 import { format } from "@/i18n/config";
 import { formatPrice, type MenuItem } from "@/lib/menu";
-import { MENU_ITEM_CARD_CLASS, MenuItemBody } from "./menu-item-card";
+import { firstMissingGroup, hasGroups, normalizeOpts, selectionCents, toggleOption, validSelection } from "@/lib/menu-options";
+import { OptionPicker, groupDomId } from "./option-picker";
+import { MENU_ITEM_CARD_CLASS, MenuItemBody, cardPrice, cardPriceText } from "./menu-item-card";
 import { QtyControl } from "./order/qty-control";
 
 // The sheet a tap on an item opens, as in the delivery apps (spec 2026-10-25
@@ -17,19 +19,33 @@ export function ItemSheet({
   accent,
   onClose,
   onAdd,
+  initialOpts,
 }: {
   item: MenuItem;
   country: string | null;
   accent: string;
   onClose: () => void;
   // Set when the page takes orders.
-  onAdd?: (qty: number) => void;
+  onAdd?: (qty: number, opts: string[]) => void;
+  // Pre-chosen options (static rendering in tests).
+  initialOpts?: string[];
 }) {
   const t = useT();
   const o = t.menu.order;
   const [qty, setQty] = useState(1);
+  const [opts, setOpts] = useState<string[]>(initialOpts ?? []);
+  const [missing, setMissing] = useState<string | null>(null);
   const closeRef = useRef<HTMLButtonElement>(null);
-  const price = item.priceCents === null ? null : formatPrice(item.priceCents, country);
+  const grouped = hasGroups(item);
+  // The button shows the live total: base plus chosen options, times quantity.
+  // Until the choice is valid (a required group still open) it shows no
+  // amount, never the bare base price under a "a partir de" headline.
+  const total =
+    item.priceCents === null || !validSelection(item, opts)
+      ? null
+      : formatPrice((item.priceCents + selectionCents(item, opts)) * qty, country);
+  // Same price as the card: base plus the cheapest valid choice.
+  const headline = cardPriceText(item, country, o.fromPrice);
 
   // The parent passes a new onClose on every render; the open/close effect
   // must run once, or the focus would jump back to the X on each tap of ±.
@@ -67,8 +83,24 @@ export function ItemSheet({
           <div className="flex flex-col gap-2 px-5 pb-5 pt-5">
             <h2 className="pr-10 text-xl font-bold leading-tight">{item.name}</h2>
             {item.description && <p className="leading-snug text-gray-600">{item.description}</p>}
-            {price && <p className="mt-1 text-lg font-semibold tabular-nums">{price}</p>}
+            {headline && <p className="mt-1 text-lg font-semibold tabular-nums">{headline}</p>}
           </div>
+          {grouped && (
+            <div className="px-5 pb-5">
+              <OptionPicker
+                item={item}
+                country={country}
+                accent={accent}
+                value={opts}
+                readOnly={!onAdd}
+                missing={missing}
+                onChange={(groupId, optionId) => {
+                  setOpts((cur) => toggleOption(item, cur, groupId, optionId));
+                  setMissing(null);
+                }}
+              />
+            </div>
+          )}
         </div>
         <button
           ref={closeRef}
@@ -92,14 +124,20 @@ export function ItemSheet({
             <button
               type="button"
               onClick={() => {
-                onAdd(qty);
+                const gap = firstMissingGroup(item, opts);
+                if (gap) {
+                  setMissing(gap);
+                  document.getElementById(groupDomId(item.id, gap))?.scrollIntoView({ block: "center", behavior: "smooth" });
+                  return;
+                }
+                onAdd(qty, normalizeOpts(opts));
                 onClose();
               }}
               className="flex h-12 flex-1 items-center justify-between rounded-full px-5 font-bold text-white"
               style={{ background: accent }}
             >
               <span>{o.addToOrder}</span>
-              {price && <span className="tabular-nums">{price}</span>}
+              {total && <span className="tabular-nums">{total}</span>}
             </button>
           </div>
         )}
@@ -125,7 +163,8 @@ export function PhotoItemCard({ item, country, accent }: { item: MenuItem; count
         <MenuItemBody
           name={item.name}
           description={item.description}
-          priceCents={item.priceCents}
+          {...cardPrice(item)}
+          fromTemplate={t.menu.order.fromPrice}
           country={country}
           photo={item.photo}
         />
