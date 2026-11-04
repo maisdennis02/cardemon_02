@@ -11,6 +11,9 @@ import {
 import { IconButton } from "./step-items";
 
 type OtherItem = { id: string; name: string; groups: OptionGroup[] };
+// A new group's title is menu content, so it is in the menu's language (the
+// country), not the dashboard's.
+export type GroupTitles = { required: string; extras: string };
 
 // The owner's "adicionais" editor for one item. The raw draft (empty options
 // included) lives here so typing never fights the autosave; upward goes only
@@ -18,10 +21,12 @@ type OtherItem = { id: string; name: string; groups: OptionGroup[] };
 export function OptionGroupsEditor({
   groups,
   otherItems,
+  defaultTitles,
   onChange,
 }: {
   groups: OptionGroup[] | undefined;
   otherItems: OtherItem[];
+  defaultTitles?: GroupTitles;
   onChange: (next: OptionGroup[] | undefined) => void;
 }) {
   const t = useT();
@@ -40,7 +45,8 @@ export function OptionGroupsEditor({
   const patchGroup = (id: string, fn: (g: OptionGroup) => OptionGroup) =>
     commit(draft.map((g) => (g.id === id ? fn(g) : g)));
   const add = (kind: "required" | "extras") => {
-    const g = newGroup(kind, kind === "required" ? e.defaultRequiredTitle : e.defaultExtrasTitle);
+    const titles = defaultTitles ?? { required: e.defaultRequiredTitle, extras: e.defaultExtrasTitle };
+    const g = newGroup(kind, kind === "required" ? titles.required : titles.extras);
     setFocusId(g.options[0].id);
     commit([...draft, g]);
   };

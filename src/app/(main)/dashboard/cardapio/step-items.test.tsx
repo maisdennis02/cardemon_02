@@ -19,6 +19,7 @@ function render(menu: Menu): string {
         isPro
         country="BR"
         sectionSuggestions={{ "pt-BR": [], es: [], en: [] }}
+        groupTitles={{ "pt-BR": { required: "x", extras: "x" }, es: { required: "x", extras: "x" }, en: { required: "x", extras: "x" } }}
         onLeaveToPhotos={() => {}}
       />
     </DictionaryProvider>,

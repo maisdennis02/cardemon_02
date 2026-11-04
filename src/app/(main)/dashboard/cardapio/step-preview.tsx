@@ -15,11 +15,15 @@ import type { BuilderRestaurant } from "./menu-builder";
 // publish button. Publishing sends the menu on screen, not the saved draft.
 // Without a WhatsApp number the menu takes no orders, so the number is asked
 // here, optional, until the restaurant has one.
+// Labels of the previewed menu, in the menu's language (the country).
+export type PreviewLabels = { cardapioDigital: string; madeBy: string; fromPrice: string };
+
 export function StepPreview({
   restaurant,
   menu,
   theme,
   country,
+  labels,
   isPro,
   settle,
   baseRev,
@@ -28,6 +32,7 @@ export function StepPreview({
   menu: Menu;
   theme: MenuTheme;
   country: string;
+  labels?: PreviewLabels;
   isPro: boolean;
   settle: () => Promise<void>;
   baseRev: () => string;
@@ -77,7 +82,7 @@ export function StepPreview({
           country={country}
           theme={theme}
           menu={shown}
-          labels={{ cardapioDigital: t.menu.cardapioDigital, madeBy: t.menu.madeBy, fromPrice: t.menu.order.fromPrice }}
+          labels={labels ?? { cardapioDigital: t.menu.cardapioDigital, madeBy: t.menu.madeBy, fromPrice: t.menu.order.fromPrice }}
           actions={null}
         />
         {hidden > 0 && (

@@ -11,7 +11,7 @@ import { FREE_PHOTO_LIMIT } from "@/lib/pricing";
 import { capture } from "@/lib/posthog";
 import { MicButton } from "@/components/voice/mic-button";
 import { IconButton } from "./step-items";
-import { OptionGroupsEditor } from "./option-groups-editor";
+import { OptionGroupsEditor, type GroupTitles } from "./option-groups-editor";
 
 // `photo: undefined` removes the photo; `groups: undefined` removes the option groups.
 type Patch = { name?: string; description?: string; priceCents?: number | null; photo?: ItemPhoto | undefined; groups?: OptionGroup[] | undefined };
@@ -33,12 +33,15 @@ export function ItemEditor({
   onRemove,
   onDone,
   lang,
+  defaultGroupTitles,
   restaurantId,
   isPro,
   photoCount,
   otherItems,
 }: {
   lang: string;
+  // Titles for a new option group, in the menu's language.
+  defaultGroupTitles?: GroupTitles;
   restaurantId: string;
   isPro: boolean;
   // Photos in the whole menu, for the free cap.
@@ -110,7 +113,7 @@ export function ItemEditor({
       </label>
         </div>
       </div>
-      <OptionGroupsEditor groups={item.groups} otherItems={otherItems} onChange={(groups) => onChange({ groups })} />
+      <OptionGroupsEditor groups={item.groups} otherItems={otherItems} defaultTitles={defaultGroupTitles} onChange={(groups) => onChange({ groups })} />
       <label className="label">
         {e.description}
         <span className="flex items-start gap-2">
