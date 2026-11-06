@@ -403,12 +403,14 @@ const ptBR: Dictionary = {
       title: "Plano",
       proUntil: "Pro até {date}",
       proRenews: "Pro · renova em {date}",
+      proCourtesy: "Pro de cortesia até {date}",
     },
     account: {
       title: "Conta",
     },
     managePlan: "Gerenciar assinatura",
     upgrade: "Fazer upgrade",
+    subscribePro: "Assinar o Pro",
     changePassword: {
       title: "Alterar senha",
       description: "Escolha uma nova senha para sua conta. Sua sessão atual continua ativa.",

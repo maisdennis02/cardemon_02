@@ -3,8 +3,8 @@ import Link from "next/link";
 import { auth, signOut } from "@/auth";
 import { prisma } from "@/lib/prisma";
 import { getDictionary, getLocale } from "@/i18n";
-import { format } from "@/i18n/config";
-import { isPro } from "@/lib/pricing";
+import { planState } from "@/lib/pricing";
+import { PlanSummary } from "./plan-summary";
 import { RestaurantSettingsForm } from "../restaurant-settings-form";
 import { ChangePasswordCard } from "../change-password-card";
 import { DeleteAccountCard } from "../delete-account-card";
@@ -20,7 +20,12 @@ export default async function SettingsPage() {
     prisma.restaurant.findFirst({ where: { ownerId: session.user.id } }),
     prisma.user.findUnique({
       where: { id: session.user.id },
-      select: { proExpiresAt: true, billingCancelAtPeriodEnd: true, passwordHash: true },
+      select: {
+        proExpiresAt: true,
+        billingCancelAtPeriodEnd: true,
+        billingSubscriptionId: true,
+        passwordHash: true,
+      },
     }),
   ]);
   // No business yet: the home screen is where one is created.
@@ -28,8 +33,6 @@ export default async function SettingsPage() {
 
   const locale = await getLocale();
   const t = await getDictionary(locale);
-  const p = t.dashboard.plan;
-  const userIsPro = isPro(user);
   const proDate = user?.proExpiresAt?.toLocaleDateString(locale);
 
   return (
@@ -42,25 +45,7 @@ export default async function SettingsPage() {
         <RestaurantSettingsForm restaurant={restaurant} />
 
         <section className="card flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-          <div className="flex flex-col gap-1">
-            <h2 className="text-lg font-bold text-[color:var(--color-navy)]">{p.title}</h2>
-            {userIsPro && proDate && (
-              <p className="text-sm text-gray-600">
-                {format(user?.billingCancelAtPeriodEnd ? p.proUntil : p.proRenews, {
-                  date: proDate,
-                })}
-              </p>
-            )}
-          </div>
-          {userIsPro ? (
-            <form action="/api/stripe/portal" method="post">
-              <button className="btn btn-secondary btn-sm">{t.dashboard.managePlan}</button>
-            </form>
-          ) : (
-            <Link href="/pricing" className="btn btn-primary btn-sm self-start">
-              {t.dashboard.upgrade}
-            </Link>
-          )}
+          <PlanSummary t={t} state={planState(user)} date={proDate ?? null} />
         </section>
 
         <section className="flex flex-col gap-4">

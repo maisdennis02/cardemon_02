@@ -405,12 +405,14 @@ export const en = {
       title: "Plan",
       proUntil: "Pro until {date}",
       proRenews: "Pro · renews on {date}",
+      proCourtesy: "Courtesy Pro until {date}",
     },
     account: {
       title: "Account",
     },
     managePlan: "Manage subscription",
     upgrade: "Upgrade",
+    subscribePro: "Subscribe to Pro",
     changePassword: {
       title: "Change password",
       description: "Choose a new password for your account. You'll keep your current session.",

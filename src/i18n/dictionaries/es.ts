@@ -403,12 +403,14 @@ const es: Dictionary = {
       title: "Plan",
       proUntil: "Pro hasta el {date}",
       proRenews: "Pro · se renueva el {date}",
+      proCourtesy: "Pro de cortesía hasta {date}",
     },
     account: {
       title: "Cuenta",
     },
     managePlan: "Gestionar suscripción",
     upgrade: "Mejorar plan",
+    subscribePro: "Suscribirse a Pro",
     changePassword: {
       title: "Cambiar contraseña",
       description: "Elige una nueva contraseña para tu cuenta. Tu sesión actual seguirá activa.",
