@@ -333,8 +333,10 @@ export const en = {
         fewerColors: "fewer colors",
         pickColor: "Use color {color}",
         headerStyle: "Header style",
-        centered: "Centered",
-        band: "Band",
+        centered: "Simple",
+        band: "Band with the name",
+        style: "Menu style",
+        styles: { light: "Light", poster: "Poster" },
         headerPreview: "How the header will look",
       },
       items: {

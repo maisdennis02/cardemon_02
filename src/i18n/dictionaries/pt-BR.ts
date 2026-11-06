@@ -331,8 +331,10 @@ const ptBR: Dictionary = {
         fewerColors: "menos cores",
         pickColor: "Usar a cor {color}",
         headerStyle: "Estilo do topo",
-        centered: "Centralizado",
-        band: "Faixa",
+        centered: "Simples",
+        band: "Faixa com o nome",
+        style: "Estilo do cardápio",
+        styles: { light: "Claro", poster: "Cartaz" },
         headerPreview: "Como o topo vai ficar",
       },
       items: {

@@ -331,8 +331,10 @@ const es: Dictionary = {
         fewerColors: "menos colores",
         pickColor: "Usar el color {color}",
         headerStyle: "Estilo del encabezado",
-        centered: "Centrado",
-        band: "Franja",
+        centered: "Simple",
+        band: "Franja con el nombre",
+        style: "Estilo del menú",
+        styles: { light: "Claro", poster: "Cartel" },
         headerPreview: "Así se verá el encabezado",
       },
       items: {
