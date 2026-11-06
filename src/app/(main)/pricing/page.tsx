@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import { auth } from "@/auth";
 import { prisma } from "@/lib/prisma";
 import { getDictionary, getLocale } from "@/i18n";
-import { planState } from "@/lib/pricing";
+import { formatPlanDate, planState } from "@/lib/pricing";
 import { PricingContent, pricingMetadata } from "./pricing-content";
 
 // "/pricing", language negotiated per request, current plan from the session.
@@ -30,7 +30,7 @@ export default async function PricingPage() {
   const currentPlan: "FREE" | "PRO" | "COURTESY" | null =
     state === null ? null : state === "free" ? "FREE" : state === "courtesy" ? "COURTESY" : "PRO";
   const courtesyUntil =
-    state === "courtesy" ? user?.proExpiresAt?.toLocaleDateString(locale) : undefined;
+    state === "courtesy" && user?.proExpiresAt ? formatPlanDate(user.proExpiresAt, locale) : undefined;
 
   return <PricingContent locale={locale} t={t} currentPlan={currentPlan} courtesyUntil={courtesyUntil} pathPrefix="" />;
 }

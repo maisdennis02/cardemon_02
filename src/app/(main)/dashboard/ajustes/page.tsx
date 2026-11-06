@@ -3,7 +3,7 @@ import Link from "next/link";
 import { auth, signOut } from "@/auth";
 import { prisma } from "@/lib/prisma";
 import { getDictionary, getLocale } from "@/i18n";
-import { planState } from "@/lib/pricing";
+import { formatPlanDate, planState } from "@/lib/pricing";
 import { PlanSummary } from "./plan-summary";
 import { RestaurantSettingsForm } from "../restaurant-settings-form";
 import { ChangePasswordCard } from "../change-password-card";
@@ -33,7 +33,7 @@ export default async function SettingsPage() {
 
   const locale = await getLocale();
   const t = await getDictionary(locale);
-  const proDate = user?.proExpiresAt?.toLocaleDateString(locale);
+  const proDate = user?.proExpiresAt ? formatPlanDate(user.proExpiresAt, locale) : undefined;
 
   return (
     <div className="flex min-h-screen flex-col bg-gray-50/60">
