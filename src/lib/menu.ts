@@ -32,12 +32,18 @@ export type MenuFont = (typeof MENU_FONTS)[number];
 // Page backgrounds, like a chat wallpaper; "plain" is a light grey with no pattern.
 export const MENU_BACKGROUNDS = ["plain", "paper", "linen", "gingham", "dots", "doodles"] as const;
 export type MenuBackground = (typeof MENU_BACKGROUNDS)[number];
+// "light": the list on the chosen background. "poster" (2026-11-06): dark
+// page, section titles on a band of the restaurant's color, prices on a
+// white tag — the look of the menu posters these places print. Absent = light.
+export const MENU_STYLES = ["light", "poster"] as const;
+export type MenuStyle = (typeof MENU_STYLES)[number];
 export type MenuTheme = {
   logoUrl?: string;
   color: string;
   headerStyle: "centered" | "band";
   font?: MenuFont;
   background?: MenuBackground;
+  style?: MenuStyle;
 };
 export type MenuMode = "photos" | "built";
 
@@ -123,6 +129,7 @@ export const MenuThemeSchema: z.ZodType<MenuTheme> = z.object({
   headerStyle: z.enum(["centered", "band"]),
   font: z.enum(MENU_FONTS).optional(),
   background: z.enum(MENU_BACKGROUNDS).optional(),
+  style: z.enum(MENU_STYLES).optional(),
 });
 
 // Server actions receive whatever the client sends: check the envelope before

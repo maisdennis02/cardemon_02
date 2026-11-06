@@ -287,6 +287,15 @@ describe("MenuThemeSchema", () => {
     expect(theme({ color: "red" })).toBe(false);
     expect(theme({ color: "#fff" })).toBe(false);
   });
+
+  // 2026-11-06: "Cartaz" (dark, poster-like) next to the light list.
+  it("takes a style, light or poster, and stays valid without one", () => {
+    expect(theme({})).toBe(true);
+    expect(theme({ style: "light" })).toBe(true);
+    expect(theme({ style: "poster" })).toBe(true);
+    expect(theme({ style: "neon" })).toBe(false);
+    expect(readMenuTheme({ color: "#a1b2c3", headerStyle: "band", style: "poster" }).style).toBe("poster");
+  });
 });
 
 describe("stage A follow-ups", () => {
