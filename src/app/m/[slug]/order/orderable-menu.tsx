@@ -25,6 +25,7 @@ export function OrderableMenu({
   menu,
   accent,
   titleColor,
+  titleStyle,
 }: {
   slug: string;
   restaurantName: string;
@@ -35,6 +36,8 @@ export function OrderableMenu({
   menu: Menu; // already cut by visibleMenu
   accent: string;
   titleColor: string;
+  // Overrides titleColor: the poster style's band (sectionTitleStyle).
+  titleStyle?: React.CSSProperties;
 }) {
   const t = useT();
   const o = t.menu.order;
@@ -66,7 +69,7 @@ export function OrderableMenu({
         {menu.sections.map((section) => (
           <section key={section.id} id={section.id} className="mt-6 scroll-mt-14 first:mt-1">
             {section.title && (
-              <h2 className={MENU_SECTION_TITLE_CLASS} style={{ color: titleColor }}>
+              <h2 className={MENU_SECTION_TITLE_CLASS} style={titleStyle ?? { color: titleColor }}>
                 {section.title}
               </h2>
             )}
@@ -207,7 +210,7 @@ export function OrderableItem({
           aria-label={format(o.add, { name: item.name })}
           onClick={grouped ? () => setOpen(true) : () => onAdd([], 1)}
           aria-haspopup={grouped ? "dialog" : undefined}
-          className={`absolute flex items-center justify-center rounded-full text-lg font-bold ${
+          className={`absolute flex items-center justify-center rounded-full text-lg font-bold menu-add ${
             photo ? "right-3 top-[4.875rem] size-9 bg-white shadow-md" : "bottom-3 right-4 size-8 text-white"
           }`}
           style={photo ? { color: accent } : { background: accent }}

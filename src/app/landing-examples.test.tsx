@@ -11,7 +11,7 @@ import { EXAMPLE_MENUS, isKnownMenuSlug } from "@/lib/example-menus";
 
 vi.mock("next/font/google", () => {
   const font = () => ({ variable: "", className: "" });
-  return { Geist: font, Geist_Mono: font, Encode_Sans_Expanded: font, Playfair_Display: font, Kalam: font };
+  return { Geist: font, Geist_Mono: font, Encode_Sans_Expanded: font, Playfair_Display: font, Kalam: font, Anton: font };
 });
 vi.mock("@vercel/analytics/next", () => ({ Analytics: () => null }));
 

@@ -379,6 +379,21 @@ export function headerColors(color: string): { accent: string; title: string } {
   return { accent, title: lum !== null && contrast >= 3 ? color : DEFAULT_MENU_THEME.color };
 }
 
+// The "poster" style's colors on its near-black page (POSTER_BG): item names
+// take the restaurant's color only when it reads there (contrast ≥ 3), and
+// the text on the section band is dark on a light color, white on a dark one.
+export const POSTER_BG = "#141414";
+export function posterColors(color: string): { accent: string; name: string; onAccent: string } {
+  const { accent } = headerColors(color);
+  const lum = luminance(accent) ?? 0;
+  const bg = luminance(POSTER_BG) ?? 0;
+  return {
+    accent,
+    name: (lum + 0.05) / (bg + 0.05) >= 3 ? accent : "#ffffff",
+    onAccent: lum > 0.18 ? POSTER_BG : "#ffffff",
+  };
+}
+
 // schema.org Menu for the restaurant's JSON-LD. Callers pass the visible menu
 // only, so Google never indexes items the page doesn't show.
 export function menuJsonLd(menu: Menu, country: string | null | undefined): Record<string, unknown> {

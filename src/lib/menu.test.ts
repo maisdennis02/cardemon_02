@@ -21,6 +21,7 @@ import {
   menuJsonLd,
   publishedItemCount,
   readMenuTheme,
+  posterColors,
   readPublishedMenu,
   visibleMenu,
   publicMenu,
@@ -186,6 +187,18 @@ describe("currency", () => {
 
   it("formats prices without a country in dollars", () => {
     expect(nb(formatPrice(2590, null))).toBe("$25.90");
+  });
+});
+
+describe("posterColors", () => {
+  // The poster page is near-black: the restaurant's color names the items only
+  // when it reads on it, and the text on the section band flips to stay legible.
+  it("uses a bright color for item names and dark text on its band", () => {
+    expect(posterColors("#fcc707")).toEqual({ accent: "#fcc707", name: "#fcc707", onAccent: "#141414" });
+  });
+
+  it("names items in white when the color is too dark for the page, with white text on its band", () => {
+    expect(posterColors("#1f2937")).toEqual({ accent: "#1f2937", name: "#ffffff", onAccent: "#ffffff" });
   });
 });
 

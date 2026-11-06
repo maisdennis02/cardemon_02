@@ -357,3 +357,63 @@ describe("items with option groups", () => {
     expect(html).not.toMatch(/>2 no pedido</);
   });
 });
+
+// 2026-11-06 (plans/2026-11-06-cardapio-visual-novo.md): a compact list, a
+// band that says the restaurant's name, address and hours under the name,
+// and the "poster" style.
+describe("visual of 2026-11-06", () => {
+  const render = (patch: Partial<MenuTheme>, info?: { address: string | null; hours: string | null }) =>
+    renderToStaticMarkup(
+      <BuiltMenu
+        slug="x"
+        name="Tony's Lanches"
+        country="BR"
+        theme={{ ...theme, ...patch }}
+        menu={twoSections}
+        labels={{ cardapioDigital: "Cardápio Digital", madeBy: "feito por", fromPrice: "a partir de {price}" }}
+        actions={null}
+        info={info}
+      />,
+    );
+
+  it("fills the band with the restaurant's name, hidden from screen readers", () => {
+    const html = render({ headerStyle: "band" });
+    const texture = html.match(/<div[^>]*class="menu-texture[^"]*"[^>]*>[\s\S]*?<\/div><\/div>/)?.[0] ?? "";
+    expect(texture).toContain('aria-hidden="true"');
+    expect((texture.match(/Tony&#x27;s Lanches/g) ?? []).length).toBeGreaterThanOrEqual(3);
+  });
+
+  it("draws no texture on the simple header", () => {
+    expect(render({ headerStyle: "centered" })).not.toContain("menu-texture");
+  });
+
+  it("shows the address as a link to the map, and the hours, under the name", () => {
+    const html = render({}, { address: "Rua Maria Scomparim, 261 - Boituva", hours: "Terça a domingo, 18h às 23h30" });
+    expect(html).toMatch(/<a[^>]*href="https:\/\/www\.google\.com\/maps\/search\/\?api=1&amp;query=Rua%20Maria[^"]*"[^>]*target="_blank"/);
+    expect(html).toContain("Terça a domingo, 18h às 23h30");
+    expect(html.indexOf("<h1")).toBeLessThan(html.indexOf("Terça a domingo"));
+  });
+
+  it("shows neither when the restaurant has none", () => {
+    expect(render({}, { address: null, hours: null })).not.toContain("google.com/maps");
+  });
+
+  it("lists each section's items in one panel, with descriptions cut at two lines", () => {
+    const html = render({});
+    expect(html.match(/<ul[^>]*class="[^"]*menu-list/g)).toHaveLength(2);
+    expect(listItem(html, 0)).toMatch(/line-clamp-2[^>]*>Pão, carne, queijo e salada\./);
+  });
+
+  it("poster: a dark page, sections on a band of the color, prices on a tag", () => {
+    const html = render({ style: "poster", color: "#fcc707" });
+    expect(html).toMatch(/class="[^"]*\bmenu-poster\b/);
+    expect(html).toContain("background-color:#141414");
+    expect(html).toMatch(/<h2[^>]*style="[^"]*background:#fcc707;color:#141414/);
+    expect(listItem(html, 0)).toMatch(/class="[^"]*menu-price[^"]*"[^>]*>R\$/);
+  });
+
+  it("light stays light, on the chosen background", () => {
+    const html = render({ style: "light", background: "paper" });
+    expect(html).not.toMatch(/class="[^"]*\bmenu-poster\b/);
+  });
+});

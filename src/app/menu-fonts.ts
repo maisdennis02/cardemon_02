@@ -1,4 +1,4 @@
-import { Kalam, Playfair_Display } from "next/font/google";
+import { Anton, Kalam, Playfair_Display } from "next/font/google";
 
 // Optional fonts for text menus (MenuTheme.font), shared by the public menu
 // layout and the dashboard, where the builder previews them. Not preloaded:
@@ -17,4 +17,13 @@ const casual = Kalam({
   preload: false,
 });
 
-export const menuFontVariables = `${elegant.variable} ${casual.variable}`;
+// The band's texture (the restaurant's name, repeated) and the poster style's
+// titles: a condensed display face, like the posters these places print.
+const poster = Anton({
+  variable: "--font-menu-poster",
+  subsets: ["latin"],
+  weight: ["400"],
+  preload: false,
+});
+
+export const menuFontVariables = `${elegant.variable} ${casual.variable} ${poster.variable}`;

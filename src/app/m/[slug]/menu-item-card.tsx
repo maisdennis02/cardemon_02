@@ -3,15 +3,17 @@ import { format } from "@/i18n/config";
 import { formatPrice, type ItemPhoto, type MenuItem } from "@/lib/menu";
 import { fromPrice } from "@/lib/menu-options";
 
-// One item of a text menu, as a card: name, description, then the price on
-// its own line — never a right-hand price column, which makes a diner read
-// the menu by price (what the menu-engineering people call "price scanning").
+// One item of a text menu, as a row of its section's panel (2026-11-06; a
+// card of its own before): name, description cut at two lines, then the
+// price on its own line — never a right-hand price column, which makes a
+// diner read the menu by price (what the menu-engineering people call "price
+// scanning").
 // No hooks and no "use client": the public page renders it on the server,
 // the ordering list renders it inside a button.
 
 // The <li> itself; the ordering list needs its own <li> (a button plus the
 // quantity control inside), so the card look is a class it can reuse.
-export const MENU_ITEM_CARD_CLASS = "rounded-2xl border border-black/[.07] bg-white px-4 pb-3 pt-3.5 shadow-[0_1px_2px_rgba(0,0,0,.04)]";
+export const MENU_ITEM_CARD_CLASS = "menu-row px-4 pb-3 pt-3";
 
 // What a card shows as the price of an item: with option groups, the price of
 // the cheapest valid choice ("a partir de" when a required group can change it).
@@ -93,13 +95,13 @@ export function MenuItemBody({
     return (
       <span className="flex items-stretch gap-3">
         <span className="flex min-w-0 flex-1 flex-col">
-          <span className="block font-semibold leading-snug">{name}</span>
+          <span className="menu-name block font-semibold leading-snug">{name}</span>
           {description && (
-            <span className="mt-0.5 line-clamp-2 text-[0.875em] leading-snug text-gray-500">{description}</span>
+            <span className="menu-desc mt-0.5 line-clamp-2 text-[0.875em] leading-snug text-gray-500">{description}</span>
           )}
           {(price !== null || trailing) && (
             <span className="mt-auto flex min-h-[2em] items-center justify-between gap-3 pt-[0.5em]">
-              <span className="font-medium tabular-nums">{price}</span>
+              <span className={price !== null ? "menu-price font-medium tabular-nums" : undefined}>{price}</span>
               {trailing}
             </span>
           )}
@@ -119,16 +121,18 @@ export function MenuItemBody({
   }
   return (
     <>
-      <span className="block font-semibold leading-snug">{name}</span>
-      {description && <span className="mt-0.5 block text-[0.875em] leading-snug text-gray-500">{description}</span>}
+      <span className="menu-name block font-semibold leading-snug">{name}</span>
+      {description && (
+        <span className="menu-desc mt-0.5 line-clamp-2 text-[0.875em] leading-snug text-gray-500">{description}</span>
+      )}
       {groupLines?.map((line, i) => (
-        <span key={i} className="mt-0.5 block break-words text-[0.8em] leading-snug text-gray-500">
+        <span key={i} className="menu-desc mt-0.5 block break-words text-[0.8em] leading-snug text-gray-500">
           {line}
         </span>
       ))}
       {(price !== null || trailing) && (
-        <span className="mt-[0.5em] flex min-h-[2em] items-center justify-between gap-3">
-          <span className="font-medium tabular-nums">{price}</span>
+        <span className="mt-[0.4em] flex min-h-[2em] items-center justify-between gap-3">
+          <span className={price !== null ? "menu-price font-medium tabular-nums" : undefined}>{price}</span>
           {trailing}
         </span>
       )}
@@ -137,5 +141,7 @@ export function MenuItemBody({
 }
 
 // Section headings read as headings now, not as tiny tracked-out caps.
-export const MENU_SECTION_TITLE_CLASS = "mb-2.5 px-1 text-lg font-bold leading-tight";
-export const MENU_SECTION_LIST_CLASS = "grid gap-2.5";
+export const MENU_SECTION_TITLE_CLASS = "menu-section-title mb-2.5 px-1 text-lg font-bold leading-tight";
+// One panel per section, items as rows split by a hairline (2026-11-06).
+export const MENU_SECTION_LIST_CLASS =
+  "menu-list divide-y divide-black/[.06] overflow-hidden rounded-2xl border border-black/[.07] bg-white shadow-[0_1px_2px_rgba(0,0,0,.04)]";
