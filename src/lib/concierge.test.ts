@@ -18,6 +18,7 @@ const target = (o: Partial<FillTarget> = {}): FillTarget => ({
   restaurants: [{ id: "r1", slug: "lanche-bom", menuDraft: null }],
   proExpiresAt: null,
   billingSubscriptionId: null,
+  billingCustomerId: null,
   ...o,
 });
 
@@ -53,6 +54,11 @@ describe("planConciergeFill", () => {
     expect(planConciergeFill(target({ billingSubscriptionId: "sub_1" }), menu, now)).toEqual({ ok: false, reason: "has-subscription" });
     const lapsed = target({ billingSubscriptionId: "sub_1", proExpiresAt: new Date("2026-01-01T00:00:00Z") });
     expect(planConciergeFill(lapsed, menu, now)).toEqual({ ok: false, reason: "has-subscription" });
+  });
+
+  it("refuses a former subscriber whose subscription id the webhook already cleared", () => {
+    const former = target({ billingCustomerId: "cus_1", proExpiresAt: new Date("2026-01-01T00:00:00Z") });
+    expect(planConciergeFill(former, menu, now)).toEqual({ ok: false, reason: "has-subscription" });
   });
 
   it("needs exactly one restaurant", () => {

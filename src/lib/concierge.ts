@@ -22,6 +22,10 @@ export type FillTarget = {
   restaurants: { id: string; slug: string; menuDraft: unknown }[];
   proExpiresAt: Date | null;
   billingSubscriptionId: string | null;
+  // Set once a Stripe checkout ever ran. The webhook clears the subscription
+  // id when a subscription lapses, but keeps the customer: this is what
+  // still marks a former subscriber.
+  billingCustomerId: string | null;
 };
 
 export type FillPlan =
@@ -49,9 +53,11 @@ export function planConciergeFill(target: FillTarget, menu: Menu, now: Date): Fi
   if (target.restaurants.length > 1) return { ok: false, reason: "many-restaurants" };
   const [restaurant] = target.restaurants;
   if (!draftIsEmpty(restaurant.menuDraft)) return { ok: false, reason: "draft-not-empty" };
-  // Any subscription id, live or lapsed, means billing history we must not
-  // paper over with a courtesy: that account is sorted out by hand.
-  if (target.billingSubscriptionId != null) return { ok: false, reason: "has-subscription" };
+  // Any billing history (live subscription, or a Stripe customer left by a
+  // lapsed one) must not be papered over with a courtesy: sort it out by hand.
+  if (target.billingSubscriptionId != null || target.billingCustomerId != null) {
+    return { ok: false, reason: "has-subscription" };
+  }
 
   const courtesyEnd = new Date(now.getTime() + COURTESY_DAYS * DAY_MS);
   const before = target.proExpiresAt;

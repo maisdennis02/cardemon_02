@@ -54,6 +54,7 @@ async function main() {
         id: true,
         proExpiresAt: true,
         billingSubscriptionId: true,
+        billingCustomerId: true,
         restaurants: { select: { id: true, slug: true, menuDraft: true } },
       },
     });
