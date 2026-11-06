@@ -579,6 +579,7 @@ export const en = {
       featurePriority: "Priority support",
       cta: "Subscribe",
       ctaSoon: "Available soon",
+      courtesyUntil: "Courtesy until {date}",
     },
   },
   menu: {

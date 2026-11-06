@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import { auth } from "@/auth";
 import { prisma } from "@/lib/prisma";
 import { getDictionary, getLocale } from "@/i18n";
-import { isPro } from "@/lib/pricing";
+import { planState } from "@/lib/pricing";
 import { PricingContent, pricingMetadata } from "./pricing-content";
 
 // "/pricing", language negotiated per request, current plan from the session.
@@ -22,15 +22,15 @@ export default async function PricingPage() {
   const user = session?.user?.id
     ? await prisma.user.findUnique({
         where: { id: session.user.id },
-        select: { proExpiresAt: true },
+        select: { proExpiresAt: true, billingSubscriptionId: true, billingCancelAtPeriodEnd: true },
       })
     : null;
 
-  const currentPlan: "FREE" | "PRO" | null = session?.user
-    ? isPro(user)
-      ? "PRO"
-      : "FREE"
-    : null;
+  const state = session?.user ? planState(user) : null;
+  const currentPlan: "FREE" | "PRO" | "COURTESY" | null =
+    state === null ? null : state === "free" ? "FREE" : state === "courtesy" ? "COURTESY" : "PRO";
+  const courtesyUntil =
+    state === "courtesy" ? user?.proExpiresAt?.toLocaleDateString(locale) : undefined;
 
-  return <PricingContent locale={locale} t={t} currentPlan={currentPlan} pathPrefix="" />;
+  return <PricingContent locale={locale} t={t} currentPlan={currentPlan} courtesyUntil={courtesyUntil} pathPrefix="" />;
 }

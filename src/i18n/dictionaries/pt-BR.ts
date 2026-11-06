@@ -579,6 +579,7 @@ const ptBR: Dictionary = {
       featurePriority: "Suporte prioritário",
       cta: "Assinar",
       ctaSoon: "Em breve",
+      courtesyUntil: "Cortesia até {date}",
     },
   },
   menu: {

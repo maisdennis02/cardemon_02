@@ -579,6 +579,7 @@ const es: Dictionary = {
       featurePriority: "Soporte prioritario",
       cta: "Suscribirse",
       ctaSoon: "Próximamente",
+      courtesyUntil: "Cortesía hasta {date}",
     },
   },
   menu: {
