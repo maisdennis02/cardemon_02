@@ -490,6 +490,12 @@ export const en = {
       deliveryTitle: "Delivery apps",
       slugWarning: "Changing the address stops any QR code you already printed from working.",
       descriptionMic: "Hold to say the description",
+      address: "Restaurant address (optional)",
+      addressHint: "Shown on the menu, with a link to the map.",
+      addressPlaceholder: "120 Main St, Springfield",
+      hours: "Opening hours (optional)",
+      hoursHint: "Shown on the menu, under the name.",
+      hoursPlaceholder: "Tuesday to Sunday, 6 pm to 11:30 pm",
     },
     menuLive: {
       title: "Your menu is live — now put it in front of people",

@@ -488,6 +488,12 @@ const ptBR: Dictionary = {
       deliveryTitle: "Apps de delivery",
       slugWarning: "Mudar o endereço faz o QR code já impresso parar de funcionar.",
       descriptionMic: "Segure para falar a descrição",
+      address: "Endereço do restaurante (opcional)",
+      addressHint: "Aparece no cardápio, com um link para o mapa.",
+      addressPlaceholder: "Rua das Flores, 120 – Centro, Boituva",
+      hours: "Horário de funcionamento (opcional)",
+      hoursHint: "Aparece no cardápio, embaixo do nome.",
+      hoursPlaceholder: "Terça a domingo, das 18h às 23h30",
     },
     menuLive: {
       title: "Seu cardápio está no ar — agora mostre ele",

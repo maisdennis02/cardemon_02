@@ -488,6 +488,12 @@ const es: Dictionary = {
       deliveryTitle: "Apps de delivery",
       slugWarning: "Cambiar la dirección hace que el código QR ya impreso deje de funcionar.",
       descriptionMic: "Mantén presionado para decir la descripción",
+      address: "Dirección del restaurante (opcional)",
+      addressHint: "Aparece en el menú, con un enlace al mapa.",
+      addressPlaceholder: "Calle de las Flores 120, Centro",
+      hours: "Horario de atención (opcional)",
+      hoursHint: "Aparece en el menú, debajo del nombre.",
+      hoursPlaceholder: "Martes a domingo, de 18 a 23:30",
     },
     menuLive: {
       title: "Tu menú está publicado — ahora muéstralo",

@@ -7,6 +7,7 @@ import { useLocale, useT } from "@/i18n/provider";
 import { format } from "@/i18n/config";
 import { MicButton } from "@/components/voice/mic-button";
 import { WhatsappTestLink } from "./whatsapp-test-link";
+import { ADDRESS_MAX, HOURS_MAX } from "@/lib/restaurant-info";
 import {
   DELIVERY_APP_IDS,
   DELIVERY_APPS,
@@ -23,6 +24,8 @@ type Restaurant = {
   name: string;
   slug: string;
   description: string | null;
+  address?: string | null;
+  hours?: string | null;
   whatsappNumber: string | null;
   instagramUrl: string | null;
   country: string | null;
@@ -42,6 +45,8 @@ export function RestaurantSettingsForm({ restaurant }: { restaurant: Restaurant 
   const [whatsapp, setWhatsapp] = useState(restaurant.whatsappNumber ?? "");
   const [instagram, setInstagram] = useState(restaurant.instagramUrl ?? "");
   const [description, setDescription] = useState(restaurant.description ?? "");
+  const [address, setAddress] = useState(restaurant.address ?? "");
+  const [hours, setHours] = useState(restaurant.hours ?? "");
   const [country, setCountry] = useState<string>(restaurant.country ?? "");
   const [links, setLinks] = useState(() => {
     const initial = {} as Record<DeliveryUrlColumn, string>;
@@ -55,7 +60,7 @@ export function RestaurantSettingsForm({ restaurant }: { restaurant: Restaurant 
   // What was submitted last: "Salvo ✓" only stands while the fields still
   // match it, so it disappears on the first change (typed or dictated).
   const snapshot = (w: string) =>
-    JSON.stringify([name, slug, w, instagram, description, country, links]);
+    JSON.stringify([name, slug, w, instagram, description, address, hours, country, links]);
   const values = snapshot(whatsapp);
   const [submitted, setSubmitted] = useState<string | null>(null);
   const showSaved = state.ok && !pending && submitted === values;
@@ -175,6 +180,32 @@ export function RestaurantSettingsForm({ restaurant }: { restaurant: Restaurant 
               label={s.descriptionMic}
             />
           </span>
+        </label>
+
+        <label className="label">
+          {s.address}
+          <span className="label-hint">{s.addressHint}</span>
+          <input
+            name="address"
+            maxLength={ADDRESS_MAX}
+            value={address}
+            onChange={(e) => setAddress(e.target.value)}
+            placeholder={s.addressPlaceholder}
+            className="input"
+          />
+        </label>
+
+        <label className="label">
+          {s.hours}
+          <span className="label-hint">{s.hoursHint}</span>
+          <input
+            name="hours"
+            maxLength={HOURS_MAX}
+            value={hours}
+            onChange={(e) => setHours(e.target.value)}
+            placeholder={s.hoursPlaceholder}
+            className="input"
+          />
         </label>
       </section>
 
