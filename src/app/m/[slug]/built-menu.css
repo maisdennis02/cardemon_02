@@ -54,10 +54,13 @@
   padding: 0.05em 0.45em;
   border-radius: 3px;
 }
-.menu-poster .menu-add {
+/* The bare "+" becomes an outline in the item-name color (readable on the
+   dark page even for a dark restaurant color); the "+" on a photo keeps its
+   white circle. */
+.menu-poster .menu-add:not(.bg-white) {
   background: transparent !important;
-  border: 2px solid var(--menu-accent);
-  color: var(--menu-accent) !important;
+  border: 2px solid var(--menu-name);
+  color: var(--menu-name) !important;
 }
 .menu-poster .section-chips a {
   background: #1f1f1f;

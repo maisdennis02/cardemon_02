@@ -383,6 +383,12 @@ export function headerColors(color: string): { accent: string; title: string } {
 // take the restaurant's color only when it reads there (contrast ≥ 3), and
 // the text on the section band is dark on a light color, white on a dark one.
 export const POSTER_BG = "#141414";
+
+// Text on a button filled with `color`: dark on a light color (yellow), white
+// on a dark one.
+export function textOn(color: string): string {
+  return (luminance(color) ?? 0) > 0.18 ? POSTER_BG : "#ffffff";
+}
 export function posterColors(color: string): { accent: string; name: string; onAccent: string } {
   const { accent } = headerColors(color);
   const lum = luminance(accent) ?? 0;
@@ -390,7 +396,7 @@ export function posterColors(color: string): { accent: string; name: string; onA
   return {
     accent,
     name: (lum + 0.05) / (bg + 0.05) >= 3 ? accent : "#ffffff",
-    onAccent: lum > 0.18 ? POSTER_BG : "#ffffff",
+    onAccent: textOn(accent),
   };
 }
 

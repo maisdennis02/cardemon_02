@@ -45,6 +45,7 @@ export function BuiltMenu({
   const fonts = menuFontFamilies(theme.font);
   const poster = theme.style === "poster";
   const titleStyle = sectionTitleStyle(theme);
+  const pageStyle = poster ? posterPageStyle(theme.color) : menuBackgroundStyle(theme.background, theme.color);
   // Inside the dashboard, the page already has its own <main>.
   const Main = preview ? "div" : "main";
 
@@ -53,7 +54,7 @@ export function BuiltMenu({
       className={`flex flex-col ${poster ? "menu-poster text-white" : "text-gray-900"} ${preview ? "min-h-0" : "min-h-dvh"} ${ordering ? "pb-24" : ""}`}
       style={{
         fontFamily: fonts.body,
-        ...(poster ? posterPageStyle(theme.color) : menuBackgroundStyle(theme.background, theme.color)),
+        ...pageStyle,
       }}
     >
       {!preview && <MenuViewPing slug={slug} />}
@@ -67,7 +68,7 @@ export function BuiltMenu({
 
         <div className="built-menu-actions px-6 pt-5">{actions}</div>
 
-        <SectionChips menu={menu} accent={accent} />
+        <SectionChips menu={menu} accent={accent} background={pageStyle.backgroundColor} />
 
         {ordering ? (
           <OrderableMenu
@@ -80,6 +81,7 @@ export function BuiltMenu({
             accent={accent}
             titleColor={title}
             titleStyle={titleStyle}
+            controlColor={poster ? posterColors(theme.color).name : accent}
           />
         ) : (
           <Main className="flex-1 px-4 pb-10 pt-3">
@@ -150,14 +152,16 @@ function posterPageStyle(color: string): CSSProperties {
 }
 
 const TEXTURE_LINES = 7;
-const TEXTURE_REPEAT = 4;
+// Enough repeats that even a short name ("Nil's") fills a 512 px band, with
+// every other line shifted.
+const textureRepeat = (name: string) => Math.max(4, Math.ceil(60 / Math.max(name.length, 1)));
 
 // Also the live preview in the builder's visual step.
 export function BuiltMenuHeader({ name, theme, info }: { name: string; theme: MenuTheme; info?: MenuInfo }) {
   const { accent, title } = headerColors(theme.color);
   const band = theme.headerStyle === "band";
   const poster = theme.style === "poster";
-  const line = Array.from({ length: TEXTURE_REPEAT }, () => name).join("  ");
+  const line = Array.from({ length: textureRepeat(name) }, () => name).join("  ");
   return (
     <header className={band ? "text-center" : "px-6 pt-8 text-center"}>
       {band && (
@@ -221,11 +225,16 @@ export function BuiltMenuHeader({ name, theme, info }: { name: string; theme: Me
 // no JavaScript to mark the section in view, and it doesn't need any to jump.
 export const SECTION_CHIPS_MIN = 3;
 
-export function SectionChips({ menu, accent }: { menu: Menu; accent: string }) {
+export function SectionChips({ menu, accent, background }: { menu: Menu; accent: string; background?: CSSProperties["backgroundColor"] }) {
   const titled = menu.sections.filter((s) => s.title);
   if (titled.length < SECTION_CHIPS_MIN) return null;
   return (
-    <nav className="section-chips sticky top-0 z-10 flex gap-2 overflow-x-auto px-4 py-2.5">
+    // The page's own color behind the row while it is stuck at the top, so the
+    // items scrolling under it don't show through.
+    <nav
+      className="section-chips sticky top-0 z-10 flex gap-2 overflow-x-auto px-4 py-2.5"
+      style={background ? { backgroundColor: background } : undefined}
+    >
       {titled.map((s) => (
         <a
           key={s.id}

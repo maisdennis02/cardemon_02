@@ -3,7 +3,7 @@
 import { useState, useSyncExternalStore } from "react";
 import { useT } from "@/i18n/provider";
 import { format } from "@/i18n/config";
-import { formatPrice, type Menu } from "@/lib/menu";
+import { formatPrice, textOn, type Menu } from "@/lib/menu";
 import { hasGroups } from "@/lib/menu-options";
 import { addToCart, cartTotals, emptyCart, pruneCart, qtyOfItem, readCart, resolveCart, setQty, type Cart } from "@/lib/cart";
 import type { OrderDetails } from "@/lib/order";
@@ -26,6 +26,7 @@ export function OrderableMenu({
   accent,
   titleColor,
   titleStyle,
+  controlColor = accent,
 }: {
   slug: string;
   restaurantName: string;
@@ -38,6 +39,9 @@ export function OrderableMenu({
   titleColor: string;
   // Overrides titleColor: the poster style's band (sectionTitleStyle).
   titleStyle?: React.CSSProperties;
+  // The cards' "+", ± and "n no pedido": the poster style needs a color that
+  // reads on its dark page (posterColors().name); sheets keep `accent`.
+  controlColor?: string;
 }) {
   const t = useT();
   const o = t.menu.order;
@@ -81,6 +85,7 @@ export function OrderableMenu({
                   qty={qtyOfItem(lines, item.id)}
                   country={country}
                   accent={accent}
+                  controlColor={controlColor}
                   onAdd={(opts, n) => save(addToCart(cart, item.id, Date.now(), opts, n))}
                   onQty={(n) => save(setQty(cart, item.id, n, Date.now()))}
                 />
@@ -95,8 +100,8 @@ export function OrderableMenu({
           <button
             type="button"
             onClick={() => setSheetOpen(true)}
-            className="mx-auto flex w-full max-w-lg items-center justify-between gap-3 rounded-full px-5 py-4 font-bold text-white shadow-lg"
-            style={{ background: accent }}
+            className="mx-auto flex w-full max-w-lg items-center justify-between gap-3 rounded-full px-5 py-4 font-bold shadow-lg"
+            style={{ background: accent, color: textOn(accent) }}
           >
             <span>{o.viewOrder}</span>
             <span className="text-sm font-semibold tabular-nums">
@@ -139,6 +144,7 @@ export function OrderableItem({
   qty,
   country,
   accent,
+  controlColor = accent,
   onAdd,
   onQty,
 }: {
@@ -146,6 +152,7 @@ export function OrderableItem({
   qty: number;
   country: string | null;
   accent: string;
+  controlColor?: string;
   // Adds `qty` of the item with the chosen options (from the sheet, or the bare "+").
   onAdd: (opts: string[], qty: number) => void;
   // Direct ± on the card; only items without option groups get one.
@@ -185,7 +192,7 @@ export function OrderableItem({
         />
       </button>
       {grouped && qty > 0 && (
-        <p className="mt-1 text-sm font-semibold" style={{ color: accent }}>
+        <p className="mt-1 text-sm font-semibold" style={{ color: controlColor }}>
           {format(o.inOrder, { n: qty })}
         </p>
       )}
@@ -196,7 +203,7 @@ export function OrderableItem({
         <div className={photo ? "mt-2 flex justify-end" : "absolute bottom-3 right-4"}>
           <QtyControl
             qty={qty}
-            accent={accent}
+            accent={controlColor}
             label={format(o.inCart, { n: qty })}
             lessLabel={o.less}
             moreLabel={o.more}
@@ -211,9 +218,9 @@ export function OrderableItem({
           onClick={grouped ? () => setOpen(true) : () => onAdd([], 1)}
           aria-haspopup={grouped ? "dialog" : undefined}
           className={`absolute flex items-center justify-center rounded-full text-lg font-bold menu-add ${
-            photo ? "right-3 top-[4.875rem] size-9 bg-white shadow-md" : "bottom-3 right-4 size-8 text-white"
+            photo ? "right-3 top-[4.875rem] size-9 bg-white shadow-md" : "bottom-3 right-4 size-8"
           }`}
-          style={photo ? { color: accent } : { background: accent }}
+          style={photo ? { color: accent } : { background: controlColor, color: textOn(controlColor) }}
         >
           +
         </button>
