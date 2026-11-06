@@ -21,6 +21,7 @@ import {
   menuJsonLd,
   publishedItemCount,
   readMenuTheme,
+  posterColors,
   readPublishedMenu,
   visibleMenu,
   publicMenu,
@@ -189,6 +190,18 @@ describe("currency", () => {
   });
 });
 
+describe("posterColors", () => {
+  // The poster page is near-black: the restaurant's color names the items only
+  // when it reads on it, and the text on the section band flips to stay legible.
+  it("uses a bright color for item names and dark text on its band", () => {
+    expect(posterColors("#fcc707")).toEqual({ accent: "#fcc707", name: "#fcc707", onAccent: "#141414" });
+  });
+
+  it("names items in white when the color is too dark for the page, with white text on its band", () => {
+    expect(posterColors("#1f2937")).toEqual({ accent: "#1f2937", name: "#ffffff", onAccent: "#ffffff" });
+  });
+});
+
 describe("headerColors", () => {
   it("keeps a dark color for titles", () => {
     expect(headerColors("#1f2937")).toEqual({ accent: "#1f2937", title: "#1f2937" });
@@ -286,6 +299,15 @@ describe("MenuThemeSchema", () => {
     expect(theme({ color: "#a1b2c3" })).toBe(true);
     expect(theme({ color: "red" })).toBe(false);
     expect(theme({ color: "#fff" })).toBe(false);
+  });
+
+  // 2026-11-06: "Cartaz" (dark, poster-like) next to the light list.
+  it("takes a style, light or poster, and stays valid without one", () => {
+    expect(theme({})).toBe(true);
+    expect(theme({ style: "light" })).toBe(true);
+    expect(theme({ style: "poster" })).toBe(true);
+    expect(theme({ style: "neon" })).toBe(false);
+    expect(readMenuTheme({ color: "#a1b2c3", headerStyle: "band", style: "poster" }).style).toBe("poster");
   });
 });
 

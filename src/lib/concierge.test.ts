@@ -73,6 +73,12 @@ describe("ConciergeFileSchema", () => {
     expect(ConciergeFileSchema.safeParse({ name: "Lanche Bom", instagram: "lanchebom", menu }).success).toBe(true);
   });
 
+  it("takes the address and hours from the restaurant's bio, within the Ajustes limits", () => {
+    const base = { name: "Tony's", instagram: "tonys", menu };
+    expect(ConciergeFileSchema.safeParse({ ...base, address: "Rua A, 1 - Boituva", hours: "Terça a domingo" }).success).toBe(true);
+    expect(ConciergeFileSchema.safeParse({ ...base, address: "x".repeat(161) }).success).toBe(false);
+  });
+
   it("rejects a file without menu.v", () => {
     const bad = { name: "x", instagram: "x", menu: { sections: [] } };
     expect(ConciergeFileSchema.safeParse(bad).success).toBe(false);

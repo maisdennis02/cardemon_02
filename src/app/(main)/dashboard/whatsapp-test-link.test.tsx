@@ -103,4 +103,36 @@ describe("RestaurantSettingsForm", () => {
     expect(html).toContain("https://wa.me/5511912345678?text=");
     expect(html).toContain(ptBR.dashboard.home.whatsappTestHint);
   });
+
+  // 2026-11-06: address and hours, shown under the name on the menu.
+  it("edits the address and opening hours, filled with what is stored", async () => {
+    const { RestaurantSettingsForm } = await import("./restaurant-settings-form");
+    const html = render(
+      <RestaurantSettingsForm
+        restaurant={{
+          id: "r1",
+          name: "Tony's Lanches",
+          slug: "tonys",
+          description: null,
+          address: "Rua Maria Scomparim, 261 - Boituva",
+          hours: "Terça a domingo, 18h às 23h30",
+          whatsappNumber: null,
+          instagramUrl: null,
+          country: "BR",
+          ifoodUrl: null,
+          ubereatsUrl: null,
+          doordashUrl: null,
+          rappiUrl: null,
+          grubhubUrl: null,
+          pedidosyaUrl: null,
+          didifoodUrl: null,
+        }}
+      />,
+    );
+    expect(html).toContain('name="address"');
+    expect(html).toContain('value="Rua Maria Scomparim, 261 - Boituva"');
+    expect(html).toContain('name="hours"');
+    expect(html).toContain('value="Terça a domingo, 18h às 23h30"');
+    expect(html).toContain(ptBR.dashboard.settings.hours);
+  });
 });

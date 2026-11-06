@@ -150,6 +150,7 @@ export default async function PublicMenuPage({
                 : undefined
           }
           exampleLabel={restaurant.example ? t.menu.exampleLabel : undefined}
+          info={{ address: restaurant.address, hours: restaurant.hours }}
           actions={
             <MenuActions
               slug={slug}

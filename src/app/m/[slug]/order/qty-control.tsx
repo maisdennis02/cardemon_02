@@ -1,3 +1,5 @@
+import { textOn } from "@/lib/menu";
+
 // The − n + control: on a card once the item is in the order, and in the item
 // sheet before adding.
 export function QtyControl({
@@ -31,8 +33,8 @@ export function QtyControl({
         type="button"
         aria-label={moreLabel}
         onClick={() => onChange(qty + 1)}
-        className="flex size-8 items-center justify-center rounded-full text-lg font-bold text-white"
-        style={{ background: accent }}
+        className="flex size-8 items-center justify-center rounded-full text-lg font-bold"
+        style={{ background: accent, color: textOn(accent) }}
       >
         +
       </button>

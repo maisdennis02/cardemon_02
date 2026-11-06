@@ -13,15 +13,21 @@ import { DEFAULT_MENU_THEME } from "@/lib/menu";
 // LOCAL server. Writes only to the .env database — never the shell's
 // DATABASE_URL (see src/lib/concierge-env.ts).
 //
-//   npx tsx scripts/concierge-preview.ts <arquivo.json> --owner <email-de-teste-local> [--base http://localhost:3100]
+//   npx tsx scripts/concierge-preview.ts <arquivo.json> --owner <email-de-teste-local> [--logo <arquivo.jpg>] [--base http://localhost:3100]
 //
 // Needs `next dev -p 3100` (or next start) running on the same .env.
-// Output: branding/concierge/<instagram>/cardapio.png and carrinho.png.
+// Output: branding/concierge/<instagram>/cardapio-topo.png (first screen, for
+// the DM), cardapio.png (whole menu) and carrinho.png.
+//
+// --logo: the restaurant's Instagram profile photo. The menu page only takes
+// logos from our Blob store, so the theme points at a made-up Blob URL and
+// the browser is served the local file for it: nothing is uploaded.
 
 const SLUG = "concierge-previa";
 // Fake number: the cart only appears when the restaurant has one. The image
 // never sends anything.
 const FAKE_WHATSAPP = "5511999999999";
+const FAKE_LOGO_URL = "https://concierge-previa.public.blob.vercel-storage.com/logos/previa/logo";
 
 function flag(args: string[], name: string): string | undefined {
   const i = args.indexOf(name);
@@ -33,6 +39,7 @@ async function main() {
   const file = args[0];
   const owner = flag(args, "--owner");
   const base = flag(args, "--base") ?? "http://localhost:3100";
+  const logo = flag(args, "--logo");
   if (!file || file.startsWith("--") || !owner) {
     console.error("uso: concierge-preview.ts <arquivo.json> --owner <email-de-teste> [--base http://localhost:3100]");
     process.exit(2);
@@ -43,7 +50,7 @@ async function main() {
     console.error(`arquivo inválido em ${file}:\n${parsed.error.message}`);
     process.exit(1);
   }
-  const { name, instagram, menu, theme } = parsed.data;
+  const { name, instagram, menu, theme, address, hours } = parsed.data;
 
   const url = previewDatabaseUrl(parseDotenv(readFileSync(".env")));
   const { host, pathname } = new URL(url);
@@ -63,12 +70,14 @@ async function main() {
     }
     const data = {
       name,
+      address: address ?? null,
+      hours: hours ?? null,
       whatsappNumber: FAKE_WHATSAPP,
       country: "BR",
       menuMode: "built",
       menuDraft: menu,
       menuPublished: menu,
-      menuTheme: theme ?? DEFAULT_MENU_THEME,
+      menuTheme: { ...(theme ?? DEFAULT_MENU_THEME), ...(logo ? { logoUrl: FAKE_LOGO_URL } : {}) },
     };
     await prisma.restaurant.upsert({ where: { slug: SLUG }, create: { ...data, slug: SLUG, ownerId: user.id }, update: data });
     // The public page cuts free menus at 20 items; the image shows them all.
@@ -85,9 +94,14 @@ async function main() {
   const browser = await chromium.launch({ executablePath: "/usr/bin/google-chrome" });
   try {
     const page = await browser.newPage({ viewport: { width: 390, height: 844 }, deviceScaleFactor: 2, locale: "pt-BR" });
+    if (logo) {
+      const body = readFileSync(logo);
+      await page.route(FAKE_LOGO_URL, (route) => route.fulfill({ body, contentType: "image/jpeg" }));
+    }
     await page.goto(`${base}/m/${SLUG}`, { waitUntil: "networkidle", timeout: 600_000 });
     // `next dev` paints its "N" indicator over the page; keep it out of the image.
     await page.addStyleTag({ content: "nextjs-portal { display: none !important; }" });
+    await page.screenshot({ path: join(outDir, "cardapio-topo.png") });
     await page.screenshot({ path: join(outDir, "cardapio.png"), fullPage: true });
 
     // First priced item without option groups: "+" adds it straight away.

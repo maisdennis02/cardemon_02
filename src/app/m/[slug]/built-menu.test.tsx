@@ -1,3 +1,5 @@
+import { readFileSync } from "node:fs";
+import { join } from "node:path";
 import { renderToStaticMarkup } from "react-dom/server";
 import { describe, expect, it } from "vitest";
 import en from "@/i18n/dictionaries/en";
@@ -355,5 +357,110 @@ describe("items with option groups", () => {
     const html = plain(item("a", "A", 100), 2);
     expect(html).toContain("−");
     expect(html).not.toMatch(/>2 no pedido</);
+  });
+});
+
+// 2026-11-06 (plans/2026-11-06-cardapio-visual-novo.md): a compact list, a
+// band that says the restaurant's name, address and hours under the name,
+// and the "poster" style.
+describe("visual of 2026-11-06", () => {
+  const render = (patch: Partial<MenuTheme>, info?: { address: string | null; hours: string | null }) =>
+    renderToStaticMarkup(
+      <BuiltMenu
+        slug="x"
+        name="Tony's Lanches"
+        country="BR"
+        theme={{ ...theme, ...patch }}
+        menu={twoSections}
+        labels={{ cardapioDigital: "Cardápio Digital", madeBy: "feito por", fromPrice: "a partir de {price}" }}
+        actions={null}
+        info={info}
+      />,
+    );
+
+  it("fills the band with the restaurant's name, hidden from screen readers", () => {
+    const html = render({ headerStyle: "band" });
+    const texture = html.match(/<div[^>]*class="menu-texture[^"]*"[^>]*>[\s\S]*?<\/div><\/div>/)?.[0] ?? "";
+    expect(texture).toContain('aria-hidden="true"');
+    expect((texture.match(/Tony&#x27;s Lanches/g) ?? []).length).toBeGreaterThanOrEqual(3);
+  });
+
+  it("draws no texture on the simple header", () => {
+    expect(render({ headerStyle: "centered" })).not.toContain("menu-texture");
+  });
+
+  it("shows the address as a link to the map, and the hours, under the name", () => {
+    const html = render({}, { address: "Rua Maria Scomparim, 261 - Boituva", hours: "Terça a domingo, 18h às 23h30" });
+    expect(html).toMatch(/<a[^>]*href="https:\/\/www\.google\.com\/maps\/search\/\?api=1&amp;query=Rua%20Maria[^"]*"[^>]*target="_blank"/);
+    expect(html).toContain("Terça a domingo, 18h às 23h30");
+    expect(html.indexOf("<h1")).toBeLessThan(html.indexOf("Terça a domingo"));
+  });
+
+  it("shows neither when the restaurant has none", () => {
+    expect(render({}, { address: null, hours: null })).not.toContain("google.com/maps");
+  });
+
+  it("lists each section's items in one panel, with descriptions cut at two lines", () => {
+    const html = render({});
+    expect(html.match(/<ul[^>]*class="[^"]*menu-list/g)).toHaveLength(2);
+    expect(listItem(html, 0)).toMatch(/line-clamp-2[^>]*>Pão, carne, queijo e salada\./);
+  });
+
+  it("poster: a dark page, sections on a band of the color, prices on a tag", () => {
+    const html = render({ style: "poster", color: "#fcc707" });
+    expect(html).toMatch(/class="[^"]*\bmenu-poster\b/);
+    expect(html).toContain("background-color:#141414");
+    expect(html).toMatch(/<h2[^>]*style="[^"]*background:#fcc707;color:#141414/);
+    expect(listItem(html, 0)).toMatch(/class="[^"]*menu-price[^"]*"[^>]*>R\$/);
+  });
+
+  it("light stays light, on the chosen background", () => {
+    const html = render({ style: "light", background: "paper" });
+    expect(html).not.toMatch(/class="[^"]*\bmenu-poster\b/);
+  });
+});
+
+// Review of 2026-11-06: what the poster style and the band must not break.
+describe("visual of 2026-11-06, review fixes", () => {
+  const renderWith = (patch: Partial<MenuTheme>, menu: Menu = twoSections, name = "Tony's Lanches") =>
+    renderToStaticMarkup(
+      <DictionaryProvider locale="en" dictionary={en}>
+        <BuiltMenu
+          slug="x"
+          name={name}
+          country="BR"
+          theme={{ ...theme, ...patch }}
+          menu={menu}
+          labels={{ cardapioDigital: "Cardápio Digital", madeBy: "feito por", fromPrice: "a partir de {price}" }}
+          actions={null}
+          ordering={{ whatsappNumber: "5511999999999" }}
+        />
+      </DictionaryProvider>,
+    );
+
+  it("poster with a dark color draws the + in a color that reads on the dark page", () => {
+    const html = renderWith({ style: "poster", color: "#1f2937" });
+    expect(html).toMatch(/<button[^>]*aria-label="Add X-Burguer to the order"[^>]*style="background:#ffffff;color:#141414"/);
+  });
+
+  it("writes the + in dark text on a light color, white on a dark one", () => {
+    expect(renderWith({ color: "#fcc707" })).toMatch(/aria-label="Add X-Burguer to the order"[^>]*style="background:#fcc707;color:#141414"/);
+    expect(renderWith({ color: "#c84630" })).toMatch(/aria-label="Add X-Burguer to the order"[^>]*style="background:#c84630;color:#ffffff"/);
+  });
+
+  it("repeats a short name enough to fill the band", () => {
+    const html = renderWith({ headerStyle: "band" }, twoSections, "Nil's");
+    const firstLine = html.match(/class="menu-texture[\s\S]*?<div[^>]*><div[^>]*>([^<]*)</)?.[1] ?? "";
+    expect((firstLine.match(/Nil&#x27;s/g) ?? []).length).toBeGreaterThanOrEqual(12);
+  });
+
+  it("gives the stuck section chips the page's own color", () => {
+    expect(renderWith({ style: "poster" }, fourSections)).toMatch(/<nav[^>]*style="background-color:#141414/);
+    expect(renderWith({ background: "plain" }, fourSections)).toMatch(/<nav[^>]*style="background-color:#/);
+  });
+
+  it("keeps the white circle of the + on a photo in the poster style", () => {
+    const css = readFileSync(join(__dirname, "built-menu.css"), "utf8");
+    expect(css).toMatch(/\.menu-poster \.menu-add:not\(\.bg-white\)/);
   });
 });

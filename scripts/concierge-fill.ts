@@ -44,7 +44,7 @@ async function main() {
     console.error(`arquivo inválido em ${file}:\n${parsed.error.message}`);
     process.exit(1);
   }
-  const { menu, name, instagram } = parsed.data;
+  const { menu, name, instagram, address, hours } = parsed.data;
 
   const prisma = new PrismaClient({ adapter: new PrismaPg({ connectionString: url }) });
   try {
@@ -55,7 +55,7 @@ async function main() {
         proExpiresAt: true,
         billingSubscriptionId: true,
         billingCustomerId: true,
-        restaurants: { select: { id: true, slug: true, menuDraft: true } },
+        restaurants: { select: { id: true, slug: true, menuDraft: true, address: true, hours: true } },
       },
     });
     if (!user) {
@@ -71,6 +71,13 @@ async function main() {
     }
     console.log(`destino:  /m/${plan.slug} (rascunho, não publicado)`);
     console.log(`itens:    ${plan.items} em ${plan.sections} seções`);
+    // Address and hours only fill blanks: what the owner typed in Ajustes wins.
+    const target = user.restaurants[0];
+    const info = {
+      ...(address && !target.address ? { address } : {}),
+      ...(hours && !target.hours ? { hours } : {}),
+    };
+    if (address || hours) console.log(`endereço/horário: ${Object.keys(info).join(", ") || "já preenchidos pelo dono, não mexo"}`);
     console.log(`pro:      ${day(plan.proExpiresAtBefore)} → ${day(plan.proExpiresAtAfter)} (cortesia de ${COURTESY_DAYS} dias)`);
 
     if (!apply) {
@@ -78,7 +85,7 @@ async function main() {
       return;
     }
     await prisma.$transaction([
-      prisma.restaurant.update({ where: { id: plan.restaurantId }, data: { menuMode: "built", menuDraft: menu } }),
+      prisma.restaurant.update({ where: { id: plan.restaurantId }, data: { menuMode: "built", menuDraft: menu, ...info } }),
       prisma.user.update({
         where: { id: user.id },
         data: { proExpiresAt: plan.proExpiresAtAfter, proEndingReminderSentAt: null },

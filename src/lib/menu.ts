@@ -32,12 +32,18 @@ export type MenuFont = (typeof MENU_FONTS)[number];
 // Page backgrounds, like a chat wallpaper; "plain" is a light grey with no pattern.
 export const MENU_BACKGROUNDS = ["plain", "paper", "linen", "gingham", "dots", "doodles"] as const;
 export type MenuBackground = (typeof MENU_BACKGROUNDS)[number];
+// "light": the list on the chosen background. "poster" (2026-11-06): dark
+// page, section titles on a band of the restaurant's color, prices on a
+// white tag — the look of the menu posters these places print. Absent = light.
+export const MENU_STYLES = ["light", "poster"] as const;
+export type MenuStyle = (typeof MENU_STYLES)[number];
 export type MenuTheme = {
   logoUrl?: string;
   color: string;
   headerStyle: "centered" | "band";
   font?: MenuFont;
   background?: MenuBackground;
+  style?: MenuStyle;
 };
 export type MenuMode = "photos" | "built";
 
@@ -123,6 +129,7 @@ export const MenuThemeSchema: z.ZodType<MenuTheme> = z.object({
   headerStyle: z.enum(["centered", "band"]),
   font: z.enum(MENU_FONTS).optional(),
   background: z.enum(MENU_BACKGROUNDS).optional(),
+  style: z.enum(MENU_STYLES).optional(),
 });
 
 // Server actions receive whatever the client sends: check the envelope before
@@ -370,6 +377,27 @@ export function headerColors(color: string): { accent: string; title: string } {
   const accent = lum === null ? DEFAULT_MENU_THEME.color : color;
   const contrast = 1.05 / ((lum ?? 0) + 0.05);
   return { accent, title: lum !== null && contrast >= 3 ? color : DEFAULT_MENU_THEME.color };
+}
+
+// The "poster" style's colors on its near-black page (POSTER_BG): item names
+// take the restaurant's color only when it reads there (contrast ≥ 3), and
+// the text on the section band is dark on a light color, white on a dark one.
+export const POSTER_BG = "#141414";
+
+// Text on a button filled with `color`: dark on a light color (yellow), white
+// on a dark one.
+export function textOn(color: string): string {
+  return (luminance(color) ?? 0) > 0.18 ? POSTER_BG : "#ffffff";
+}
+export function posterColors(color: string): { accent: string; name: string; onAccent: string } {
+  const { accent } = headerColors(color);
+  const lum = luminance(accent) ?? 0;
+  const bg = luminance(POSTER_BG) ?? 0;
+  return {
+    accent,
+    name: (lum + 0.05) / (bg + 0.05) >= 3 ? accent : "#ffffff",
+    onAccent: textOn(accent),
+  };
 }
 
 // schema.org Menu for the restaurant's JSON-LD. Callers pass the visible menu
