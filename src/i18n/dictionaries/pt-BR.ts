@@ -598,7 +598,7 @@ const ptBR: Dictionary = {
       featurePriority: "Suporte prioritário",
       cta: "Assinar",
       ctaSoon: "Em breve",
-      courtesyUntil: "Cortesia até {date}",
+      courtesyUntil: "Cortesia até {date}. Se assinar agora, a cobrança começa hoje e substitui a cortesia.",
     },
   },
   menu: {

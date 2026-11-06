@@ -598,7 +598,7 @@ export const en = {
       featurePriority: "Priority support",
       cta: "Subscribe",
       ctaSoon: "Available soon",
-      courtesyUntil: "Courtesy until {date}",
+      courtesyUntil: "Courtesy until {date}. Subscribing now starts billing today and replaces the courtesy.",
     },
   },
   menu: {

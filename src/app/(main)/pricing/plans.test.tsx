@@ -19,6 +19,8 @@ describe("PricingPlans", () => {
     const h = html("COURTESY", "04/01/2027");
     expect(h).toContain('action="/api/stripe/checkout"');
     expect(h).toContain("Cortesia até 04/01/2027");
+    // Subscribing now starts billing today and ends the courtesy: say so.
+    expect(h).toContain("Se assinar agora, a cobrança começa hoje e substitui a cortesia.");
     expect(h).not.toContain("/api/stripe/portal");
     expect(h).not.toContain(ptBR.pricing.free.cta);
   });
