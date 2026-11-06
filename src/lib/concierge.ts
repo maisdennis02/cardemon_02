@@ -71,3 +71,9 @@ export function planConciergeFill(target: FillTarget, menu: Menu, now: Date): Fi
     proExpiresAtAfter: before && before > courtesyEnd ? before : courtesyEnd,
   };
 }
+
+// The courtesy end date as the owner types it into the "Pronto" DM: the
+// restaurant is in Brazil, so São Paulo time, never the machine's UTC.
+export function courtesyDateBR(d: Date): string {
+  return d.toLocaleDateString("pt-BR", { timeZone: "America/Sao_Paulo" });
+}

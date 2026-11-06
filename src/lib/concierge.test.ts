@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 import type { Menu } from "./menu";
-import { ConciergeFileSchema, planConciergeFill, type FillTarget } from "./concierge";
+import { ConciergeFileSchema, courtesyDateBR, planConciergeFill, type FillTarget } from "./concierge";
 
 // Concierge pilot (spec 2026-11-05): we transcribe a restaurant's menu image
 // and drop it into the draft of the account the restaurant itself created,
@@ -76,5 +76,11 @@ describe("ConciergeFileSchema", () => {
   it("rejects a file without menu.v", () => {
     const bad = { name: "x", instagram: "x", menu: { sections: [] } };
     expect(ConciergeFileSchema.safeParse(bad).success).toBe(false);
+  });
+});
+
+describe("courtesyDateBR", () => {
+  it("formats in São Paulo time, not UTC (a late-evening run must not read a day later)", () => {
+    expect(courtesyDateBR(new Date("2027-01-05T02:00:00Z"))).toBe("04/01/2027");
   });
 });

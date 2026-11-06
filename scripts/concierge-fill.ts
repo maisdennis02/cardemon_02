@@ -2,7 +2,7 @@ import { readFileSync } from "node:fs";
 import { PrismaClient } from "@/generated/prisma/client";
 import { PrismaPg } from "@prisma/adapter-pg";
 import { config as loadDotenv } from "dotenv";
-import { ConciergeFileSchema, COURTESY_DAYS, planConciergeFill, type FillPlan } from "@/lib/concierge";
+import { ConciergeFileSchema, COURTESY_DAYS, courtesyDateBR, planConciergeFill, type FillPlan } from "@/lib/concierge";
 
 loadDotenv();
 
@@ -21,7 +21,7 @@ const REASONS: Record<Extract<FillPlan, { ok: false }>["reason"], string> = {
   "has-subscription": "a conta tem (ou teve) assinatura no Stripe; a cortesia não se aplica. Resolva à mão.",
 };
 
-const day = (d: Date | null) => (d ? d.toISOString().slice(0, 10) : "—");
+const day = (d: Date | null) => (d ? courtesyDateBR(d) : "—");
 
 async function main() {
   const args = process.argv.slice(2);
