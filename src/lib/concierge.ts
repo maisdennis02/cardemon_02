@@ -5,18 +5,28 @@
 // courtesy Pro. The restaurant checks it and publishes; we never publish.
 import { z } from "zod";
 import { MenuSchema, MenuThemeSchema, countItems, type Menu, type MenuTheme } from "./menu";
+import { ADDRESS_MAX, HOURS_MAX } from "./restaurant-info";
 
 export const COURTESY_DAYS = 60;
 const DAY_MS = 24 * 60 * 60 * 1000;
 
 // The transcription file both scripts read. `instagram` is the bare handle.
-export const ConciergeFileSchema: z.ZodType<{ name: string; instagram: string; menu: Menu; theme?: MenuTheme }> =
-  z.object({
-    name: z.string().trim().min(1).max(120),
-    instagram: z.string().regex(/^[a-z0-9._]{1,30}$/i),
-    menu: MenuSchema,
-    theme: MenuThemeSchema.optional(),
-  });
+export const ConciergeFileSchema: z.ZodType<{
+  name: string;
+  instagram: string;
+  menu: Menu;
+  theme?: MenuTheme;
+  address?: string;
+  hours?: string;
+}> = z.object({
+  name: z.string().trim().min(1).max(120),
+  instagram: z.string().regex(/^[a-z0-9._]{1,30}$/i),
+  menu: MenuSchema,
+  theme: MenuThemeSchema.optional(),
+  // From the restaurant's bio; shown under the name (src/lib/restaurant-info.ts).
+  address: z.string().trim().min(1).max(ADDRESS_MAX).optional(),
+  hours: z.string().trim().min(1).max(HOURS_MAX).optional(),
+});
 
 export type FillTarget = {
   restaurants: { id: string; slug: string; menuDraft: unknown }[];

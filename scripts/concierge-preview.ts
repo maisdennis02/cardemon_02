@@ -50,7 +50,7 @@ async function main() {
     console.error(`arquivo inválido em ${file}:\n${parsed.error.message}`);
     process.exit(1);
   }
-  const { name, instagram, menu, theme } = parsed.data;
+  const { name, instagram, menu, theme, address, hours } = parsed.data;
 
   const url = previewDatabaseUrl(parseDotenv(readFileSync(".env")));
   const { host, pathname } = new URL(url);
@@ -70,6 +70,8 @@ async function main() {
     }
     const data = {
       name,
+      address: address ?? null,
+      hours: hours ?? null,
       whatsappNumber: FAKE_WHATSAPP,
       country: "BR",
       menuMode: "built",
