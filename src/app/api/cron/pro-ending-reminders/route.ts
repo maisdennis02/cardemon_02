@@ -35,6 +35,7 @@ export async function GET(req: Request) {
       email: true,
       proExpiresAt: true,
       proEndingReminderSentAt: true,
+      billingSubscriptionId: true,
       restaurants: { select: { country: true }, take: 1 },
     },
   });
@@ -45,18 +46,21 @@ export async function GET(req: Request) {
     const stage = dueReminderStage(u.proExpiresAt, u.proEndingReminderSentAt, now);
     if (stage === null) continue;
 
+    // No subscription behind it = Pro granted by hand (concierge courtesy).
+    const courtesy = u.billingSubscriptionId == null;
     const locale = localeForCountry(u.restaurants[0]?.country);
     const dict = await getDictionary(locale);
     try {
       const ok =
         stage === 0
-          ? await sendProEndedEmail({ to: u.email, dict })
+          ? await sendProEndedEmail({ to: u.email, dict, courtesy })
           : await sendProEndingEmail({
               to: u.email,
               dict,
               locale,
               stage,
               expiresAt: u.proExpiresAt,
+              courtesy,
             });
       if (!ok) continue; // provider rejected it; try again on the next run
       await prisma.user.update({

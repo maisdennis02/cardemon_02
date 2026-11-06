@@ -2,7 +2,7 @@ import "server-only";
 import { Resend } from "resend";
 import type { Dictionary, Locale } from "@/i18n";
 import { format } from "@/i18n/config";
-import { FREE_IMAGE_LIMIT } from "@/lib/pricing";
+import { FREE_IMAGE_LIMIT, FREE_ITEM_LIMIT } from "@/lib/pricing";
 import { siteUrl } from "@/lib/site";
 
 let cachedClient: Resend | null = null;
@@ -177,22 +177,41 @@ function formatEndDate(date: Date, locale: Locale): string {
 }
 
 // "Pro ends on <date>" (stage 7) / "Pro ends tomorrow" (stage 1). See
-// lib/pro-ending.ts for when these go out.
-export async function sendProEndingEmail({
-  to,
+// lib/pro-ending.ts for when these go out. `courtesy` = Pro granted by hand
+// with no subscription (concierge pilot): there is nothing to renew, so those
+// get their own text and point at /pricing.
+export function buildProEndingEmail({
   dict,
   locale,
   stage,
   expiresAt,
+  courtesy,
 }: {
-  to: string;
   dict: Dictionary;
   locale: Locale;
   stage: 7 | 1;
   expiresAt: Date;
-}): Promise<boolean> {
+  courtesy: boolean;
+}): { subject: string; html: string } {
+  const date = formatEndDate(expiresAt, locale);
+  if (courtesy) {
+    const e = dict.emails.proEndingCourtesy;
+    const vars = { date, freeLimit: FREE_ITEM_LIMIT };
+    const subject = format(stage === 1 ? e.subjectTomorrow : e.subject, vars);
+    const html = renderEmail({
+      subject,
+      preheader: format(e.preheader, vars),
+      greeting: e.greeting,
+      body: format(stage === 1 ? e.bodyTomorrow : e.body, vars),
+      cta: e.cta,
+      ctaUrl: `${siteUrl()}/pricing`,
+      notes: [e.ignoreNote],
+      signature: e.signature,
+    });
+    return { subject, html };
+  }
   const e = dict.emails.proEnding;
-  const vars = { date: formatEndDate(expiresAt, locale), freeLimit: FREE_IMAGE_LIMIT };
+  const vars = { date, freeLimit: FREE_IMAGE_LIMIT };
   const subject = format(stage === 1 ? e.subjectTomorrow : e.subject, vars);
   const html = renderEmail({
     subject,
@@ -206,16 +225,46 @@ export async function sendProEndingEmail({
     notes: [e.renewNote, e.ignoreNote],
     signature: e.signature,
   });
-  return sendEmail({ to, subject, html });
+  return { subject, html };
 }
 
-export async function sendProEndedEmail({
+export async function sendProEndingEmail({
   to,
-  dict,
+  ...args
 }: {
   to: string;
   dict: Dictionary;
+  locale: Locale;
+  stage: 7 | 1;
+  expiresAt: Date;
+  courtesy: boolean;
 }): Promise<boolean> {
+  const { subject, html } = buildProEndingEmail(args);
+  return sendEmail({ to, subject, html });
+}
+
+export function buildProEndedEmail({
+  dict,
+  courtesy,
+}: {
+  dict: Dictionary;
+  courtesy: boolean;
+}): { subject: string; html: string } {
+  if (courtesy) {
+    const e = dict.emails.proEndedCourtesy;
+    const vars = { freeLimit: FREE_ITEM_LIMIT };
+    const html = renderEmail({
+      subject: e.subject,
+      preheader: e.preheader,
+      greeting: e.greeting,
+      body: format(e.body, vars),
+      cta: e.cta,
+      ctaUrl: `${siteUrl()}/pricing`,
+      notes: [],
+      signature: e.signature,
+    });
+    return { subject: e.subject, html };
+  }
   const e = dict.emails.proEnded;
   const vars = { freeLimit: FREE_IMAGE_LIMIT };
   const html = renderEmail({
@@ -228,5 +277,17 @@ export async function sendProEndedEmail({
     notes: [e.keepNote],
     signature: e.signature,
   });
-  return sendEmail({ to, subject: e.subject, html });
+  return { subject: e.subject, html };
+}
+
+export async function sendProEndedEmail({
+  to,
+  ...args
+}: {
+  to: string;
+  dict: Dictionary;
+  courtesy: boolean;
+}): Promise<boolean> {
+  const { subject, html } = buildProEndedEmail(args);
+  return sendEmail({ to, subject, html });
 }

@@ -252,7 +252,7 @@ async function applySubscription(userId: string, sub: Stripe.Subscription) {
   if (proJustEnded && prev.email) {
     try {
       const dict = await getDictionary(localeForCountry(prev.restaurants[0]?.country));
-      const ok = await sendProEndedEmail({ to: prev.email, dict });
+      const ok = await sendProEndedEmail({ to: prev.email, dict, courtesy: false });
       if (ok) {
         await prisma.user.update({
           where: { id: userId },
