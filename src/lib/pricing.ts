@@ -45,6 +45,23 @@ export function isPro(user: { proExpiresAt: Date | null } | null | undefined): b
   return user.proExpiresAt.getTime() > Date.now();
 }
 
+// Which kind of Pro (if any) the user is on. "courtesy" is Pro granted by hand
+// with no subscription behind it (the concierge pilot's 60 days): it does not
+// renew and there is no Stripe portal to manage it.
+export type PlanState = "free" | "courtesy" | "renewing" | "ending";
+
+export function planState(
+  user:
+    | { proExpiresAt: Date | null; billingSubscriptionId: string | null; billingCancelAtPeriodEnd: boolean }
+    | null
+    | undefined,
+  now: Date = new Date(),
+): PlanState {
+  if (!user?.proExpiresAt || user.proExpiresAt.getTime() <= now.getTime()) return "free";
+  if (user.billingSubscriptionId == null) return "courtesy";
+  return user.billingCancelAtPeriodEnd ? "ending" : "renewing";
+}
+
 export function planFor(user: { proExpiresAt: Date | null } | null | undefined): Plan {
   return isPro(user) ? "PRO" : "FREE";
 }

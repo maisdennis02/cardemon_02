@@ -1,0 +1,23 @@
+import { describe, expect, it } from "vitest";
+import { planState } from "./pricing";
+
+// Courtesy Pro (2026-11-05 concierge pilot) is Pro with no subscription behind
+// it; the dashboard, /pricing and the reminder e-mails all branch on this.
+
+const future = new Date(Date.now() + 86_400_000);
+const past = new Date(Date.now() - 86_400_000);
+type U = { proExpiresAt: Date | null; billingSubscriptionId: string | null; billingCancelAtPeriodEnd: boolean };
+const u = (o: Partial<U>): U => ({ proExpiresAt: null, billingSubscriptionId: null, billingCancelAtPeriodEnd: false, ...o });
+
+describe("planState", () => {
+  it("free without proExpiresAt", () => expect(planState(u({}))).toBe("free"));
+  it("free when null user", () => expect(planState(null)).toBe("free"));
+  it("courtesy = Pro without subscription", () => expect(planState(u({ proExpiresAt: future }))).toBe("courtesy"));
+  it("expired courtesy is free", () => expect(planState(u({ proExpiresAt: past }))).toBe("free"));
+  it("renewing subscription", () =>
+    expect(planState(u({ proExpiresAt: future, billingSubscriptionId: "sub_1" }))).toBe("renewing"));
+  it("canceled subscription still in period", () =>
+    expect(
+      planState(u({ proExpiresAt: future, billingSubscriptionId: "sub_1", billingCancelAtPeriodEnd: true })),
+    ).toBe("ending"));
+});
