@@ -13,15 +13,18 @@ import {
   type Currency,
 } from "@/lib/pricing";
 
-type Plan = "FREE" | "PRO";
+// COURTESY: Pro granted by hand, no Stripe subscription (concierge pilot).
+type Plan = "FREE" | "PRO" | "COURTESY";
 type Cycle = "MONTHLY" | "ANNUAL";
 
 export function PricingPlans({
   currentPlan,
   currency,
+  courtesyUntil,
 }: {
   currentPlan: Plan | null;
   currency: Currency;
+  courtesyUntil?: string;
 }) {
   const t = useT();
   const [cycle, setCycle] = useState<Cycle>("ANNUAL");
@@ -89,8 +92,13 @@ export function PricingPlans({
                   {p.pro.cta}
                 </button>
               </form>
-            ) : currentPlan === "FREE" ? (
-              <form action="/api/stripe/checkout" method="post">
+            ) : currentPlan === "FREE" || currentPlan === "COURTESY" ? (
+              <form action="/api/stripe/checkout" method="post" className="flex flex-col gap-2">
+                {currentPlan === "COURTESY" && courtesyUntil && (
+                  <p className="text-center text-sm text-gray-600">
+                    {format(p.pro.courtesyUntil, { date: courtesyUntil })}
+                  </p>
+                )}
                 <input type="hidden" name="cycle" value={cycle} />
                 <button type="submit" className="btn btn-primary w-full">
                   {p.pro.cta}

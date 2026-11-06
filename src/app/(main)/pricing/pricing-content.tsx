@@ -40,12 +40,15 @@ export function PricingContent({
   locale,
   t,
   currentPlan,
+  courtesyUntil,
   pathPrefix,
 }: {
   locale: Locale;
   t: Dictionary;
   // null: signed out.
-  currentPlan: "FREE" | "PRO" | null;
+  currentPlan: "FREE" | "PRO" | "COURTESY" | null;
+  // Courtesy Pro end date, already formatted for the locale.
+  courtesyUntil?: string;
   // Prefix of the URL being served: "" at "/pricing", "/es" at "/es/pricing".
   pathPrefix: PathPrefix;
 }) {
@@ -85,7 +88,11 @@ export function PricingContent({
           </p>
         </div>
 
-        <PricingPlans currentPlan={currentPlan} currency={currencyForLocale(locale)} />
+        <PricingPlans
+          currentPlan={currentPlan}
+          currency={currencyForLocale(locale)}
+          courtesyUntil={courtesyUntil}
+        />
       </main>
     </div>
   );

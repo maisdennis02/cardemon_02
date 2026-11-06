@@ -225,6 +225,25 @@ const es: Dictionary = {
       keepNote: "Todas tus páginas, enlaces y ajustes se conservan — todo vuelve en el momento en que te suscribas otra vez.",
       signature: "— el equipo de menulala",
     },
+    proEndingCourtesy: {
+      subject: "Tu cortesía de Pro en menulala termina el {date}",
+      subjectTomorrow: "Tu cortesía de Pro en menulala termina mañana",
+      preheader: "Después tu menú muestra los primeros {freeLimit} productos.",
+      greeting: "Hola,",
+      body: "Tu cortesía de Pro en menulala termina el {date}. Después, tu menú sigue en línea, pero muestra solo los primeros {freeLimit} productos. Para mantenerlos todos, suscríbete a Pro.",
+      bodyTomorrow: "Tu cortesía de Pro en menulala termina mañana, {date}. Después, tu menú sigue en línea, pero muestra solo los primeros {freeLimit} productos. Para mantenerlos todos, suscríbete a Pro.",
+      cta: "Suscribirse a Pro",
+      ignoreNote: "Si no quieres suscribirte, no tienes que hacer nada: no se cobra nada y tu menú sigue en línea en el plan Gratuito.",
+      signature: "— el equipo de menulala",
+    },
+    proEndedCourtesy: {
+      subject: "Tu cortesía de Pro en menulala terminó",
+      preheader: "Tu menú sigue en línea, ahora en el plan Gratuito.",
+      greeting: "Hola,",
+      body: "Tu cortesía de Pro terminó. Tu menú sigue en línea y ahora muestra los primeros {freeLimit} productos. Los demás quedan guardados y vuelven en cuanto te suscribas a Pro.",
+      cta: "Suscribirse a Pro",
+      signature: "— el equipo de menulala",
+    },
   },
   dashboard: {
     openMenu: "Abrir mi menú",
@@ -403,12 +422,14 @@ const es: Dictionary = {
       title: "Plan",
       proUntil: "Pro hasta el {date}",
       proRenews: "Pro · se renueva el {date}",
+      proCourtesy: "Pro de cortesía hasta {date}",
     },
     account: {
       title: "Cuenta",
     },
     managePlan: "Gestionar suscripción",
     upgrade: "Mejorar plan",
+    subscribePro: "Suscribirse a Pro",
     changePassword: {
       title: "Cambiar contraseña",
       description: "Elige una nueva contraseña para tu cuenta. Tu sesión actual seguirá activa.",
@@ -577,6 +598,7 @@ const es: Dictionary = {
       featurePriority: "Soporte prioritario",
       cta: "Suscribirse",
       ctaSoon: "Próximamente",
+      courtesyUntil: "Cortesía hasta {date}. Si te suscribes ahora, el cobro empieza hoy y reemplaza la cortesía.",
     },
   },
   menu: {

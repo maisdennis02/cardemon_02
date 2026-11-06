@@ -225,6 +225,25 @@ const ptBR: Dictionary = {
       keepNote: "Todas as suas páginas, links e configurações ficam guardados — tudo volta no momento em que você assinar de novo.",
       signature: "— equipe menulala",
     },
+    proEndingCourtesy: {
+      subject: "Sua cortesia do Pro no menulala acaba em {date}",
+      subjectTomorrow: "Sua cortesia do Pro no menulala acaba amanhã",
+      preheader: "Depois disso o cardápio mostra os {freeLimit} primeiros itens.",
+      greeting: "Olá,",
+      body: "Sua cortesia do Pro no menulala acaba em {date}. Depois disso, seu cardápio continua no ar, mas mostra só os {freeLimit} primeiros itens. Para manter todos, assine o Pro.",
+      bodyTomorrow: "Sua cortesia do Pro no menulala acaba amanhã, {date}. Depois disso, seu cardápio continua no ar, mas mostra só os {freeLimit} primeiros itens. Para manter todos, assine o Pro.",
+      cta: "Assinar o Pro",
+      ignoreNote: "Se não quiser assinar, não precisa fazer nada: nada é cobrado e seu cardápio continua no ar no plano Gratuito.",
+      signature: "— equipe menulala",
+    },
+    proEndedCourtesy: {
+      subject: "Sua cortesia do Pro no menulala terminou",
+      preheader: "Seu cardápio continua no ar, agora no plano Gratuito.",
+      greeting: "Olá,",
+      body: "Sua cortesia do Pro terminou. Seu cardápio continua no ar e agora mostra os {freeLimit} primeiros itens. Todos os outros ficam guardados e voltam no momento em que você assinar o Pro.",
+      cta: "Assinar o Pro",
+      signature: "— equipe menulala",
+    },
   },
   dashboard: {
     openMenu: "Abrir meu cardápio",
@@ -403,12 +422,14 @@ const ptBR: Dictionary = {
       title: "Plano",
       proUntil: "Pro até {date}",
       proRenews: "Pro · renova em {date}",
+      proCourtesy: "Pro de cortesia até {date}",
     },
     account: {
       title: "Conta",
     },
     managePlan: "Gerenciar assinatura",
     upgrade: "Fazer upgrade",
+    subscribePro: "Assinar o Pro",
     changePassword: {
       title: "Alterar senha",
       description: "Escolha uma nova senha para sua conta. Sua sessão atual continua ativa.",
@@ -577,6 +598,7 @@ const ptBR: Dictionary = {
       featurePriority: "Suporte prioritário",
       cta: "Assinar",
       ctaSoon: "Em breve",
+      courtesyUntil: "Cortesia até {date}. Se assinar agora, a cobrança começa hoje e substitui a cortesia.",
     },
   },
   menu: {

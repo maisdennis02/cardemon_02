@@ -227,6 +227,25 @@ export const en = {
       keepNote: "All your menu pages, links and settings are kept — everything is back the moment you resubscribe.",
       signature: "— the menulala team",
     },
+    proEndingCourtesy: {
+      subject: "Your courtesy menulala Pro ends on {date}",
+      subjectTomorrow: "Your courtesy menulala Pro ends tomorrow",
+      preheader: "After that your menu shows the first {freeLimit} items.",
+      greeting: "Hi,",
+      body: "Your courtesy menulala Pro ends on {date}. After that, your menu stays live but shows only the first {freeLimit} items. To keep them all, subscribe to Pro.",
+      bodyTomorrow: "Your courtesy menulala Pro ends tomorrow, {date}. After that, your menu stays live but shows only the first {freeLimit} items. To keep them all, subscribe to Pro.",
+      cta: "Subscribe to Pro",
+      ignoreNote: "If you don't want to subscribe, there's nothing to do: you won't be charged and your menu stays live on the Free plan.",
+      signature: "— the menulala team",
+    },
+    proEndedCourtesy: {
+      subject: "Your courtesy menulala Pro has ended",
+      preheader: "Your menu is still live, now on the Free plan.",
+      greeting: "Hi,",
+      body: "Your courtesy Pro has ended. Your menu is still live and now shows the first {freeLimit} items. All the others are kept and come back as soon as you subscribe to Pro.",
+      cta: "Subscribe to Pro",
+      signature: "— the menulala team",
+    },
   },
   dashboard: {
     openMenu: "Open my menu",
@@ -405,12 +424,14 @@ export const en = {
       title: "Plan",
       proUntil: "Pro until {date}",
       proRenews: "Pro · renews on {date}",
+      proCourtesy: "Courtesy Pro until {date}",
     },
     account: {
       title: "Account",
     },
     managePlan: "Manage subscription",
     upgrade: "Upgrade",
+    subscribePro: "Subscribe to Pro",
     changePassword: {
       title: "Change password",
       description: "Choose a new password for your account. You'll keep your current session.",
@@ -577,6 +598,7 @@ export const en = {
       featurePriority: "Priority support",
       cta: "Subscribe",
       ctaSoon: "Available soon",
+      courtesyUntil: "Courtesy until {date}. Subscribing now starts billing today and replaces the courtesy.",
     },
   },
   menu: {
