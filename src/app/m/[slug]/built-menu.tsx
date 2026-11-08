@@ -196,7 +196,7 @@ export function BuiltMenuHeader({ name, theme, info }: { name: string; theme: Me
         <img src={theme.logoUrl} alt={name} className="mx-auto mb-3 size-20 rounded-full object-cover" />
       )}
       <h1
-        className={`px-6 font-bold leading-tight ${poster ? "text-4xl" : "text-3xl"} ${band && !theme.logoUrl ? "-mt-6" : ""}`}
+        className={`break-words px-6 font-bold leading-tight ${poster ? "text-4xl" : "text-3xl"} ${band && !theme.logoUrl ? "-mt-6" : ""}`}
         style={
           poster
             ? { color: "#fff", fontFamily: "var(--font-menu-poster), Impact, sans-serif", fontWeight: 400 }

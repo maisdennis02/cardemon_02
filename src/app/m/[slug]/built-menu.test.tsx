@@ -6,7 +6,7 @@ import en from "@/i18n/dictionaries/en";
 import ptBR from "@/i18n/dictionaries/pt-BR";
 import { DictionaryProvider } from "@/i18n/provider";
 import { menuJsonLd, publicMenu, type Menu, type MenuTheme } from "@/lib/menu";
-import { BuiltMenu } from "./built-menu";
+import { BuiltMenu, BuiltMenuHeader } from "./built-menu";
 import { OrderableItem, OrderableMenu } from "./order/orderable-menu";
 
 // The text menu's layout (2026-10-22): each item is a card that reads name,
@@ -473,5 +473,16 @@ describe("visual of 2026-11-06, review fixes", () => {
   it("keeps the white circle of the + on a photo in the poster style", () => {
     const css = readFileSync(join(__dirname, "built-menu.css"), "utf8");
     expect(css).toMatch(/\.menu-poster \.menu-add:not\(\.bg-white\)/);
+  });
+});
+
+// 2026-11-08: a long word in the name ("Hamburgueriadobairro") wraps instead
+// of pushing the page sideways on a 360 px phone, poster size included.
+describe("restaurant name", () => {
+  it("breaks long words", () => {
+    const h1 = renderToStaticMarkup(
+      <BuiltMenuHeader name="Hamburgueriadobairro" theme={{ color: "#c8102e", headerStyle: "band", style: "poster" }} />,
+    ).match(/<h1[^>]*>/)?.[0] ?? "";
+    expect(h1).toMatch(/class="[^"]*break-words/);
   });
 });
