@@ -80,6 +80,17 @@ function readsTopToBottom(li: string, ...parts: string[]) {
   expect(positions.every((p) => p >= 0), li).toBe(true);
 }
 
+// 2026-11-08: a long word in the name ("Hamburgueriadobairro") wraps instead
+// of pushing the page sideways on a 360 px phone, poster size included.
+describe("restaurant name", () => {
+  it("breaks long words", () => {
+    const h1 = renderToStaticMarkup(
+      <BuiltMenuHeader name="Hamburgueriadobairro" theme={{ color: "#c8102e", headerStyle: "band", style: "poster" }} />,
+    ).match(/<h1[^>]*>/)?.[0] ?? "";
+    expect(h1).toMatch(/class="[^"]*break-words/);
+  });
+});
+
 describe("item card", () => {
   it("reads name, then description, then price on the static page", () => {
     const html = renderStatic(twoSections);
@@ -476,13 +487,3 @@ describe("visual of 2026-11-06, review fixes", () => {
   });
 });
 
-// 2026-11-08: a long word in the name ("Hamburgueriadobairro") wraps instead
-// of pushing the page sideways on a 360 px phone, poster size included.
-describe("restaurant name", () => {
-  it("breaks long words", () => {
-    const h1 = renderToStaticMarkup(
-      <BuiltMenuHeader name="Hamburgueriadobairro" theme={{ color: "#c8102e", headerStyle: "band", style: "poster" }} />,
-    ).match(/<h1[^>]*>/)?.[0] ?? "";
-    expect(h1).toMatch(/class="[^"]*break-words/);
-  });
-});
