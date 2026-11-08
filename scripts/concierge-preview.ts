@@ -106,12 +106,22 @@ async function main() {
 
     // A real-looking order: up to 3 priced items without option groups (their
     // "+" adds them straight away), one per section first.
-    const items = cartSampleItems(menu);
+    // An item with options opens its sheet: pick the first option of each
+    // required group, then "Adicionar".
+    const items = cartSampleItems(menu, 3, { withOptions: true });
     if (!items.length) {
-      console.log("nenhum item com preço e sem opções: pulei a imagem do carrinho.");
+      console.log("nenhum item com preço: pulei a imagem do carrinho.");
     } else {
       for (const item of items) {
         await page.getByRole("button", { name: `Adicionar ${item.name} ao pedido` }).click();
+        if (item.groups?.length) {
+          const sheet = page.getByRole("dialog", { name: item.name });
+          for (const g of item.groups.filter((g) => g.min > 0)) {
+            await sheet.getByText(g.options[0].name, { exact: true }).first().click();
+          }
+          await sheet.getByRole("button", { name: /^Adicionar/ }).click();
+          await sheet.waitFor({ state: "detached" });
+        }
       }
       await page.getByRole("button", { name: /Ver pedido/ }).click();
       await page.getByRole("dialog").waitFor();

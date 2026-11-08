@@ -119,6 +119,10 @@ describe("cartSampleItems", () => {
     expect(cartSampleItems(one).map((i) => i.id)).toEqual(["a", "c", "d"]);
   });
 
+  it("with options allowed, takes the first priced item of each section", () => {
+    expect(cartSampleItems(big, 3, { withOptions: true }).map((i) => i.id)).toEqual(["a2", "b1", "c1"]);
+  });
+
   it("returns nothing when no item can go straight to the cart", () => {
     const none: Menu = { v: 1, sections: [{ id: "s1", title: "X", items: [item("a", null), item("b", 200, true)] }] };
     expect(cartSampleItems(none)).toEqual([]);

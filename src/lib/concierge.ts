@@ -91,8 +91,16 @@ export function courtesyDateBR(d: Date): string {
 // Items for the DM's cart image (2026-11-08): a real-looking order of up to
 // `n` items, one per section first, then more from the start of the menu.
 // Only priced items without option groups, whose "+" adds them at once.
-export function cartSampleItems(menu: Menu, n = 3): Menu["sections"][number]["items"] {
-  const direct = (i: Menu["sections"][number]["items"][number]) => i.priceCents != null && !i.groups?.length;
+// With `withOptions`, items with option groups count too (the script picks
+// the first option of each required group in the item's sheet), so a menu
+// where every sandwich has a size still shows a sandwich in the cart.
+export function cartSampleItems(
+  menu: Menu,
+  n = 3,
+  { withOptions = false }: { withOptions?: boolean } = {},
+): Menu["sections"][number]["items"] {
+  const direct = (i: Menu["sections"][number]["items"][number]) =>
+    i.priceCents != null && (withOptions || !i.groups?.length);
   const picked: Menu["sections"][number]["items"] = [];
   for (const s of menu.sections) {
     const first = s.items.find(direct);
