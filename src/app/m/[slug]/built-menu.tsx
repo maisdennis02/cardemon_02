@@ -173,10 +173,10 @@ export function BuiltMenuHeader({ name, theme, info }: { name: string; theme: Me
               className="absolute -inset-x-16 -top-10 flex -rotate-[8deg] flex-col gap-0.5 whitespace-nowrap text-[34px] uppercase leading-none"
               style={{ fontFamily: "var(--font-menu-poster), Impact, sans-serif", color: poster ? `${accent}40` : "rgba(0,0,0,.13)" }}
             >
+              {/* Drawn by the stylesheet from data-text, so the page's text
+                  carries the name once, not once per repeat (2026-11-08). */}
               {Array.from({ length: TEXTURE_LINES }, (_, i) => (
-                <div key={i} style={i % 2 ? { marginLeft: "-5rem" } : undefined}>
-                  {line}
-                </div>
+                <div key={i} data-text={line} style={i % 2 ? { marginLeft: "-5rem" } : undefined} />
               ))}
             </div>
           </div>

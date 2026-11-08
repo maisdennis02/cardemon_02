@@ -385,6 +385,17 @@ describe("visual of 2026-11-06", () => {
     expect((texture.match(/Tony&#x27;s Lanches/g) ?? []).length).toBeGreaterThanOrEqual(3);
   });
 
+  // 2026-11-08: the name lives in an attribute the stylesheet draws, so the
+  // page's text says the restaurant's name once, not ~28 times (SEO noise).
+  it("keeps the texture out of the page's text", () => {
+    const html = render({ headerStyle: "band" });
+    const texture = html.match(/<div[^>]*class="menu-texture[^"]*"[^>]*>[\s\S]*?<\/div><\/div>/)?.[0] ?? "";
+    expect(texture).not.toMatch(/>[^<]*Tony/);
+    expect(texture).toMatch(/data-text="[^"]*Tony&#x27;s Lanches/);
+    const css = readFileSync(join(__dirname, "built-menu.css"), "utf8");
+    expect(css).toMatch(/\.menu-texture \[data-text\]::before\s*\{\s*content:\s*attr\(data-text\)/);
+  });
+
   it("draws no texture on the simple header", () => {
     expect(render({ headerStyle: "centered" })).not.toContain("menu-texture");
   });
@@ -450,7 +461,7 @@ describe("visual of 2026-11-06, review fixes", () => {
 
   it("repeats a short name enough to fill the band", () => {
     const html = renderWith({ headerStyle: "band" }, twoSections, "Nil's");
-    const firstLine = html.match(/class="menu-texture[\s\S]*?<div[^>]*><div[^>]*>([^<]*)</)?.[1] ?? "";
+    const firstLine = html.match(/class="menu-texture[\s\S]*?data-text="([^"]*)"/)?.[1] ?? "";
     expect((firstLine.match(/Nil&#x27;s/g) ?? []).length).toBeGreaterThanOrEqual(12);
   });
 
