@@ -13,7 +13,7 @@ import { fromPrice } from "@/lib/menu-options";
 
 // The <li> itself; the ordering list needs its own <li> (a button plus the
 // quantity control inside), so the card look is a class it can reuse.
-export const MENU_ITEM_CARD_CLASS = "menu-row px-4 pb-3 pt-3";
+export const MENU_ITEM_CARD_CLASS = "menu-row px-4 py-2";
 
 // What a card shows as the price of an item: with option groups, the price of
 // the cheapest valid choice ("a partir de" when a required group can change it).

@@ -160,7 +160,7 @@ describe("an item already in the order", () => {
     expect(li).toContain(">+<");
     // The control sits on the price line, inside the card's padding, with
     // room between the buttons and the number.
-    expect(li).toMatch(/class="absolute bottom-3 right-4"/);
+    expect(li).toMatch(/class="absolute bottom-2 right-4"/);
     expect(li).toMatch(/class="flex items-center justify-end gap-4"/);
     // And the price line keeps its width clear of the control.
     expect(li).toMatch(/w-\[7\.5rem\]/);
@@ -243,7 +243,7 @@ describe("item photos (2026-10-25)", () => {
     const li = listItem(renderOrdering(withPhotos), 1);
     expect(li).toContain('aria-haspopup="dialog"');
     // The "+" is its own button now, in the spot the ± control takes.
-    expect(li).toMatch(/<button[^>]*aria-label="Add Batata frita to the order"[^>]*class="absolute [^"]*bottom-3 right-4/);
+    expect(li).toMatch(/<button[^>]*aria-label="Add Batata frita to the order"[^>]*class="absolute [^"]*bottom-2 right-4/);
     // 2026-11-08 (review of PR #9): the price line keeps one height whether
     // the item is in the order or not, so adding never moves the list.
     expect(li).toContain("min-h-[2em]");
