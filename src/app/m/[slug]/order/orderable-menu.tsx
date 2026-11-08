@@ -172,9 +172,7 @@ export function OrderableItem({
         aria-haspopup="dialog"
         aria-label={format(o.open, { name: item.name })}
         onClick={() => setOpen(true)}
-        // Without a photo the "+" (or ±) sits at the card's middle height on
-        // the right (2026-11-07); the text keeps clear of it.
-        className={`block w-full text-left ${photo ? "" : qty > 0 && !grouped ? "pr-[8.5rem]" : "pr-12"}`}
+        className="block w-full text-left"
       >
         <MenuItemBody
           name={item.name}
@@ -183,6 +181,14 @@ export function OrderableItem({
           fromTemplate={o.fromPrice}
           country={country}
           photo={item.photo}
+          trailing={
+            qty > 0 && !photo && !grouped ? (
+              // Holds the ± control's width so the price line stays clear of it.
+              <span aria-hidden className="h-8 w-[7.5rem] shrink-0" />
+            ) : photo ? undefined : (
+              <span aria-hidden className="size-8 shrink-0" />
+            )
+          }
         />
       </button>
       {grouped && qty > 0 && (
@@ -191,10 +197,10 @@ export function OrderableItem({
         </p>
       )}
       {qty > 0 && !grouped ? (
-        // At the card's middle height, inside its padding (px-4). Next to a
-        // photo the text column is too narrow for price plus ± on a 360 px
-        // phone, so there it takes a row of its own under the card.
-        <div className={photo ? "mt-2 flex justify-end" : "absolute right-4 top-1/2 -translate-y-1/2"}>
+        // Sits on the price line, inside the card's padding (px-4 pb-3). Next
+        // to a photo the text column is too narrow for price plus ± on a
+        // 360 px phone, so there it takes a row of its own under the card.
+        <div className={photo ? "mt-2 flex justify-end" : "absolute bottom-3 right-4"}>
           <QtyControl
             qty={qty}
             accent={controlColor}
@@ -212,7 +218,7 @@ export function OrderableItem({
           onClick={grouped ? () => setOpen(true) : () => onAdd([], 1)}
           aria-haspopup={grouped ? "dialog" : undefined}
           className={`absolute flex items-center justify-center rounded-full text-lg font-bold menu-add ${
-            photo ? "right-3 top-[4.875rem] size-9 bg-white shadow-md" : "right-4 top-1/2 -translate-y-1/2 size-8"
+            photo ? "right-3 top-[4.875rem] size-9 bg-white shadow-md" : "bottom-3 right-4 size-8"
           }`}
           style={photo ? { color: accent } : { background: controlColor, color: textOn(controlColor) }}
         >

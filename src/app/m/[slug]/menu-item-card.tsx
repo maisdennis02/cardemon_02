@@ -131,9 +131,10 @@ export function MenuItemBody({
         </span>
       ))}
       {(price !== null || trailing) && (
-        // The row is as tall as the control it holds; without one, the price
-        // sits right under the name, read as one thing (2026-11-07).
-        <span className={`flex items-center justify-between gap-3 ${trailing ? "mt-[0.4em] min-h-[2em]" : "mt-[0.15em]"}`}>
+        // The price sits right under the name, read as one thing (2026-11-07);
+        // with a control ("+" or ±) the row is as tall as the control, the
+        // same before and after adding, so the list never jumps (2026-11-08).
+        <span className={`flex items-center justify-between gap-3 mt-[0.15em] ${trailing ? "min-h-[2em]" : ""}`}>
           <span className={price !== null ? "menu-price font-medium tabular-nums" : undefined}>{price}</span>
           {trailing}
         </span>
