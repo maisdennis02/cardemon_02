@@ -4,7 +4,7 @@ import { PrismaClient } from "@/generated/prisma/client";
 import { PrismaPg } from "@prisma/adapter-pg";
 import { parse as parseDotenv } from "dotenv";
 import { chromium } from "playwright-core";
-import { ConciergeFileSchema } from "@/lib/concierge";
+import { ConciergeFileSchema, cartSampleItems } from "@/lib/concierge";
 import { previewDatabaseUrl } from "@/lib/concierge-env";
 import { DEFAULT_MENU_THEME } from "@/lib/menu";
 
@@ -104,12 +104,15 @@ async function main() {
     await page.screenshot({ path: join(outDir, "cardapio-topo.png") });
     await page.screenshot({ path: join(outDir, "cardapio.png"), fullPage: true });
 
-    // First priced item without option groups: "+" adds it straight away.
-    const item = menu.sections.flatMap((s) => s.items).find((i) => i.priceCents != null && !i.groups?.length);
-    if (!item) {
+    // A real-looking order: up to 3 priced items without option groups (their
+    // "+" adds them straight away), one per section first.
+    const items = cartSampleItems(menu);
+    if (!items.length) {
       console.log("nenhum item com preço e sem opções: pulei a imagem do carrinho.");
     } else {
-      await page.getByRole("button", { name: `Adicionar ${item.name} ao pedido` }).click();
+      for (const item of items) {
+        await page.getByRole("button", { name: `Adicionar ${item.name} ao pedido` }).click();
+      }
       await page.getByRole("button", { name: /Ver pedido/ }).click();
       await page.getByRole("dialog").waitFor();
       await page.waitForTimeout(500);
