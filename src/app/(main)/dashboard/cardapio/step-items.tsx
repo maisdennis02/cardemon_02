@@ -27,6 +27,7 @@ import {
 import { MicButton } from "@/components/voice/mic-button";
 import { speechLang } from "@/lib/speech";
 import { ItemEditor } from "./item-editor";
+import type { GroupTitles } from "./option-groups-editor";
 import { PasteList } from "./paste-list";
 import { SampleItems } from "./sample-items";
 
@@ -52,6 +53,7 @@ export function StepItems({
   isPro,
   country,
   sectionSuggestions,
+  groupTitles,
   onLeaveToPhotos,
 }: {
   restaurantId: string;
@@ -60,6 +62,7 @@ export function StepItems({
   isPro: boolean;
   country: string;
   sectionSuggestions: Record<Locale, string[]>;
+  groupTitles: Record<Locale, GroupTitles>;
   // Saves what is pending before navigating, like the builder's Painel link.
   onLeaveToPhotos: () => void;
 }) {
@@ -89,6 +92,7 @@ export function StepItems({
   const suggestions = sectionSuggestions[localeForCountry(country)].filter((s) => !used.has(s.toLowerCase()));
   // Samples follow the menu's language (the country), like the suggestions.
   const sample = sampleMenu(localeForCountry(country));
+  const defaultGroupTitles = groupTitles[localeForCountry(country)];
 
   function adopt(itemId: string) {
     const { menu: next, newItemId } = adoptSample(menu, sample, itemId);
@@ -170,6 +174,7 @@ export function StepItems({
           focusAdd={focusSectionId === section.id}
           lang={lang}
           country={country}
+          defaultGroupTitles={defaultGroupTitles}
           visibleIds={visibleIds}
           restaurantId={restaurantId}
           isPro={isPro}
@@ -267,6 +272,7 @@ function SectionBlock({
   focusAdd,
   lang,
   country,
+  defaultGroupTitles,
   visibleIds,
   restaurantId,
   isPro,
@@ -289,6 +295,7 @@ function SectionBlock({
   focusAdd: boolean;
   lang: string;
   country: string;
+  defaultGroupTitles: GroupTitles;
   visibleIds: Set<string>;
   restaurantId: string;
   isPro: boolean;
@@ -349,9 +356,14 @@ function SectionBlock({
                     onRemove={() => onItemRemove(item.id)}
                     onDone={() => setEditingId(null)}
                     lang={lang}
+                    defaultGroupTitles={defaultGroupTitles}
                     restaurantId={restaurantId}
                     isPro={isPro}
                     photoCount={photoCount}
+                    otherItems={sections
+                      .flatMap((sec) => sec.items)
+                      .filter((i) => i.id !== item.id && i.groups?.length)
+                      .map((i) => ({ id: i.id, name: i.name, groups: i.groups ?? [] }))}
                   />
                 </li>
               );
@@ -372,6 +384,13 @@ function SectionBlock({
                   )}
                   <span className="flex-1">
                     <span className="font-medium">{item.name}</span>
+                    {item.groups && item.groups.length > 0 && (
+                      <span className="block text-xs text-gray-500">
+                        {item.groups.length === 1
+                          ? t.dashboard.builder.editor.groupsTagOne
+                          : format(t.dashboard.builder.editor.groupsTag, { n: item.groups.length })}
+                      </span>
+                    )}
                     {!visible && <span className="block text-xs text-amber-700">{it.overLimit}</span>}
                   </span>
                   {item.priceCents === null ? (

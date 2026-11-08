@@ -104,6 +104,7 @@ export function updateItem(menu: Menu, itemId: string, patch: Partial<Omit<MenuI
   const section = menu.sections[at.s];
   const updated: MenuItem = { ...section.items[at.i], ...patch };
   if (!updated.description?.trim()) delete updated.description;
+  if (updated.groups === undefined) delete updated.groups;
   return withSection(menu, at.s, { ...section, items: section.items.map((it, i) => (i === at.i ? updated : it)) });
 }
 

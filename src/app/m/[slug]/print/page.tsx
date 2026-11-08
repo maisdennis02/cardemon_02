@@ -1,7 +1,7 @@
 import { notFound } from "next/navigation";
 import { getDictionary } from "@/i18n";
 import { localeForCountry } from "@/i18n/config";
-import { printableMenu, readMenuTheme } from "@/lib/menu";
+import { printableMenu, readExampleMenuTheme, readMenuTheme } from "@/lib/menu";
 import { isPro } from "@/lib/pricing";
 import { NOINDEX } from "@/lib/seo";
 import { getRestaurant } from "../data";
@@ -47,10 +47,10 @@ export default async function PrintMenuPage({ params }: { params: Promise<{ slug
       slug={slug}
       name={restaurant.name}
       country={restaurant.country}
-      theme={readMenuTheme(restaurant.menuTheme)}
+      theme={(restaurant.example ? readExampleMenuTheme : readMenuTheme)(restaurant.menuTheme)}
       menu={menu}
       hasWhatsapp={!!restaurant.whatsappNumber}
-      labels={t.menu.print}
+      labels={{ ...t.menu.print, fromPrice: t.menu.order.fromPrice }}
     />
   );
 }

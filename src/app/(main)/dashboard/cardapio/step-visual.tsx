@@ -6,7 +6,15 @@ import { useT } from "@/i18n/provider";
 import { format } from "@/i18n/config";
 import { capture } from "@/lib/posthog";
 import { SUPPORTED_COUNTRIES } from "@/lib/delivery-apps";
-import { MENU_BACKGROUNDS, MENU_FONTS, menuFontFamilies, type MenuTheme } from "@/lib/menu";
+import {
+  MENU_BACKGROUNDS,
+  MENU_FONTS,
+  MENU_STYLES,
+  POSTER_BG,
+  menuFontFamilies,
+  type MenuStyle,
+  type MenuTheme,
+} from "@/lib/menu";
 import { menuBackgroundStyle } from "@/lib/menu-background";
 import { pickLogoColors, swatchesFor } from "@/lib/menu-colors";
 import { BuiltMenuHeader } from "@/app/m/[slug]/built-menu";
@@ -75,9 +83,32 @@ export function StepVisual({
   }
 
   const swatches = swatchesFor(logoColors, showPalettes);
+  const style = theme.style ?? "light";
 
   return (
     <div className="flex flex-col gap-5">
+      <section className="card flex flex-col gap-3 p-5">
+        <div className="label">
+          {v.style}
+          <div className="grid grid-cols-2 gap-3">
+            {MENU_STYLES.map((s) => (
+              <button
+                key={s}
+                type="button"
+                aria-pressed={style === s}
+                onClick={() => onTheme({ ...theme, style: s })}
+                className={`flex flex-col items-center gap-2 rounded-xl border-2 p-3 text-sm font-semibold ${
+                  style === s ? "border-[color:var(--color-brand)]" : "border-gray-200"
+                }`}
+              >
+                <StyleThumb style={s} color={theme.color} />
+                {v.styles[s]}
+              </button>
+            ))}
+          </div>
+        </div>
+      </section>
+
       <section className="card flex flex-col gap-5 p-5">
         <label className="label">
           {v.country}
@@ -202,44 +233,75 @@ export function StepVisual({
         </div>
       </section>
 
-      <section className="card flex flex-col gap-3 p-5">
-        <div className="label">
-          {v.background}
-          <div className="grid grid-cols-3 gap-3">
-            {MENU_BACKGROUNDS.map((background) => {
-              const selected = (theme.background ?? "plain") === background;
-              return (
-                <button
-                  key={background}
-                  type="button"
-                  aria-pressed={selected}
-                  onClick={() => onTheme({ ...theme, background })}
-                  className={`flex flex-col items-center gap-2 rounded-xl border-2 p-2 text-xs font-semibold ${
-                    selected ? "border-[color:var(--color-brand)]" : "border-gray-200"
-                  }`}
-                >
-                  <span
-                    aria-hidden
-                    className="h-14 w-full rounded-lg border border-gray-100"
-                    style={menuBackgroundStyle(background, theme.color)}
-                  />
-                  {v.backgrounds[background]}
-                </button>
-              );
-            })}
+      {style === "light" && (
+        <section className="card flex flex-col gap-3 p-5">
+          <div className="label">
+            {v.background}
+            <div className="grid grid-cols-3 gap-3">
+              {MENU_BACKGROUNDS.map((background) => {
+                const selected = (theme.background ?? "plain") === background;
+                return (
+                  <button
+                    key={background}
+                    type="button"
+                    aria-pressed={selected}
+                    onClick={() => onTheme({ ...theme, background })}
+                    className={`flex flex-col items-center gap-2 rounded-xl border-2 p-2 text-xs font-semibold ${
+                      selected ? "border-[color:var(--color-brand)]" : "border-gray-200"
+                    }`}
+                  >
+                    <span
+                      aria-hidden
+                      className="h-14 w-full rounded-lg border border-gray-100"
+                      style={menuBackgroundStyle(background, theme.color)}
+                    />
+                    {v.backgrounds[background]}
+                  </button>
+                );
+              })}
+            </div>
           </div>
-        </div>
-      </section>
+        </section>
+      )}
 
       <section aria-label={v.headerPreview}>
         <p className="mb-2 text-xs font-semibold uppercase tracking-wide text-gray-500">{v.headerPreview}</p>
         <div
           className="overflow-hidden rounded-2xl border border-gray-200 pb-6"
-          style={menuBackgroundStyle(theme.background, theme.color)}
+          style={
+            style === "poster" ? { backgroundColor: POSTER_BG } : menuBackgroundStyle(theme.background, theme.color)
+          }
         >
           <BuiltMenuHeader name={restaurant.name} theme={theme} />
         </div>
       </section>
+    </div>
+  );
+}
+
+// A tiny menu in each style: light rows on white, or the poster's dark page
+// with a band of the color and white price tags.
+function StyleThumb({ style, color }: { style: MenuStyle; color: string }) {
+  const poster = style === "poster";
+  return (
+    <div
+      aria-hidden
+      className={`flex h-20 w-full flex-col gap-1.5 overflow-hidden rounded-md p-2 ${poster ? "" : "border border-gray-100 bg-white"}`}
+      style={poster ? { background: POSTER_BG } : undefined}
+    >
+      <div className="h-2.5 w-full rounded-sm" style={poster ? { background: color } : { background: "transparent" }}>
+        {!poster && <div className="h-2 w-10 rounded bg-gray-400" />}
+      </div>
+      {[0, 1, 2].map((i) => (
+        <div key={i} className="flex items-center gap-1.5">
+          <div className="h-1.5 w-12 rounded" style={{ background: poster ? color : "#9ca3af" }} />
+          <div className={`h-1.5 w-5 rounded ${poster ? "bg-white" : "bg-gray-300"}`} />
+          <div
+            className="ml-auto size-2.5 rounded-full"
+            style={poster ? { border: `1.5px solid ${color}` } : { background: color }}
+          />
+        </div>
+      ))}
     </div>
   );
 }
@@ -249,7 +311,12 @@ function HeaderThumb({ style, color }: { style: "centered" | "band"; color: stri
     <div className="flex h-14 w-full flex-col items-center overflow-hidden rounded-md bg-gray-50">
       {style === "band" ? (
         <>
-          <div className="h-5 w-full" style={{ background: color }} />
+          <div
+            className="h-5 w-full"
+            style={{
+              background: `repeating-linear-gradient(-8deg, ${color} 0 4px, rgba(0,0,0,.18) 4px 5px)`,
+            }}
+          />
           <div className="-mt-2.5 size-5 rounded-full border-2 border-white bg-gray-300" />
           <div className="mt-1 h-1.5 w-10 rounded bg-gray-400" />
         </>

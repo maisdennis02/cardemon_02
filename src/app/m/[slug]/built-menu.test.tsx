@@ -1,6 +1,9 @@
+import { readFileSync } from "node:fs";
+import { join } from "node:path";
 import { renderToStaticMarkup } from "react-dom/server";
 import { describe, expect, it } from "vitest";
 import en from "@/i18n/dictionaries/en";
+import ptBR from "@/i18n/dictionaries/pt-BR";
 import { DictionaryProvider } from "@/i18n/provider";
 import { menuJsonLd, publicMenu, type Menu, type MenuTheme } from "@/lib/menu";
 import { BuiltMenu } from "./built-menu";
@@ -47,7 +50,7 @@ function renderStatic(menu: Menu): string {
       country="BR"
       theme={theme}
       menu={menu}
-      labels={{ cardapioDigital: "Cardápio Digital", madeBy: "feito por" }}
+      labels={{ cardapioDigital: "Cardápio Digital", madeBy: "feito por", fromPrice: "a partir de {price}" }}
       actions={null}
     />,
   );
@@ -122,7 +125,7 @@ describe("section chips", () => {
           country="BR"
           theme={theme}
           menu={fourSections}
-          labels={{ cardapioDigital: "Cardápio Digital", madeBy: "feito por" }}
+          labels={{ cardapioDigital: "Cardápio Digital", madeBy: "feito por", fromPrice: "a partir de {price}" }}
           actions={null}
           ordering={{ whatsappNumber: "5511999999999", demo: true }}
         />
@@ -192,7 +195,7 @@ describe("item photos (2026-10-25)", () => {
           country="BR"
           theme={theme}
           menu={menu}
-          labels={{ cardapioDigital: "Cardápio Digital", madeBy: "feito por" }}
+          labels={{ cardapioDigital: "Cardápio Digital", madeBy: "feito por", fromPrice: "a partir de {price}" }}
           actions={null}
         />
       </DictionaryProvider>,
@@ -265,3 +268,199 @@ describe("item photos (2026-10-25)", () => {
   });
 });
 
+
+// Option groups (2026-11-02): the card shows the cheapest valid price, the "+"
+// opens the sheet, and the count replaces the ±.
+describe("items with option groups", () => {
+  const opt = (id: string, name: string, priceCents: number) => ({ id, name, priceCents });
+  const sizes = {
+    id: "g1",
+    title: "Tamanho",
+    min: 1,
+    max: 1,
+    options: [opt("s", "Simples", 0), opt("d", "Duplo", 600)],
+  };
+  const extras = { id: "g2", title: "Extras", min: 0, max: 3, options: [opt("b", "Bacon", 300)] };
+  const grouped = (groups: NonNullable<Menu["sections"][number]["items"][number]["groups"]>) => ({
+    ...item("xb", "X-Burguer", 2000),
+    groups,
+  });
+  const plain = (x: Menu["sections"][number]["items"][number], qty = 0) =>
+    renderToStaticMarkup(
+      <DictionaryProvider locale="pt-BR" dictionary={ptBR}>
+        <OrderableItem item={x} qty={qty} country="BR" accent="#c84630" onAdd={() => {}} onQty={() => {}} />
+      </DictionaryProvider>,
+    );
+
+  it("says 'a partir de' only when a required group can change the price", () => {
+    expect(plain(grouped([sizes]))).toContain("a partir de R$");
+    expect(plain(grouped([extras]))).not.toContain("a partir de");
+    expect(plain(grouped([extras]))).toMatch(/R\$\s20,00/);
+  });
+
+  it("uses the from-price on the static page too, plain and with a photo", () => {
+    const photo = { full: "https://x.public.blob.vercel-storage.com/a-full.webp", thumb: "https://x.public.blob.vercel-storage.com/a-thumb.webp" };
+    const menu: Menu = { v: 1, sections: [section("a", "A", [grouped([sizes]), { ...grouped([sizes]), id: "p", photo }])] };
+    const html = renderToStaticMarkup(
+      <DictionaryProvider locale="pt-BR" dictionary={ptBR}>
+        <BuiltMenu
+          slug="x"
+          name="R"
+          country="BR"
+          theme={theme}
+          menu={menu}
+          labels={{ cardapioDigital: "C", madeBy: "m", fromPrice: ptBR.menu.order.fromPrice }}
+          actions={null}
+        />
+      </DictionaryProvider>,
+    );
+    expect(html.match(/a partir de/g)).toHaveLength(2);
+  });
+
+  // Final review #3: read-only menus list the groups as information (spec §2).
+  const staticMenu = (preview: boolean) =>
+    renderToStaticMarkup(
+      <DictionaryProvider locale="pt-BR" dictionary={ptBR}>
+        <BuiltMenu
+          slug="x"
+          name="R"
+          country="BR"
+          theme={theme}
+          menu={{ v: 1, sections: [section("a", "A", [grouped([sizes, extras]), item("agua", "Água", 500)])] }}
+          labels={{ cardapioDigital: "C", madeBy: "m", fromPrice: ptBR.menu.order.fromPrice }}
+          actions={null}
+          preview={preview}
+        />
+      </DictionaryProvider>,
+    ).replace(/&nbsp;|\u00a0/g, " ");
+
+  it("lists the groups on a static page without WhatsApp", () => {
+    const html = staticMenu(false);
+    readsTopToBottom(listItem(html, 0), "X-Burguer", "Tamanho: Simples · Duplo +R$ 6,00", "Extras: Bacon +R$ 3,00", "a partir de R$");
+    expect(listItem(html, 1)).not.toContain(":");
+  });
+
+  it("lists the groups in the dashboard preview too", () => {
+    expect(listItem(staticMenu(true), 0)).toContain("Tamanho: Simples · Duplo +R$ 6,00");
+  });
+
+  it("opens the sheet from the + instead of adding, and counts instead of ±", () => {
+    const html = plain(grouped([sizes]), 3);
+    // The card and the + both open the dialog.
+    expect(html.match(/aria-haspopup="dialog"/g)).toHaveLength(2);
+    expect(html).toContain("3 no pedido");
+    expect(html).not.toContain("−");
+  });
+
+  it("keeps the direct + and ± for items without groups", () => {
+    expect(plain(item("a", "A", 100)).match(/aria-haspopup="dialog"/g)).toHaveLength(1);
+    const html = plain(item("a", "A", 100), 2);
+    expect(html).toContain("−");
+    expect(html).not.toMatch(/>2 no pedido</);
+  });
+});
+
+// 2026-11-06 (plans/2026-11-06-cardapio-visual-novo.md): a compact list, a
+// band that says the restaurant's name, address and hours under the name,
+// and the "poster" style.
+describe("visual of 2026-11-06", () => {
+  const render = (patch: Partial<MenuTheme>, info?: { address: string | null; hours: string | null }) =>
+    renderToStaticMarkup(
+      <BuiltMenu
+        slug="x"
+        name="Tony's Lanches"
+        country="BR"
+        theme={{ ...theme, ...patch }}
+        menu={twoSections}
+        labels={{ cardapioDigital: "Cardápio Digital", madeBy: "feito por", fromPrice: "a partir de {price}" }}
+        actions={null}
+        info={info}
+      />,
+    );
+
+  it("fills the band with the restaurant's name, hidden from screen readers", () => {
+    const html = render({ headerStyle: "band" });
+    const texture = html.match(/<div[^>]*class="menu-texture[^"]*"[^>]*>[\s\S]*?<\/div><\/div>/)?.[0] ?? "";
+    expect(texture).toContain('aria-hidden="true"');
+    expect((texture.match(/Tony&#x27;s Lanches/g) ?? []).length).toBeGreaterThanOrEqual(3);
+  });
+
+  it("draws no texture on the simple header", () => {
+    expect(render({ headerStyle: "centered" })).not.toContain("menu-texture");
+  });
+
+  it("shows the address as a link to the map, and the hours, under the name", () => {
+    const html = render({}, { address: "Rua Maria Scomparim, 261 - Boituva", hours: "Terça a domingo, 18h às 23h30" });
+    expect(html).toMatch(/<a[^>]*href="https:\/\/www\.google\.com\/maps\/search\/\?api=1&amp;query=Rua%20Maria[^"]*"[^>]*target="_blank"/);
+    expect(html).toContain("Terça a domingo, 18h às 23h30");
+    expect(html.indexOf("<h1")).toBeLessThan(html.indexOf("Terça a domingo"));
+  });
+
+  it("shows neither when the restaurant has none", () => {
+    expect(render({}, { address: null, hours: null })).not.toContain("google.com/maps");
+  });
+
+  it("lists each section's items in one panel, with descriptions cut at two lines", () => {
+    const html = render({});
+    expect(html.match(/<ul[^>]*class="[^"]*menu-list/g)).toHaveLength(2);
+    expect(listItem(html, 0)).toMatch(/line-clamp-2[^>]*>Pão, carne, queijo e salada\./);
+  });
+
+  it("poster: a dark page, sections on a band of the color, prices on a tag", () => {
+    const html = render({ style: "poster", color: "#fcc707" });
+    expect(html).toMatch(/class="[^"]*\bmenu-poster\b/);
+    expect(html).toContain("background-color:#141414");
+    expect(html).toMatch(/<h2[^>]*style="[^"]*background:#fcc707;color:#141414/);
+    expect(listItem(html, 0)).toMatch(/class="[^"]*menu-price[^"]*"[^>]*>R\$/);
+  });
+
+  it("light stays light, on the chosen background", () => {
+    const html = render({ style: "light", background: "paper" });
+    expect(html).not.toMatch(/class="[^"]*\bmenu-poster\b/);
+  });
+});
+
+// Review of 2026-11-06: what the poster style and the band must not break.
+describe("visual of 2026-11-06, review fixes", () => {
+  const renderWith = (patch: Partial<MenuTheme>, menu: Menu = twoSections, name = "Tony's Lanches") =>
+    renderToStaticMarkup(
+      <DictionaryProvider locale="en" dictionary={en}>
+        <BuiltMenu
+          slug="x"
+          name={name}
+          country="BR"
+          theme={{ ...theme, ...patch }}
+          menu={menu}
+          labels={{ cardapioDigital: "Cardápio Digital", madeBy: "feito por", fromPrice: "a partir de {price}" }}
+          actions={null}
+          ordering={{ whatsappNumber: "5511999999999" }}
+        />
+      </DictionaryProvider>,
+    );
+
+  it("poster with a dark color draws the + in a color that reads on the dark page", () => {
+    const html = renderWith({ style: "poster", color: "#1f2937" });
+    expect(html).toMatch(/<button[^>]*aria-label="Add X-Burguer to the order"[^>]*style="background:#ffffff;color:#141414"/);
+  });
+
+  it("writes the + in dark text on a light color, white on a dark one", () => {
+    expect(renderWith({ color: "#fcc707" })).toMatch(/aria-label="Add X-Burguer to the order"[^>]*style="background:#fcc707;color:#141414"/);
+    expect(renderWith({ color: "#c84630" })).toMatch(/aria-label="Add X-Burguer to the order"[^>]*style="background:#c84630;color:#ffffff"/);
+  });
+
+  it("repeats a short name enough to fill the band", () => {
+    const html = renderWith({ headerStyle: "band" }, twoSections, "Nil's");
+    const firstLine = html.match(/class="menu-texture[\s\S]*?<div[^>]*><div[^>]*>([^<]*)</)?.[1] ?? "";
+    expect((firstLine.match(/Nil&#x27;s/g) ?? []).length).toBeGreaterThanOrEqual(12);
+  });
+
+  it("gives the stuck section chips the page's own color", () => {
+    expect(renderWith({ style: "poster" }, fourSections)).toMatch(/<nav[^>]*style="background-color:#141414/);
+    expect(renderWith({ background: "plain" }, fourSections)).toMatch(/<nav[^>]*style="background-color:#/);
+  });
+
+  it("keeps the white circle of the + on a photo in the poster style", () => {
+    const css = readFileSync(join(__dirname, "built-menu.css"), "utf8");
+    expect(css).toMatch(/\.menu-poster \.menu-add:not\(\.bg-white\)/);
+  });
+});

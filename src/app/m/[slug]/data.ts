@@ -8,6 +8,8 @@ import { findExampleMenu, type ExampleMenu } from "@/lib/example-menus";
 export type MenuData = {
   name: string;
   description: string | null;
+  address: string | null;
+  hours: string | null;
   country: string | null;
   whatsappNumber: string | null;
   instagramUrl: string | null;
@@ -34,6 +36,8 @@ function exampleAsMenu(example: ExampleMenu): MenuData {
   return {
     name: example.name,
     description: null,
+    address: null,
+    hours: null,
     country: example.country,
     whatsappNumber: null,
     instagramUrl: null,

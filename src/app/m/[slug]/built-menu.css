@@ -18,3 +18,52 @@
 .section-chips::-webkit-scrollbar {
   display: none;
 }
+
+/* "Cartaz" (poster) style, 2026-11-06: the page is near-black (inline style);
+   sections become bands of the restaurant's color, items are rows on the
+   dark page, prices sit on a white tag like on a printed poster. Colors come
+   from --menu-accent and --menu-name, set inline by BuiltMenu. */
+.menu-poster .menu-list {
+  background: transparent;
+  border: 0;
+  border-radius: 0;
+  box-shadow: none;
+}
+.menu-poster .menu-list > :not(:last-child) {
+  border-color: rgb(255 255 255 / 0.08);
+}
+.menu-poster .menu-section-title {
+  margin-inline: -1rem;
+  padding: 0.55rem 1rem 0.45rem;
+  font-family: var(--font-menu-poster), Impact, sans-serif;
+  font-weight: 400;
+  font-size: 1.65rem;
+  letter-spacing: 0.01em;
+}
+.menu-poster .menu-name {
+  color: var(--menu-name);
+  font-weight: 800;
+}
+.menu-poster .menu-desc {
+  color: rgb(255 255 255 / 0.72);
+}
+.menu-poster .menu-price {
+  background: #fff;
+  color: #141414;
+  font-weight: 800;
+  padding: 0.05em 0.45em;
+  border-radius: 3px;
+}
+/* The bare "+" becomes an outline in the item-name color (readable on the
+   dark page even for a dark restaurant color); the "+" on a photo keeps its
+   white circle. */
+.menu-poster .menu-add:not(.bg-white) {
+  background: transparent !important;
+  border: 2px solid var(--menu-name);
+  color: var(--menu-name) !important;
+}
+.menu-poster .section-chips a {
+  background: #1f1f1f;
+  color: #eee;
+  border-color: #3a3a3a !important;
+}

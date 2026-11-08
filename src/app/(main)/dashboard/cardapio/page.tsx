@@ -8,6 +8,8 @@ import { MenuSchema, readMenuTheme } from "@/lib/menu";
 import { menuRev } from "@/lib/menu-photos";
 import { initialBuilderMenu } from "@/lib/menu-edit";
 import { MenuBuilder } from "./menu-builder";
+import type { GroupTitles } from "./option-groups-editor";
+import type { PreviewLabels } from "./step-preview";
 
 export default async function MenuBuilderPage() {
   const session = await auth();
@@ -26,6 +28,20 @@ export default async function MenuBuilderPage() {
   const sectionSuggestions = Object.fromEntries(
     LOCALES.map((l, i) => [l, dictionaries[i].dashboard.builder.sectionSuggestions]),
   ) as Record<Locale, string[]>;
+  // Default option-group titles are menu content too: they follow the country.
+  const groupTitles = Object.fromEntries(
+    LOCALES.map((l, i) => {
+      const e = dictionaries[i].dashboard.builder.editor;
+      return [l, { required: e.defaultRequiredTitle, extras: e.defaultExtrasTitle }];
+    }),
+  ) as Record<Locale, GroupTitles>;
+  // The preview is the public menu, whose labels follow the country.
+  const previewLabels = Object.fromEntries(
+    LOCALES.map((l, i) => {
+      const m = dictionaries[i].menu;
+      return [l, { cardapioDigital: m.cardapioDigital, madeBy: m.madeBy, fromPrice: m.order.fromPrice }];
+    }),
+  ) as Record<Locale, PreviewLabels>;
 
   return (
     <MenuBuilder
@@ -41,6 +57,8 @@ export default async function MenuBuilderPage() {
       hasPublished={restaurant.menuPublished != null}
       isPro={isPro(user)}
       sectionSuggestions={sectionSuggestions}
+      groupTitles={groupTitles}
+      previewLabels={previewLabels}
       defaultCountry={restaurant.country ?? COUNTRY_FOR_LOCALE[locale]}
       hasCountry={restaurant.country != null}
     />

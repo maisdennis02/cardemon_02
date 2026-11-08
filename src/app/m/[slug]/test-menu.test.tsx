@@ -7,7 +7,7 @@ const getRestaurant = vi.hoisted(() => vi.fn());
 vi.mock("./data", () => ({ getRestaurant }));
 vi.mock("next/font/google", () => {
   const font = () => ({ variable: "", className: "" });
-  return { Geist: font, Geist_Mono: font, Encode_Sans_Expanded: font, Playfair_Display: font, Kalam: font };
+  return { Geist: font, Geist_Mono: font, Encode_Sans_Expanded: font, Playfair_Display: font, Kalam: font, Anton: font };
 });
 
 const props = (slug: string) => ({ params: Promise.resolve({ slug }) });

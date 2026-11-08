@@ -25,6 +25,7 @@ import {
 } from "@/lib/delivery-apps";
 import { FREE_IMAGE_LIMIT, PRO_IMAGE_LIMIT, imageLimitFor, isPro } from "@/lib/pricing";
 import { MenuSchema, publishedItemCount, readMenuTheme } from "@/lib/menu";
+import { ADDRESS_MAX, HOURS_MAX, cleanInfoText } from "@/lib/restaurant-info";
 import { photoUrls } from "@/lib/menu-photos";
 import { normalizeWhatsapp } from "@/lib/whatsapp";
 import { parseFeedbackMessage } from "@/lib/feedback";
@@ -66,6 +67,8 @@ const restaurantSchema = z
     name: z.string().min(1).max(120),
     slug: z.string().min(2).max(60).regex(/^[a-z0-9-]+$/),
     description: z.string().max(500).optional(),
+    address: z.string().max(ADDRESS_MAX).nullable(),
+    hours: z.string().max(HOURS_MAX).nullable(),
     whatsappNumber: z
       .string()
       .regex(/^\d{8,15}$/)
@@ -232,6 +235,8 @@ export async function updateRestaurant(_p: ActionState, formData: FormData): Pro
     name: formData.get("name"),
     slug: slugify(String(formData.get("slug") ?? "")),
     description: formData.get("description") || undefined,
+    address: cleanInfoText(formData.get("address") as string | null, ADDRESS_MAX),
+    hours: cleanInfoText(formData.get("hours") as string | null, HOURS_MAX),
     whatsappNumber,
     instagramUrl: formData.get("instagramUrl") || undefined,
     country: formData.get("country") || undefined,
@@ -260,6 +265,8 @@ export async function updateRestaurant(_p: ActionState, formData: FormData): Pro
       name: parsed.data.name,
       slug: parsed.data.slug,
       description: parsed.data.description,
+      address: parsed.data.address,
+      hours: parsed.data.hours,
       whatsappNumber: parsed.data.whatsappNumber || null,
       instagramUrl: parsed.data.instagramUrl || null,
       country: parsed.data.country || null,
