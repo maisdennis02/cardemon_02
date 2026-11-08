@@ -486,4 +486,3 @@ describe("visual of 2026-11-06, review fixes", () => {
     expect(css).toMatch(/\.menu-poster \.menu-add:not\(\.bg-white\)/);
   });
 });
-
