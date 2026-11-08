@@ -165,7 +165,8 @@ export function BuiltMenuHeader({ name, theme, info }: { name: string; theme: Me
   return (
     <header className={band ? "text-center" : "px-6 pt-8 text-center"}>
       {band && (
-        <div className="relative mb-12 h-32" style={{ background: poster ? POSTER_BG : accent }}>
+        // Shorter on light (2026-11-07) so more items fit on the first screen.
+        <div className={`relative mb-12 ${poster ? "h-32" : "h-24"}`} style={{ background: poster ? POSTER_BG : accent }}>
           {/* The band says whose menu this is: the name, repeated and tilted,
               like the lettering behind these places' own posters. */}
           <div className="menu-texture absolute inset-0 overflow-hidden" aria-hidden="true">

@@ -6,7 +6,7 @@ import en from "@/i18n/dictionaries/en";
 import ptBR from "@/i18n/dictionaries/pt-BR";
 import { DictionaryProvider } from "@/i18n/provider";
 import { menuJsonLd, publicMenu, type Menu, type MenuTheme } from "@/lib/menu";
-import { BuiltMenu } from "./built-menu";
+import { BuiltMenu, BuiltMenuHeader } from "./built-menu";
 import { OrderableItem, OrderableMenu } from "./order/orderable-menu";
 
 // The text menu's layout (2026-10-22): each item is a card that reads name,
@@ -158,12 +158,12 @@ describe("an item already in the order", () => {
     expect(li.match(/>2</g)).toHaveLength(1);
     expect(li).toContain("−");
     expect(li).toContain(">+<");
-    // The control sits on the price line, inside the card's padding, with
-    // room between the buttons and the number.
-    expect(li).toMatch(/class="absolute bottom-3 right-4"/);
+    // 2026-11-07: the control sits at the card's middle height, on the right,
+    // with room between the buttons and the number…
+    expect(li).toMatch(/class="absolute right-4 top-1\/2 -translate-y-1\/2"/);
     expect(li).toMatch(/class="flex items-center justify-end gap-4"/);
-    // And the price line keeps its width clear of the control.
-    expect(li).toMatch(/w-\[7\.5rem\]/);
+    // …and the text keeps clear of it.
+    expect(li).toMatch(/<button[^>]*class="[^"]*pr-\[8\.5rem\]/);
   });
 
   it("shows the plain + when it is not in the order", () => {
@@ -239,11 +239,14 @@ describe("item photos (2026-10-25)", () => {
     expect(li).not.toMatch(/<button[^>]*>(?:(?!<\/button>)[\s\S])*<button/);
   });
 
-  it("with ordering on, an item without a photo also opens the sheet and keeps its + on the price line", () => {
+  it("with ordering on, an item without a photo also opens the sheet, its + at the card's middle height", () => {
     const li = listItem(renderOrdering(withPhotos), 1);
     expect(li).toContain('aria-haspopup="dialog"');
-    // The "+" is its own button now, in the spot the ± control takes.
-    expect(li).toMatch(/<button[^>]*aria-label="Add Batata frita to the order"[^>]*class="absolute [^"]*bottom-3 right-4/);
+    // 2026-11-07: the "+" no longer needs a line of its own under the name,
+    // so each row is shorter and more items fit on the first screen.
+    expect(li).toMatch(/<button[^>]*aria-label="Add Batata frita to the order"[^>]*class="absolute [^"]*right-4 top-1\/2 -translate-y-1\/2/);
+    expect(li).toMatch(/<button[^>]*aria-label="See Batata frita"[^>]*class="[^"]*pr-12/);
+    expect(li).not.toContain("min-h-[2em]");
   });
 
   // Review of 2026-10-25: next to a photo the text column is ~186 px on a
@@ -462,5 +465,16 @@ describe("visual of 2026-11-06, review fixes", () => {
   it("keeps the white circle of the + on a photo in the poster style", () => {
     const css = readFileSync(join(__dirname, "built-menu.css"), "utf8");
     expect(css).toMatch(/\.menu-poster \.menu-add:not\(\.bg-white\)/);
+  });
+});
+
+// 2026-11-07: on the light style the band is shorter, so more items fit on
+// the first screen; the poster keeps its tall band.
+describe("band height", () => {
+  const band = (style?: "poster") =>
+    renderToStaticMarkup(<BuiltMenuHeader name="Casa" theme={{ color: "#c8102e", headerStyle: "band", style }} />);
+  it("is 96 px on light and 128 px on the poster", () => {
+    expect(band()).toMatch(/class="relative mb-12 h-24"/);
+    expect(band("poster")).toMatch(/class="relative mb-12 h-32"/);
   });
 });

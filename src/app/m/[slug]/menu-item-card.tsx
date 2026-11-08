@@ -131,7 +131,8 @@ export function MenuItemBody({
         </span>
       ))}
       {(price !== null || trailing) && (
-        <span className="mt-[0.4em] flex min-h-[2em] items-center justify-between gap-3">
+        // The row is as tall as the control it holds, and no taller without one.
+        <span className={`mt-[0.4em] flex items-center justify-between gap-3 ${trailing ? "min-h-[2em]" : ""}`}>
           <span className={price !== null ? "menu-price font-medium tabular-nums" : undefined}>{price}</span>
           {trailing}
         </span>
