@@ -442,6 +442,17 @@ const es: Dictionary = {
       saving: "Actualizando…",
       success: "Tu contraseña fue actualizada.",
     },
+    feedback: {
+      title: "Sugerencias y dudas",
+      lead: "¿Falta algo? ¿Te trabaste en algún paso? Cuéntanos. Leemos todo.",
+      placeholder: "Escribe aquí tu sugerencia o duda…",
+      submit: "Enviar",
+      sending: "Enviando…",
+      success: "Recibido. Te respondemos pronto a tu correo.",
+      errorEmpty: "Escribe el mensaje antes de enviar.",
+      errorTooLong: "El mensaje supera los {max} caracteres. ¿Puedes resumirlo un poco?",
+      errorGeneric: "No pudimos enviarlo ahora. Inténtalo de nuevo en un momento.",
+    },
     dangerZone: {
       title: "Eliminar cuenta",
       description:

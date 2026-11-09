@@ -44,6 +44,7 @@ model User {
   accounts      Account[]
   sessions      Session[]
   restaurants   Restaurant[]
+  feedback      Feedback[]
 
   // The admin funnel reads signups per day over a window; without this the
   // daily ads read sequential-scans the table.
@@ -122,6 +123,7 @@ model Restaurant {
   owner           User        @relation(fields: [ownerId], references: [id], onDelete: Cascade)
   images          MenuImage[]
   views           MenuView[]
+  feedback        Feedback[]
 
   @@index([ownerId])
 }
@@ -149,4 +151,23 @@ model MenuView {
 
   @@index([restaurantId, viewedAt])
   @@index([restaurantId, kind])
+}
+
+// "Sugestões e dúvidas" sent from the dashboard. One row per message; the
+// owner's session reviews read /api/admin/feedback and answer what is pending
+// (answeredAt null). restaurantId is the restaurant at send time, if any.
+model Feedback {
+  id           String      @id @default(cuid())
+  userId       String
+  restaurantId String?
+  message      String
+  locale       String
+  createdAt    DateTime    @default(now())
+  answeredAt   DateTime?
+
+  user         User        @relation(fields: [userId], references: [id], onDelete: Cascade)
+  restaurant   Restaurant? @relation(fields: [restaurantId], references: [id], onDelete: SetNull)
+
+  @@index([createdAt])
+  @@index([answeredAt])
 }

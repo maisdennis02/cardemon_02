@@ -442,6 +442,17 @@ const ptBR: Dictionary = {
       saving: "Atualizando…",
       success: "Sua senha foi atualizada.",
     },
+    feedback: {
+      title: "Sugestões e dúvidas",
+      lead: "Faltou alguma coisa? Travou em algum passo? Conta pra gente. Lemos tudo.",
+      placeholder: "Escreva aqui a sua sugestão ou dúvida…",
+      submit: "Enviar",
+      sending: "Enviando…",
+      success: "Recebemos. Respondemos em breve no seu e-mail.",
+      errorEmpty: "Escreva a mensagem antes de enviar.",
+      errorTooLong: "A mensagem passou de {max} caracteres. Dá pra resumir um pouco?",
+      errorGeneric: "Não conseguimos enviar agora. Tente de novo em instantes.",
+    },
     dangerZone: {
       title: "Excluir conta",
       description:

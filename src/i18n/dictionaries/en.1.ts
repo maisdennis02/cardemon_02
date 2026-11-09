@@ -444,6 +444,17 @@ export const en = {
       saving: "Updating…",
       success: "Your password was updated.",
     },
+    feedback: {
+      title: "Suggestions and questions",
+      lead: "Missing something? Stuck on a step? Tell us. We read everything.",
+      placeholder: "Write your suggestion or question here…",
+      submit: "Send",
+      sending: "Sending…",
+      success: "Got it. We'll reply to your e-mail soon.",
+      errorEmpty: "Write the message before sending.",
+      errorTooLong: "The message is over {max} characters. Could you shorten it a bit?",
+      errorGeneric: "We couldn't send it right now. Please try again in a moment.",
+    },
     dangerZone: {
       title: "Delete account",
       description:

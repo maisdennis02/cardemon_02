@@ -4,6 +4,8 @@ import type { Dictionary, Locale } from "@/i18n";
 import { format } from "@/i18n/config";
 import { FREE_IMAGE_LIMIT, FREE_ITEM_LIMIT } from "@/lib/pricing";
 import { siteUrl } from "@/lib/site";
+import { CONTACT_EMAIL } from "@/lib/seo";
+import { buildFeedbackEmail, type FeedbackRestaurantContext } from "@/lib/feedback";
 
 let cachedClient: Resend | null = null;
 
@@ -17,12 +19,12 @@ function defaultFrom(): string {
   return process.env.EMAIL_FROM || "menulala <no-reply@menulala.com>";
 }
 
-type SendArgs = { to: string; subject: string; html: string };
+type SendArgs = { to: string; subject: string; html: string; replyTo?: string };
 
 // Resolves true when the provider accepted the message (or, in dev without a
 // key, when it was logged). False on a provider error so callers that track
 // "already sent" state don't record a send that never happened.
-async function sendEmail({ to, subject, html }: SendArgs): Promise<boolean> {
+async function sendEmail({ to, subject, html, replyTo }: SendArgs): Promise<boolean> {
   const c = client();
   if (!c) {
     // In production, missing RESEND_API_KEY is a misconfiguration — refuse
@@ -39,7 +41,7 @@ async function sendEmail({ to, subject, html }: SendArgs): Promise<boolean> {
     return true;
   }
 
-  const result = await c.emails.send({ from: defaultFrom(), to, subject, html });
+  const result = await c.emails.send({ from: defaultFrom(), to, subject, html, replyTo });
   if (result.error) {
     // Don't surface raw provider errors to callers; just log so the action
     // can keep its anti-enumeration "always succeeds" contract.
@@ -290,4 +292,20 @@ export async function sendProEndedEmail({
 }): Promise<boolean> {
   const { subject, html } = buildProEndedEmail(args);
   return sendEmail({ to, subject, html });
+}
+
+/**
+ * A restaurant's "sugestão/dúvida" from the dashboard, to our own inbox.
+ * Reply-To is the restaurant, so the owner answers straight from the mail
+ * client. FEEDBACK_EMAIL overrides the public contact address.
+ */
+export async function sendFeedbackEmail(args: {
+  message: string;
+  fromEmail: string;
+  locale: string;
+  restaurant: FeedbackRestaurantContext | null;
+}): Promise<boolean> {
+  const { subject, html, replyTo } = buildFeedbackEmail(args);
+  const to = process.env.FEEDBACK_EMAIL || CONTACT_EMAIL;
+  return sendEmail({ to, subject, html, replyTo });
 }
