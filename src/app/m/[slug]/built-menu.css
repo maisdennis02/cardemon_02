@@ -67,3 +67,10 @@
   color: #eee;
   border-color: #3a3a3a !important;
 }
+
+/* The band's texture: each line is an empty element whose name, repeated,
+   sits in data-text. Generated content is not part of the page's text, so
+   search engines read the restaurant's name once, in the <h1>. */
+.menu-texture [data-text]::before {
+  content: attr(data-text);
+}

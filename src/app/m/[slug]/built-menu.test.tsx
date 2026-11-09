@@ -6,7 +6,7 @@ import en from "@/i18n/dictionaries/en";
 import ptBR from "@/i18n/dictionaries/pt-BR";
 import { DictionaryProvider } from "@/i18n/provider";
 import { menuJsonLd, publicMenu, type Menu, type MenuTheme } from "@/lib/menu";
-import { BuiltMenu } from "./built-menu";
+import { BuiltMenu, BuiltMenuHeader } from "./built-menu";
 import { OrderableItem, OrderableMenu } from "./order/orderable-menu";
 
 // The text menu's layout (2026-10-22): each item is a card that reads name,
@@ -79,6 +79,17 @@ function readsTopToBottom(li: string, ...parts: string[]) {
   expect(positions, `${parts.join(" → ")} in ${li}`).toEqual([...positions].sort((a, b) => a - b));
   expect(positions.every((p) => p >= 0), li).toBe(true);
 }
+
+// 2026-11-08: a long word in the name ("Hamburgueriadobairro") wraps instead
+// of pushing the page sideways on a 360 px phone, poster size included.
+describe("restaurant name", () => {
+  it("breaks long words", () => {
+    const h1 = renderToStaticMarkup(
+      <BuiltMenuHeader name="Hamburgueriadobairro" theme={{ color: "#c8102e", headerStyle: "band", style: "poster" }} />,
+    ).match(/<h1[^>]*>/)?.[0] ?? "";
+    expect(h1).toMatch(/class="[^"]*break-words/);
+  });
+});
 
 describe("item card", () => {
   it("reads name, then description, then price on the static page", () => {
@@ -385,6 +396,17 @@ describe("visual of 2026-11-06", () => {
     expect((texture.match(/Tony&#x27;s Lanches/g) ?? []).length).toBeGreaterThanOrEqual(3);
   });
 
+  // 2026-11-08: the name lives in an attribute the stylesheet draws, so the
+  // page's text says the restaurant's name once, not ~28 times (SEO noise).
+  it("keeps the texture out of the page's text", () => {
+    const html = render({ headerStyle: "band" });
+    const texture = html.match(/<div[^>]*class="menu-texture[^"]*"[^>]*>[\s\S]*?<\/div><\/div>/)?.[0] ?? "";
+    expect(texture).not.toMatch(/>[^<]*Tony/);
+    expect(texture).toMatch(/data-text="[^"]*Tony&#x27;s Lanches/);
+    const css = readFileSync(join(__dirname, "built-menu.css"), "utf8");
+    expect(css).toMatch(/\.menu-texture \[data-text\]::before\s*\{\s*content:\s*attr\(data-text\)/);
+  });
+
   it("draws no texture on the simple header", () => {
     expect(render({ headerStyle: "centered" })).not.toContain("menu-texture");
   });
@@ -450,7 +472,7 @@ describe("visual of 2026-11-06, review fixes", () => {
 
   it("repeats a short name enough to fill the band", () => {
     const html = renderWith({ headerStyle: "band" }, twoSections, "Nil's");
-    const firstLine = html.match(/class="menu-texture[\s\S]*?<div[^>]*><div[^>]*>([^<]*)</)?.[1] ?? "";
+    const firstLine = html.match(/class="menu-texture[\s\S]*?data-text="([^"]*)"/)?.[1] ?? "";
     expect((firstLine.match(/Nil&#x27;s/g) ?? []).length).toBeGreaterThanOrEqual(12);
   });
 
