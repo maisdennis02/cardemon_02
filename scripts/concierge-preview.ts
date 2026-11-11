@@ -4,7 +4,7 @@ import { PrismaClient } from "@/generated/prisma/client";
 import { PrismaPg } from "@prisma/adapter-pg";
 import { parse as parseDotenv } from "dotenv";
 import { chromium } from "playwright-core";
-import { ConciergeFileSchema } from "@/lib/concierge";
+import { ConciergeFileSchema, cartSampleItems } from "@/lib/concierge";
 import { previewDatabaseUrl } from "@/lib/concierge-env";
 import { DEFAULT_MENU_THEME } from "@/lib/menu";
 
@@ -104,12 +104,25 @@ async function main() {
     await page.screenshot({ path: join(outDir, "cardapio-topo.png") });
     await page.screenshot({ path: join(outDir, "cardapio.png"), fullPage: true });
 
-    // First priced item without option groups: "+" adds it straight away.
-    const item = menu.sections.flatMap((s) => s.items).find((i) => i.priceCents != null && !i.groups?.length);
-    if (!item) {
-      console.log("nenhum item com preço e sem opções: pulei a imagem do carrinho.");
+    // A real-looking order: up to 3 priced items without option groups (their
+    // "+" adds them straight away), one per section first.
+    // An item with options opens its sheet: pick the first option of each
+    // required group, then "Adicionar".
+    const items = cartSampleItems(menu, 3, { withOptions: true });
+    if (!items.length) {
+      console.log("nenhum item com preço: pulei a imagem do carrinho.");
     } else {
-      await page.getByRole("button", { name: `Adicionar ${item.name} ao pedido` }).click();
+      for (const item of items) {
+        await page.getByRole("button", { name: `Adicionar ${item.name} ao pedido` }).click();
+        if (item.groups?.length) {
+          const sheet = page.getByRole("dialog", { name: item.name });
+          for (const g of item.groups.filter((g) => g.min > 0)) {
+            await sheet.getByText(g.options[0].name, { exact: true }).first().click();
+          }
+          await sheet.getByRole("button", { name: /^Adicionar/ }).click();
+          await sheet.waitFor({ state: "detached" });
+        }
+      }
       await page.getByRole("button", { name: /Ver pedido/ }).click();
       await page.getByRole("dialog").waitFor();
       await page.waitForTimeout(500);

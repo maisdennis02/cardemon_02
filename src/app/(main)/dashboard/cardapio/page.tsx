@@ -59,6 +59,8 @@ export default async function MenuBuilderPage() {
         slug: restaurant.slug,
         name: restaurant.name,
         hasWhatsapp: Boolean(restaurant.whatsappNumber),
+        address: restaurant.address,
+        hours: restaurant.hours,
       }}
       initialTheme={readMenuTheme(restaurant.menuTheme)}
       initial={initialBuilderMenu(restaurant.menuDraft, restaurant.menuPublished)}
