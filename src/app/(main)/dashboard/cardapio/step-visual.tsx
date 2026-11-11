@@ -272,7 +272,11 @@ export function StepVisual({
             style === "poster" ? { backgroundColor: POSTER_BG } : menuBackgroundStyle(theme.background, theme.color)
           }
         >
-          <BuiltMenuHeader name={restaurant.name} theme={theme} />
+          <BuiltMenuHeader
+            name={restaurant.name}
+            theme={theme}
+            info={{ address: restaurant.address, hours: restaurant.hours }}
+          />
         </div>
       </section>
     </div>

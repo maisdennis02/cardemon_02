@@ -13,7 +13,7 @@ import { fromPrice } from "@/lib/menu-options";
 
 // The <li> itself; the ordering list needs its own <li> (a button plus the
 // quantity control inside), so the card look is a class it can reuse.
-export const MENU_ITEM_CARD_CLASS = "menu-row px-4 pb-3 pt-3";
+export const MENU_ITEM_CARD_CLASS = "menu-row px-4 py-2";
 
 // What a card shows as the price of an item: with option groups, the price of
 // the cheapest valid choice ("a partir de" when a required group can change it).
@@ -131,7 +131,10 @@ export function MenuItemBody({
         </span>
       ))}
       {(price !== null || trailing) && (
-        <span className="mt-[0.4em] flex min-h-[2em] items-center justify-between gap-3">
+        // The price sits right under the name, read as one thing (2026-11-07);
+        // with a control ("+" or ±) the row is as tall as the control, the
+        // same before and after adding, so the list never jumps (2026-11-08).
+        <span className={`flex items-center justify-between gap-3 mt-[0.15em] ${trailing ? "min-h-[2em]" : ""}`}>
           <span className={price !== null ? "menu-price font-medium tabular-nums" : undefined}>{price}</span>
           {trailing}
         </span>

@@ -197,10 +197,10 @@ export function OrderableItem({
         </p>
       )}
       {qty > 0 && !grouped ? (
-        // Sits on the price line, inside the card's padding (px-4 pb-3). Next
+        // Sits on the price line, inside the card's padding (px-4 py-2). Next
         // to a photo the text column is too narrow for price plus ± on a
         // 360 px phone, so there it takes a row of its own under the card.
-        <div className={photo ? "mt-2 flex justify-end" : "absolute bottom-3 right-4"}>
+        <div className={photo ? "mt-2 flex justify-end" : "absolute bottom-2 right-4"}>
           <QtyControl
             qty={qty}
             accent={controlColor}
@@ -218,7 +218,7 @@ export function OrderableItem({
           onClick={grouped ? () => setOpen(true) : () => onAdd([], 1)}
           aria-haspopup={grouped ? "dialog" : undefined}
           className={`absolute flex items-center justify-center rounded-full text-lg font-bold menu-add ${
-            photo ? "right-3 top-[4.875rem] size-9 bg-white shadow-md" : "bottom-3 right-4 size-8"
+            photo ? "right-3 top-[4.625rem] size-9 bg-white shadow-md" : "bottom-2 right-4 size-8"
           }`}
           style={photo ? { color: accent } : { background: controlColor, color: textOn(controlColor) }}
         >
