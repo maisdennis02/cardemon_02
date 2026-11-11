@@ -35,12 +35,14 @@ export function MenuBuilder({
   defaultCountry,
   hasCountry,
   draftRev,
+  conciergeUrl = null,
 }: {
   restaurant: BuilderRestaurant;
   initialTheme: MenuTheme;
   initial: { menu: Menu; draftWasInvalid: boolean };
   // menuRev of the stored draft when the page loaded (menu-photos.ts).
   draftRev: string;
+  conciergeUrl?: string | null;
   hasPublished: boolean;
   isPro: boolean;
   sectionSuggestions: Record<Locale, string[]>;
@@ -237,6 +239,7 @@ export function MenuBuilder({
             sectionSuggestions={sectionSuggestions}
             groupTitles={groupTitles}
             onLeaveToPhotos={() => void leaveTo("/dashboard/fotos")}
+            conciergeUrl={conciergeUrl}
           />
         )}
         {step === "preview" && (

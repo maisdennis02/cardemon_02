@@ -9,10 +9,11 @@ const g = (id: string): OptionGroup => ({
   id, title: id, min: 0, max: 1, options: [{ id: `${id}o`, name: "A", priceCents: 0 }],
 });
 
-function render(menu: Menu): string {
+function render(menu: Menu, conciergeUrl: string | null = null): string {
   return renderToStaticMarkup(
     <DictionaryProvider locale="pt-BR" dictionary={ptBR}>
       <StepItems
+        conciergeUrl={conciergeUrl}
         restaurantId="r1"
         menu={menu}
         setMenu={() => {}}
@@ -43,5 +44,25 @@ describe("StepItems closed row", () => {
     expect(html).toContain("2 grupos");
     expect(html).toContain("1 grupo<");
     expect(html.match(/grupos?</g)).toHaveLength(2);
+  });
+});
+
+describe("StepItems concierge offer", () => {
+  const url = "https://wa.me/5511987654321?text=oi";
+  const empty: Menu = { v: 1, sections: [] };
+  const oneItem: Menu = { v: 1, sections: [{ id: "s1", title: null, items: [{ id: "i1", name: "Pastel", priceCents: 1200 }] }] };
+
+  it("offers to build the menu from a photo while the menu is empty", () => {
+    const html = render(empty, url);
+    expect(html).toContain(ptBR.dashboard.builder.items.conciergeButton);
+    expect(html).toContain(`href="${url.replace("&", "&amp;")}"`);
+  });
+
+  it("drops the offer once there is an item", () => {
+    expect(render(oneItem, url)).not.toContain(ptBR.dashboard.builder.items.conciergeButton);
+  });
+
+  it("stays hidden when no concierge number is configured", () => {
+    expect(render(empty, null)).not.toContain(ptBR.dashboard.builder.items.conciergeButton);
   });
 });
