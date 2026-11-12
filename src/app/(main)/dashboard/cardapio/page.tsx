@@ -2,11 +2,12 @@ import { redirect } from "next/navigation";
 import { auth } from "@/auth";
 import { prisma } from "@/lib/prisma";
 import { getDictionary, getLocale } from "@/i18n";
-import { COUNTRY_FOR_LOCALE, LOCALES, type Locale } from "@/i18n/config";
+import { COUNTRY_FOR_LOCALE, LOCALES, format, type Locale } from "@/i18n/config";
 import { isPro } from "@/lib/pricing";
 import { MenuSchema, readMenuTheme } from "@/lib/menu";
 import { menuRev } from "@/lib/menu-photos";
 import { initialBuilderMenu } from "@/lib/menu-edit";
+import { conciergeWhatsappUrl } from "@/lib/concierge-link";
 import { MenuBuilder } from "./menu-builder";
 import type { GroupTitles } from "./option-groups-editor";
 import type { PreviewLabels } from "./step-preview";
@@ -43,6 +44,14 @@ export default async function MenuBuilderPage() {
     }),
   ) as Record<Locale, PreviewLabels>;
 
+  // "We build it for you": the message to menulala's WhatsApp names the
+  // restaurant and its menu address, so we know which account to fill.
+  const items = dictionaries[LOCALES.indexOf(locale)].dashboard.builder.items;
+  const conciergeUrl = conciergeWhatsappUrl(
+    process.env.CONCIERGE_WHATSAPP,
+    format(items.conciergeMessage, { name: restaurant.name, url: `menulala.com/m/${restaurant.slug}` }),
+  );
+
   return (
     <MenuBuilder
       restaurant={{
@@ -61,6 +70,7 @@ export default async function MenuBuilderPage() {
       sectionSuggestions={sectionSuggestions}
       groupTitles={groupTitles}
       previewLabels={previewLabels}
+      conciergeUrl={conciergeUrl}
       defaultCountry={restaurant.country ?? COUNTRY_FOR_LOCALE[locale]}
       hasCountry={restaurant.country != null}
     />
