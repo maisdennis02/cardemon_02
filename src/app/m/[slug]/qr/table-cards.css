@@ -1,0 +1,105 @@
+/* The table cards sheet (table-cards.tsx): an A4 page of 2 × 3 cards with
+   dotted cut lines. On screen the sheet scales down to the phone's width. */
+@page {
+  size: A4;
+  margin: 0;
+}
+
+.qr-root {
+  min-height: 100vh;
+  background: #f3f4f6;
+  padding: 16px;
+}
+
+.qr-controls {
+  max-width: 210mm;
+  margin: 0 auto 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  align-items: flex-start;
+}
+
+.qr-sheet {
+  width: 210mm;
+  height: 297mm;
+  margin: 0 auto;
+  background: #fff;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  grid-template-rows: repeat(3, 1fr);
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.15);
+  -webkit-print-color-adjust: exact;
+  print-color-adjust: exact;
+}
+
+/* Phones: the A4 sheet is wider than the screen, so it is drawn smaller
+   (zoom keeps the layout, unlike transform, which leaves the old width). */
+@media screen and (max-width: 840px) {
+  .qr-sheet {
+    zoom: calc((100vw - 32px) / 210mm);
+  }
+}
+
+.qr-card {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 2mm;
+  padding: 6mm;
+  border-right: 1px dashed #b0b4bb;
+  border-bottom: 1px dashed #b0b4bb;
+  text-align: center;
+  overflow: hidden;
+}
+
+.qr-card:nth-child(2n) {
+  border-right: none;
+}
+
+.qr-card:nth-last-child(-n + 2) {
+  border-bottom: none;
+}
+
+.qr-card svg {
+  width: 52mm;
+  height: auto;
+}
+
+.qr-card-name {
+  font-size: 18pt;
+  font-weight: 800;
+  line-height: 1.1;
+  max-width: 90mm;
+  overflow-wrap: anywhere;
+}
+
+.qr-card-line {
+  font-size: 11pt;
+  font-weight: 600;
+  color: #101522;
+}
+
+.qr-card-order {
+  font-size: 10pt;
+  font-weight: 700;
+  color: #128c4b;
+}
+
+@media print {
+  .qr-root {
+    padding: 0;
+    background: none;
+    min-height: 0;
+  }
+
+  .qr-controls {
+    display: none;
+  }
+
+  .qr-sheet {
+    box-shadow: none;
+    zoom: 1;
+  }
+}

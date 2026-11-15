@@ -81,8 +81,8 @@ describe("every page is classified", () => {
   // per-language copies under /[locale] are classified by the page they
   // translate; locale-routes.test.tsx checks that set in detail.
   it.each(routes)("%s is public (in the sitemap) or private (noindex)", (route) => {
-    // /m/[slug]/print is a noindex copy of the menu (its own test below).
-    const known = [...PUBLIC_PAGES.map((p) => p.path), ...PRIVATE_PATHS, "/m/[slug]", "/m/[slug]/print"] as string[];
+    // /m/[slug]/print and /m/[slug]/qr are noindex sheets of the menu (their own tests below).
+    const known = [...PUBLIC_PAGES.map((p) => p.path), ...PRIVATE_PATHS, "/m/[slug]", "/m/[slug]/print", "/m/[slug]/qr"] as string[];
     const unprefixed = route.startsWith("/[locale]") ? route.slice("/[locale]".length) || "/" : route;
     // A page nested under a private path (/dashboard/cardapio) inherits its
     // noindex layout, so it counts as private too.
@@ -245,6 +245,13 @@ describe("public menu page /m/[slug]", () => {
     const meta = await metadataOf(await import("./m/[slug]/print/page"), props);
     expect(robotsIndex(meta)).toBe(false);
     expect(meta.title).toBe("Nil's Bar & Restaurante — Cardápio Digital");
+  });
+
+  it("keeps the table QR sheet /m/[slug]/qr out of the index", async () => {
+    state.restaurant = restaurant;
+    const meta = await metadataOf(await import("./m/[slug]/qr/page"), props);
+    expect(robotsIndex(meta)).toBe(false);
+    expect(meta.title).toBe("QR para as mesas — Nil's Bar & Restaurante");
   });
 
   it("returns no metadata for an unknown slug (the page 404s)", async () => {

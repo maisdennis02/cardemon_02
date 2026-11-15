@@ -524,6 +524,13 @@ export const en = {
       png: "PNG",
       svg: "SVG",
       open: "Open",
+      tables: "Print QR codes for your tables",
+      tablesLead: "An A4 sheet with 6 table cards. Cut along the dotted lines.",
+      sheetTitle: "Table QR codes — {name}",
+      sheetPrint: "Print or save as PDF",
+      sheetHelp: "An A4 sheet with 6 cards. Print it, cut along the dotted lines and leave one on each table or at the counter.",
+      cardLine: "Point your camera to see the menu",
+      cardOrder: "Order on WhatsApp",
     },
     stats: {
       title: "Menu views",
