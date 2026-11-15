@@ -21,7 +21,7 @@
 import type { Locale } from "@/i18n/config";
 import type { Menu, MenuTheme } from "@/lib/menu";
 import { LANDING_DEMO } from "@/lib/landing-demo";
-import { FULL_EXAMPLE_MENUS } from "@/lib/example-full-menus";
+import { FULL_EXAMPLE_MENUS, VISIT_DEMO_MENU } from "@/lib/example-full-menus";
 
 export type ExampleMenu = {
   slug: string;
@@ -77,6 +77,15 @@ export const EXAMPLE_MENUS: readonly ExampleMenu[] = [
     locale: "es",
     country: "MX",
     images: pages("cafe-buen-dia"),
+  },
+  // Not on the landing: the owner opens it on his phone at in-person visits.
+  {
+    slug: VISIT_DEMO_MENU.slug,
+    name: VISIT_DEMO_MENU.name,
+    locale: "pt-BR",
+    country: "BR",
+    images: [],
+    built: { menu: VISIT_DEMO_MENU.menu, theme: VISIT_DEMO_MENU.theme },
   },
 ];
 

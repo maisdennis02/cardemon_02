@@ -48,6 +48,93 @@ const theme = (slug: string, color: string, background: MenuTheme["background"])
   logoUrl: `/demo-menus/${slug}/logo.svg`,
 });
 
+// The menu the owner opens on his own phone when he visits a restaurant in
+// person (2026-11-15): a beach kiosk like the places he walks into, filled up
+// to the free plan's limit so it shows everything a free menu can hold. It is
+// an example like the others — labelled, noindex, cart in demo mode — and the
+// landing does not link to it.
+export const VISIT_DEMO_MENU: { slug: string; name: string; menu: Menu; theme: MenuTheme } = {
+  slug: "quiosque-beira-mar",
+  name: "Quiosque Beira-Mar",
+  theme: theme("quiosque-beira-mar", "#0e7490", "doodles"),
+  menu: exampleMenu([
+    [
+      "Porções",
+      [
+        [
+          "Isca de peixe",
+          4490,
+          "Pescada empanada e frita na hora, com limão e molho tártaro.",
+          [
+            group("tamanho", "Tamanho", 1, 1, [["Meia porção (250 g)", 0], ["Porção inteira (500 g)", 2500]]),
+            group("molhos", "Molho extra", 0, 3, [["Tártaro", 300], ["Rosé", 300], ["Pimenta da casa", 200]]),
+          ],
+        ],
+        ["Camarão empanado", 7990, "400 g de camarão crocante, com limão e molho rosé. Serve duas pessoas."],
+        ["Lula à dorê", 6490, "Anéis de lula empanados, macios por dentro, com molho tártaro."],
+        ["Batata frita", 3290, "500 g, sequinha e crocante. Serve três pessoas."],
+        ["Mandioca frita", 2990, "500 g de mandioca cozida e frita, com manteiga de garrafa."],
+      ],
+    ],
+    [
+      "Pratos",
+      [
+        ["Peixe frito inteiro", 11990, "Pescada inteira frita, com arroz, pirão, salada e batata frita. Serve duas pessoas."],
+        ["Moqueca de peixe", 13990, "Cação no leite de coco e dendê, com arroz e pirão. Serve duas pessoas."],
+        ["Camarão alho e óleo", 8990, "Camarão salteado no alho, com arroz e batata frita."],
+        ["Prato feito de peixe", 3990, "Filé de peixe grelhado, arroz, feijão, salada e fritas. Individual."],
+      ],
+    ],
+    [
+      "Lanches e pastéis",
+      [
+        ["X-Salada", 2490, "Hambúrguer de 150 g, queijo, alface, tomate e maionese da casa."],
+        ["X-Bacon", 2890, "Hambúrguer de 150 g, queijo, bacon crocante e maionese da casa."],
+        ["Pastel de camarão", 1690, "Massa fina e bem recheado, frito na hora."],
+        ["Pastel de queijo", 1290, "Muçarela derretida, frito na hora."],
+      ],
+    ],
+    [
+      "Bebidas",
+      [
+        ["Água de coco", 1000, "Coco verde gelado, aberto na hora."],
+        [
+          "Caipirinha",
+          2290,
+          "Copo de 400 ml, com fruta fresca.",
+          [
+            group("fruta", "Fruta", 1, 1, [["Limão", 0], ["Maracujá", 0], ["Morango", 0]]),
+            group("base", "Feita com", 1, 1, [["Cachaça", 0], ["Vodca", 500], ["Saquê", 700]]),
+          ],
+        ],
+        ["Cerveja long neck", 1290, "355 ml, trincando de gelada."],
+        ["Refrigerante lata", 790, "350 ml. Coca-Cola, Guaraná ou Sprite."],
+        [
+          "Suco natural",
+          1290,
+          "Feito na hora. Copo de 400 ml.",
+          [group("sabor", "Sabor", 1, 1, [["Laranja", 0], ["Abacaxi", 0], ["Maracujá", 0]])],
+        ],
+      ],
+    ],
+    [
+      "Sobremesas",
+      [
+        [
+          "Açaí na tigela",
+          1990,
+          "Açaí batido na hora, com banana e granola.",
+          [
+            group("tigela", "Tamanho", 1, 1, [["300 ml", 0], ["500 ml", 800]]),
+            group("extras", "Acrescente", 0, 3, [["Leite condensado", 200], ["Leite em pó", 200], ["Morango", 300]]),
+          ],
+        ],
+        ["Pudim de leite", 1290, "Fatia do pudim da casa, com calda de caramelo."],
+      ],
+    ],
+  ]),
+};
+
 export const FULL_EXAMPLE_MENUS: Record<Locale, { slug: string; menu: Menu; theme: MenuTheme }> = {
   "pt-BR": {
     slug: "seu-restaurante",
