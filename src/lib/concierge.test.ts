@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 import type { Menu } from "./menu";
-import { ConciergeFileSchema, courtesyDateBR, planConciergeFill, type FillTarget } from "./concierge";
+import { ConciergeFileSchema, cartSampleItems, courtesyDateBR, planConciergeFill, type FillTarget } from "./concierge";
 
 // Concierge pilot (spec 2026-11-05): we transcribe a restaurant's menu image
 // and drop it into the draft of the account the restaurant itself created,
@@ -88,5 +88,43 @@ describe("ConciergeFileSchema", () => {
 describe("courtesyDateBR", () => {
   it("formats in São Paulo time, not UTC (a late-evening run must not read a day later)", () => {
     expect(courtesyDateBR(new Date("2027-01-05T02:00:00Z"))).toBe("04/01/2027");
+  });
+});
+
+// 2026-11-08: the DM's cart image shows a real order (a few items from
+// different sections), not a single R$ 4,50 esfiha.
+describe("cartSampleItems", () => {
+  const item = (id: string, priceCents: number | null, groups = false) => ({
+    id,
+    name: id,
+    priceCents,
+    ...(groups && { groups: [{ id: "g", title: "T", min: 1, max: 1, options: [{ id: "o", name: "P", priceCents: 0 }] }] }),
+  });
+  const big: Menu = {
+    v: 1,
+    sections: [
+      { id: "s1", title: "Salgadas", items: [item("a1", null), item("a2", 450), item("a3", 500)] },
+      { id: "s2", title: "Doces", items: [item("b1", 500, true), item("b2", 600)] },
+      { id: "s3", title: "Combos", items: [item("c1", 4000)] },
+      { id: "s4", title: "Bebidas", items: [item("d1", 700)] },
+    ],
+  };
+
+  it("takes the first priced item without options of each section, up to 3", () => {
+    expect(cartSampleItems(big).map((i) => i.id)).toEqual(["a2", "b2", "c1"]);
+  });
+
+  it("fills from the same section when there are fewer sections", () => {
+    const one: Menu = { v: 1, sections: [{ id: "s1", title: "X", items: [item("a", 100), item("b", 200, true), item("c", 300), item("d", 400)] }] };
+    expect(cartSampleItems(one).map((i) => i.id)).toEqual(["a", "c", "d"]);
+  });
+
+  it("with options allowed, takes the first priced item of each section", () => {
+    expect(cartSampleItems(big, 3, { withOptions: true }).map((i) => i.id)).toEqual(["a2", "b1", "c1"]);
+  });
+
+  it("returns nothing when no item can go straight to the cart", () => {
+    const none: Menu = { v: 1, sections: [{ id: "s1", title: "X", items: [item("a", null), item("b", 200, true)] }] };
+    expect(cartSampleItems(none)).toEqual([]);
   });
 });

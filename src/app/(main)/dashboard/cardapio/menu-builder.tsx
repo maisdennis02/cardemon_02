@@ -17,7 +17,15 @@ import { StepPreview, type PreviewLabels } from "./step-preview";
 export type BuilderStep = "visual" | "items" | "preview";
 const STEPS: BuilderStep[] = ["visual", "items", "preview"];
 
-export type BuilderRestaurant = { id: string; slug: string; name: string; hasWhatsapp: boolean };
+// address/hours: shown under the name in the previews, as on the public menu.
+export type BuilderRestaurant = {
+  id: string;
+  slug: string;
+  name: string;
+  hasWhatsapp: boolean;
+  address: string | null;
+  hours: string | null;
+};
 
 // The builder (spec §3). Holds the menu being edited and autosaves it as a
 // draft; country and look are saved when the owner leaves the first step.
@@ -35,12 +43,14 @@ export function MenuBuilder({
   defaultCountry,
   hasCountry,
   draftRev,
+  conciergeUrl = null,
 }: {
   restaurant: BuilderRestaurant;
   initialTheme: MenuTheme;
   initial: { menu: Menu; draftWasInvalid: boolean };
   // menuRev of the stored draft when the page loaded (menu-photos.ts).
   draftRev: string;
+  conciergeUrl?: string | null;
   hasPublished: boolean;
   isPro: boolean;
   sectionSuggestions: Record<Locale, string[]>;
@@ -237,6 +247,7 @@ export function MenuBuilder({
             sectionSuggestions={sectionSuggestions}
             groupTitles={groupTitles}
             onLeaveToPhotos={() => void leaveTo("/dashboard/fotos")}
+            conciergeUrl={conciergeUrl}
           />
         )}
         {step === "preview" && (

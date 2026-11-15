@@ -84,6 +84,7 @@ export function StepPreview({
           menu={shown}
           labels={labels ?? { cardapioDigital: t.menu.cardapioDigital, madeBy: t.menu.madeBy, fromPrice: t.menu.order.fromPrice }}
           actions={null}
+          info={{ address: restaurant.address, hours: restaurant.hours }}
         />
         {hidden > 0 && (
           <p className="border-t border-dashed border-amber-300 bg-amber-50 px-4 py-3 text-center text-sm font-semibold text-amber-800">

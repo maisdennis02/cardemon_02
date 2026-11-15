@@ -55,6 +55,7 @@ export function StepItems({
   sectionSuggestions,
   groupTitles,
   onLeaveToPhotos,
+  conciergeUrl = null,
 }: {
   restaurantId: string;
   menu: Menu;
@@ -65,6 +66,9 @@ export function StepItems({
   groupTitles: Record<Locale, GroupTitles>;
   // Saves what is pending before navigating, like the builder's Painel link.
   onLeaveToPhotos: () => void;
+  // wa.me link to menulala with a ready message (src/lib/concierge-link.ts);
+  // null hides the "we build it for you" offer.
+  conciergeUrl?: string | null;
 }) {
   const t = useT();
   const it = t.dashboard.builder.items;
@@ -162,6 +166,20 @@ export function StepItems({
             }}
           />
           <p className="mt-3 text-sm text-gray-500">{it.empty}</p>
+          {conciergeUrl && (
+            <div className="mt-4 border-t border-gray-100 pt-4">
+              <p className="text-sm text-gray-700">{it.conciergeLead}</p>
+              <a
+                href={conciergeUrl}
+                target="_blank"
+                rel="noopener noreferrer"
+                onClick={() => capture("concierge_requested")}
+                className="btn btn-sm mt-2 inline-flex bg-[#25d366] text-white hover:bg-[#1ebe5a]"
+              >
+                {it.conciergeButton}
+              </a>
+            </div>
+          )}
         </section>
       )}
 
