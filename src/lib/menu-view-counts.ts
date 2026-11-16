@@ -28,6 +28,8 @@ export type MenuEventCount = {
   total: number;
   /** The same, from `since` on. */
   recent: number;
+  /** When the latest human event of this kind happened. */
+  lastAt: Date;
 };
 
 export async function countMenuEvents(
@@ -49,7 +51,8 @@ export async function countMenuEvents(
     )
     SELECT "restaurantId", kind,
       count(*)::int AS total,
-      (count(*) FILTER (WHERE "viewedAt" >= ${since}))::int AS recent
+      (count(*) FILTER (WHERE "viewedAt" >= ${since}))::int AS recent,
+      max("viewedAt") AS "lastAt"
     FROM nearby
     WHERE "restaurantId" = ANY(${restaurantIds})
       AND (SELECT count(DISTINCT r) FROM unnest(restaurants) AS r) < ${BURST_RESTAURANTS}
