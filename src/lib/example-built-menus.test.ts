@@ -2,7 +2,7 @@ import { existsSync } from "node:fs";
 import { describe, expect, it } from "vitest";
 import { MenuSchema, MenuThemeSchema, readExampleMenuTheme, readMenuTheme } from "@/lib/menu";
 import { LANDING_DEMO } from "@/lib/landing-demo";
-import { FULL_EXAMPLE_MENUS } from "@/lib/example-full-menus";
+import { FULL_EXAMPLE_MENUS, VISIT_DEMO_MENU } from "@/lib/example-full-menus";
 import { findExampleMenu, isReservedSlug } from "@/lib/example-menus";
 import { FREE_ITEM_LIMIT } from "@/lib/pricing";
 import en from "@/i18n/dictionaries/en";
@@ -65,6 +65,57 @@ describe.each([
     expect(theme.background).not.toBe("plain");
     // Everything but the logo is an ordinary owner theme.
     expect(MenuThemeSchema.safeParse({ ...built?.theme, logoUrl: undefined }).success).toBe(true);
+  });
+});
+
+// The menu the owner shows on his phone at in-person visits.
+describe("the visit demo, quiosque-beira-mar", () => {
+  const example = findExampleMenu(VISIT_DEMO_MENU.slug);
+  const built = example?.built;
+  const items = built?.menu.sections.flatMap((s) => s.items) ?? [];
+
+  it("is a reserved Portuguese example, served from the code", () => {
+    expect(isReservedSlug("quiosque-beira-mar")).toBe(true);
+    expect(example).toMatchObject({ name: "Quiosque Beira-Mar", locale: "pt-BR", country: "BR", images: [] });
+    expect(built?.menu).toBe(VISIT_DEMO_MENU.menu);
+    expect(MenuSchema.safeParse(built?.menu).success).toBe(true);
+  });
+
+  it("fills the free plan exactly: twenty items, each with a price and a description", () => {
+    expect(items).toHaveLength(FREE_ITEM_LIMIT);
+    expect(built?.menu.sections.length).toBeGreaterThanOrEqual(5);
+    for (const item of items) {
+      expect(item.priceCents, item.name).toBeGreaterThan(0);
+      expect(item.description?.length, item.name).toBeGreaterThan(0);
+    }
+    expect(new Set(items.map((i) => i.id)).size).toBe(items.length);
+    expect(new Set(items.map((i) => i.name)).size).toBe(items.length);
+  });
+
+  it("opens with an item that shows a paid size and extras, and has a drink with two required choices", () => {
+    const first = built?.menu.sections[0].items[0];
+    expect(first?.groups?.some((g) => g.min === 1 && g.max === 1 && g.options.some((o) => o.priceCents > 0))).toBe(true);
+    expect(first?.groups?.some((g) => g.min === 0 && g.max === 3 && g.options.length >= 3)).toBe(true);
+    const drink = items.find((i) => (i.groups?.filter((g) => g.min === 1 && g.max === 1).length ?? 0) >= 2);
+    expect(drink?.name).toBe("Caipirinha");
+    // Option ids are unique within an item (the cart keys on them).
+    for (const item of items) {
+      const ids = item.groups?.flatMap((g) => g.options.map((o) => o.id)) ?? [];
+      expect(new Set(ids).size, item.name).toBe(ids.length);
+    }
+  });
+
+  it("keeps its logo and colour when the page reads the theme", () => {
+    const theme = readExampleMenuTheme(built?.theme);
+    expect(theme).toEqual(built?.theme);
+    expect(theme.logoUrl).toBe("/demo-menus/quiosque-beira-mar/logo.svg");
+    expect(existsSync(`public${theme.logoUrl}`)).toBe(true);
+    expect(MenuThemeSchema.safeParse({ ...built?.theme, logoUrl: undefined }).success).toBe(true);
+  });
+
+  it("is not what the landing links to", () => {
+    expect(ptBR.landing.heroDemoSlug).not.toBe(VISIT_DEMO_MENU.slug);
+    expect(ptBR.landing.demoSlug).not.toBe(VISIT_DEMO_MENU.slug);
   });
 });
 

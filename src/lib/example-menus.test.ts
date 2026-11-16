@@ -36,14 +36,20 @@ describe("the example registry", () => {
       "harbor-taproom",
       "taqueria-la-esquina",
       "cafe-buen-dia",
+      "quiosque-beira-mar",
     ]);
     const photos = EXAMPLE_MENUS.filter((m) => !m.built);
     expect(photos.filter((m) => m.locale === "en")).toHaveLength(2);
     expect(photos.filter((m) => m.locale === "es")).toHaveLength(2);
     expect(photos.filter((m) => m.locale === "pt-BR")).toHaveLength(0);
-    for (const locale of ["pt-BR", "es", "en"]) {
+    for (const locale of ["es", "en"]) {
       expect(EXAMPLE_MENUS.filter((m) => m.built && m.locale === locale)).toHaveLength(1);
     }
+    // Portuguese has two: the landing's example and the one for in-person visits.
+    expect(EXAMPLE_MENUS.filter((m) => m.built && m.locale === "pt-BR").map((m) => m.slug)).toEqual([
+      "seu-restaurante",
+      "quiosque-beira-mar",
+    ]);
   });
 
   it.each(EXAMPLE_MENUS.map((m) => [m.slug, m] as const))("%s resolves, with a valid slug", (slug, menu) => {

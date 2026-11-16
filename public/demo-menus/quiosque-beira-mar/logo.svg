@@ -1,0 +1,15 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 160 160">
+  <rect width="160" height="160" fill="#0e7490"/>
+  <circle cx="80" cy="80" r="66" fill="none" stroke="#fdf3e6" stroke-width="2"/>
+  <circle cx="80" cy="54" r="15" fill="#f6c453"/>
+  <g fill="none" stroke="#f6c453" stroke-width="3" stroke-linecap="round">
+    <path d="M80 28v6M57 37l4 4M103 37l-4 4M50 56h6M110 56h-6"/>
+  </g>
+  <rect x="34" y="62" width="92" height="22" fill="#0e7490"/>
+  <g fill="none" stroke="#fdf3e6" stroke-width="3" stroke-linecap="round">
+    <path d="M40 68q10 -8 20 0t20 0t20 0t20 0"/>
+    <path d="M48 78q8 -7 16 0t16 0t16 0t16 0"/>
+  </g>
+  <text x="80" y="108" text-anchor="middle" font-family="Georgia, 'Times New Roman', serif" font-size="19" font-weight="700" fill="#fdf3e6">Beira-Mar</text>
+  <text x="80" y="124" text-anchor="middle" font-family="Georgia, 'Times New Roman', serif" font-size="9.5" letter-spacing="2.5" fill="#fdf3e6">QUIOSQUE</text>
+</svg>
