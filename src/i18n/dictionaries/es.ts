@@ -522,6 +522,13 @@ const es: Dictionary = {
       png: "PNG",
       svg: "SVG",
       open: "Abrir",
+      tables: "Imprimir QR para las mesas",
+      tablesLead: "Hoja A4 con 6 tarjetas de mesa. Recorta por la línea punteada.",
+      sheetTitle: "QR para las mesas — {name}",
+      sheetPrint: "Imprimir o guardar PDF",
+      sheetHelp: "Hoja A4 con 6 tarjetas. Imprímela, recorta por la línea punteada y deja una en cada mesa o en el mostrador.",
+      cardLine: "Apunta la cámara y mira el menú",
+      cardOrder: "Pide por WhatsApp",
     },
     stats: {
       title: "Vistas del menú",

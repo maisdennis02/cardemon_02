@@ -522,6 +522,13 @@ const ptBR: Dictionary = {
       png: "PNG",
       svg: "SVG",
       open: "Abrir",
+      tables: "Imprimir QR para as mesas",
+      tablesLead: "Folha A4 com 6 cartões de mesa. Recorte na linha pontilhada.",
+      sheetTitle: "QR para as mesas — {name}",
+      sheetPrint: "Imprimir ou salvar PDF",
+      sheetHelp: "Folha A4 com 6 cartões. Imprima, recorte na linha pontilhada e deixe um em cada mesa ou no balcão.",
+      cardLine: "Aponte a câmera e veja o cardápio",
+      cardOrder: "Peça pelo WhatsApp",
     },
     stats: {
       title: "Visualizações do cardápio",

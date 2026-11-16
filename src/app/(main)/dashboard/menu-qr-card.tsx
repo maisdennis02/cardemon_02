@@ -132,6 +132,19 @@ export function MenuQrCard({ slug, name }: { slug: string; name: string }) {
               {qr.open}
             </a>
           </div>
+
+          <div>
+            <a
+              href={`/m/${slug}/qr`}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="btn btn-secondary btn-sm"
+            >
+              <DownloadIcon size={14} />
+              {qr.tables}
+            </a>
+            <p className="mt-1 text-xs text-gray-500">{qr.tablesLead}</p>
+          </div>
         </div>
       </div>
     </section>
