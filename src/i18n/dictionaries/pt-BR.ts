@@ -133,7 +133,7 @@ const ptBR: Dictionary = {
     loginTitle: "Bem-vindo de volta",
     loginLead: "Entre para gerenciar seu cardápio.",
     signupTitle: "Crie sua conta",
-    signupLead: "Grátis para começar. Configure seu cardápio em cinco minutos.",
+    signupLead: "Grátis para começar. Configure seu cardápio em poucos minutos.",
     email: "E-mail",
     emailPlaceholder: "voce@restaurante.com",
     password: "Senha",

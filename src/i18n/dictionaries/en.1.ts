@@ -135,7 +135,7 @@ export const en = {
     loginTitle: "Welcome back",
     loginLead: "Log in to manage your menu.",
     signupTitle: "Create your account",
-    signupLead: "Free to start. Set up your menu in five minutes.",
+    signupLead: "Free to start. Set up your menu in a few minutes.",
     email: "Email",
     emailPlaceholder: "you@restaurant.com",
     password: "Password",
