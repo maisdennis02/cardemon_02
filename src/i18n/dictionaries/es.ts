@@ -133,7 +133,7 @@ const es: Dictionary = {
     loginTitle: "Bienvenido de vuelta",
     loginLead: "Inicia sesión para gestionar tu menú.",
     signupTitle: "Crea tu cuenta",
-    signupLead: "Gratis para empezar. Configura tu menú en cinco minutos.",
+    signupLead: "Gratis para empezar. Configura tu menú en pocos minutos.",
     email: "Correo electrónico",
     emailPlaceholder: "tu@restaurante.com",
     password: "Contraseña",
